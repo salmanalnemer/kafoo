@@ -1,0 +1,165 @@
+:root {
+    color-scheme: light;
+    --kafo-purple: #74429a;
+    --kafo-purple-dark: #5f347f;
+    --kafo-green: #4db748;
+    --kafo-text: #26384d;
+    --kafo-muted: #667085;
+    --kafo-bg: #f6f7fb;
+    --kafo-border: #e8e0ee;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(116, 66, 154, 0.14),
+            transparent 34%
+        ),
+        linear-gradient(180deg, #faf8fc 0%, var(--kafo-bg) 100%);
+    color: var(--kafo-text);
+    font-family: Tajawal, Tahoma, Arial, sans-serif;
+}
+
+.rate-limit-card {
+    width: min(100%, 560px);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--kafo-border);
+    border-radius: 24px;
+    box-shadow: 0 22px 60px rgba(45, 26, 59, 0.13);
+}
+
+.rate-limit-head {
+    padding: 30px 28px 28px;
+    text-align: center;
+    color: #fff;
+    background:
+        linear-gradient(
+            135deg,
+            var(--kafo-purple) 0%,
+            var(--kafo-purple-dark) 100%
+        );
+}
+
+.rate-limit-icon {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 35px;
+}
+
+.rate-limit-head h1 {
+    margin: 0;
+    font-size: clamp(23px, 4vw, 28px);
+    font-weight: 800;
+}
+
+.rate-limit-body {
+    padding: 32px;
+    text-align: center;
+}
+
+.rate-limit-description {
+    margin: 0;
+    color: var(--kafo-muted);
+    font-size: 16px;
+    line-height: 1.95;
+}
+
+.rate-limit-timer {
+    margin: 24px 0;
+    padding: 22px;
+    border: 1px solid #ded0e8;
+    border-radius: 18px;
+    background: #f8f3fb;
+}
+
+.timer-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--kafo-muted);
+    font-size: 14px;
+}
+
+#rateLimitCountdown {
+    display: block;
+    direction: ltr;
+    color: var(--kafo-purple);
+    font-size: clamp(34px, 8vw, 42px);
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.rate-limit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50px;
+    padding: 0 26px;
+    border-radius: 13px;
+    background: var(--kafo-purple);
+    color: #fff;
+    font-weight: 800;
+    text-decoration: none;
+    transition:
+        transform 0.18s ease,
+        background-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.rate-limit-button:hover,
+.rate-limit-button:focus-visible {
+    background: var(--kafo-green);
+    box-shadow: 0 10px 24px rgba(77, 183, 72, 0.24);
+    transform: translateY(-1px);
+}
+
+.rate-limit-button:focus-visible {
+    outline: 3px solid rgba(77, 183, 72, 0.28);
+    outline-offset: 3px;
+}
+
+.rate-limit-note {
+    margin: 18px 0 0;
+    color: var(--kafo-muted);
+    font-size: 13px;
+}
+
+@media (max-width: 520px) {
+    body {
+        padding: 16px;
+    }
+
+    .rate-limit-card {
+        border-radius: 20px;
+    }
+
+    .rate-limit-body {
+        padding: 26px 20px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rate-limit-button {
+        transition: none;
+    }
+}
