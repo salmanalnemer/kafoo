@@ -1,0 +1,96 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.BankAccount>
+
+@{
+    ViewData["Title"] = "الحسابات البنكية";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>التواصل والإعدادات</span>
+        <h1>الحسابات البنكية</h1>
+        <p>إدارة حسابات الجمعية البنكية التي تظهر في الموقع العام.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/BankAccounts" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+        <a class="admin-main-action" href="/Admin/BankAccounts/Create">إضافة حساب بنكي</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="banks-admin-grid">
+    @if (Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <article class="bank-admin-card @(item.IsActive ? "" : "disabled")">
+                <div class="bank-admin-top">
+                    <div class="bank-admin-logo">
+                        @if (!string.IsNullOrWhiteSpace(item.LogoPath))
+                        {
+                            <img src="@item.LogoPath" alt="@item.BankName" />
+                        }
+                        else
+                        {
+                            <strong>@item.BankName.Substring(0, 1)</strong>
+                        }
+                    </div>
+
+                    <div>
+                        <h2>@item.BankName</h2>
+                        <p>@item.AccountName</p>
+                    </div>
+                </div>
+
+                <div class="bank-admin-info">
+                    <span>IBAN</span>
+                    <strong dir="ltr">@item.Iban</strong>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(item.AccountNumber))
+                {
+                    <div class="bank-admin-info">
+                        <span>رقم الحساب</span>
+                        <strong dir="ltr">@item.AccountNumber</strong>
+                    </div>
+                }
+
+                <div class="bank-admin-meta">
+                    <span>الترتيب: @item.DisplayOrder</span>
+                    @if (item.IsActive)
+                    {
+                        <span class="dash-status active">مفعل</span>
+                    }
+                    else
+                    {
+                        <span class="dash-status inactive">غير مفعل</span>
+                    }
+                </div>
+
+                <div class="bank-admin-actions">
+                    <a class="admin-small-btn purple" href="/Admin/BankAccounts/Edit/@item.Id">تعديل</a>
+
+                    <form method="post" action="/Admin/BankAccounts/ToggleStatus/@item.Id">
+                        @Html.AntiForgeryToken()
+                        <button class="admin-small-btn green" type="submit">
+                            @(item.IsActive ? "إخفاء" : "إظهار")
+                        </button>
+                    </form>
+
+                    <form method="post" action="/Admin/BankAccounts/Delete/@item.Id" data-confirm="هل أنت متأكد من حذف الحساب البنكي؟">
+                        @Html.AntiForgeryToken()
+                        <button class="admin-small-btn danger" type="submit">حذف</button>
+                    </form>
+                </div>
+            </article>
+        }
+    }
+    else
+    {
+        <div class="dash-empty">لا توجد حسابات بنكية حتى الآن.</div>
+    }
+</div>

@@ -1,0 +1,89 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.Initiative>
+
+@{
+    ViewData["Title"] = "مبادرات الجمعية";
+}
+
+<section class="ini-public-page">
+    <div class="home-container">
+
+        <div class="ini-public-head">
+            <span>التطوع والتوظيف</span>
+            <h1>مبادرات الجمعية</h1>
+            <p>تعرف على مبادرات الجمعية ومشاريعها المجتمعية لخدمة المستفيدين.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="ini-public-empty">
+                <h3>لا توجد مبادرات حالياً</h3>
+                <p>سيتم عرض مبادرات الجمعية هنا عند إضافتها من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="ini-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="ini-public-card">
+                        <div class="ini-card-image">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <strong>مبادرة</strong>
+                            }
+
+                            @if (item.IsFeatured)
+                            {
+                                <b>مميزة</b>
+                            }
+                        </div>
+
+                        <div class="ini-card-content">
+                            <span>@item.InitiativeType</span>
+                            <h2>@item.Title</h2>
+
+                            <div class="ini-card-meta">
+                                <small>الموقع: @(string.IsNullOrWhiteSpace(item.Location) ? "-" : item.Location)</small>
+                                <small>الفئة المستهدفة: @(string.IsNullOrWhiteSpace(item.TargetGroup) ? "-" : item.TargetGroup)</small>
+                                <small>عدد المستفيدين: @item.BeneficiariesCount.ToString("N0")</small>
+
+                                @if (item.StartDate.HasValue)
+                                {
+                                    <small>تبدأ: @item.StartDate.Value.ToString("yyyy/MM/dd")</small>
+                                }
+
+                                @if (item.EndDate.HasValue)
+                                {
+                                    <small>تنتهي: @item.EndDate.Value.ToString("yyyy/MM/dd")</small>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p>@item.Description</p>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.Objectives))
+                            {
+                                <div class="ini-objectives">
+                                    <strong>أهداف المبادرة:</strong>
+                                    <span>@item.Objectives</span>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.RegistrationUrl))
+                            {
+                                <a href="@item.RegistrationUrl" target="_blank" rel="noopener noreferrer" class="ini-register-btn">المشاركة في المبادرة</a>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

@@ -1,0 +1,30 @@
+﻿@model IEnumerable<DisclosureDocumentItem>
+
+@if (!Model.Any())
+{
+    <div class="portal-empty">لا توجد ملفات منشورة حاليًا.</div>
+}
+else
+{
+    <div class="portal-list">
+        @foreach (var item in Model)
+        {
+            <article>
+                <strong>@item.Title</strong>
+                @if (!string.IsNullOrWhiteSpace(item.Label))
+                {
+                    <small>@item.Label</small>
+                }
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <p>@item.Description</p>
+                }
+                @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                {
+                    <a class="portal-link" href="@item.FilePath" target="_blank" rel="noopener noreferrer">تحميل الملف</a>
+                }
+            </article>
+        }
+    </div>
+}
+

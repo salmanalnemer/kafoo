@@ -1,0 +1,120 @@
+@model DonorContribution
+@{
+    ViewData["Title"] = "تفاصيل المساهمة";
+}
+
+<section class="portal-panel highlight">
+    <div class="portal-panel-head">
+        <div>
+            <h2>@Model.Title</h2>
+            <p>@(Model.ProgramProject?.Title ?? "برنامج غير محدد")</p>
+        </div>
+        <span class="portal-badge">@Model.Status</span>
+    </div>
+
+    <div class="portal-grid stats compact">
+        <article class="portal-stat"><span>إجمالي الدعم</span><strong>@Model.TotalAmount.ToString("N2") ر.س</strong></article>
+        <article class="portal-stat"><span>المصروف</span><strong>@Model.SpentAmount.ToString("N2") ر.س</strong></article>
+        <article class="portal-stat"><span>المتبقي</span><strong>@Model.RemainingAmount.ToString("N2") ر.س</strong></article>
+        <article class="portal-stat"><span>المستفيدون</span><strong>@Model.BeneficiariesCount</strong></article>
+    </div>
+
+    <div class="portal-progress large"><span style="width:@Model.ProgressPercent%"></span></div>
+    <p class="portal-muted">نسبة الإنجاز الحالية: @Model.ProgressPercent%</p>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ImpactSummary))
+    {
+        <div class="portal-impact">@Model.ImpactSummary</div>
+    }
+</section>
+
+@if (Model.HasSurplus && Model.RemainingAmount > 0 && Model.IsSurplusLocked)
+{
+    <section class="portal-panel warning">
+        <h2>يوجد فائض دعم بانتظار موافقتك</h2>
+        <p>قيمة الفائض: <strong>@Model.RemainingAmount.ToString("N2") ر.س</strong>. لا يتم التصرف بالمبلغ إلا بعد موافقتك الإلكترونية.</p>
+        <form method="post" action="/Donor/Contributions/ApproveSurplus/@Model.Id" class="portal-form inline-form">
+            @Html.AntiForgeryToken()
+            <label>اختر الإجراء المناسب</label>
+            <select name="decisionType" required>
+                <option>تحويل الفائض إلى برنامج آخر</option>
+                <option>توجيهه لمستفيدين آخرين ضمن نفس البرنامج</option>
+                <option>الاحتفاظ به لدعم مبادرة مستقبلية</option>
+                <option>التواصل مع الجمعية لاتخاذ الإجراء المناسب</option>
+            </select>
+            <label>ملاحظات اختيارية</label>
+            <textarea name="notes" rows="3"></textarea>
+            <button type="submit">اعتماد الموافقة إلكترونيًا</button>
+        </form>
+    </section>
+}
+
+<section class="portal-grid two">
+    <div class="portal-panel">
+        <h2>مراحل التنفيذ والتحديثات</h2>
+        @if (!Model.Updates.Any())
+        {
+            <div class="portal-empty">لم يتم إضافة تحديثات بعد.</div>
+        }
+        else
+        {
+            <div class="portal-timeline">
+                @foreach (var update in Model.Updates)
+                {
+                    <article>
+                        <strong>@update.Title</strong>
+                        <p>@update.Details</p>
+                        <small>@update.CreatedAt.ToString("yyyy/MM/dd HH:mm")</small>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="portal-panel">
+        <h2>التقارير</h2>
+        @if (!Model.Reports.Any())
+        {
+            <div class="portal-empty">لا توجد تقارير مرفوعة.</div>
+        }
+        else
+        {
+            <div class="portal-list">
+                @foreach (var report in Model.Reports)
+                {
+                    <article>
+                        <strong>@report.Title</strong>
+                        <small>@report.ReportDate.ToString("yyyy/MM/dd") - @report.ReportType</small>
+                        @if (!string.IsNullOrWhiteSpace(report.FilePath))
+                        {
+                            <a class="portal-link" href="@report.FilePath" target="_blank" rel="noopener noreferrer">تحميل التقرير</a>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@if (Model.SurplusDecisions.Any())
+{
+    <section class="portal-panel">
+        <h2>سجل موافقات فائض الدعم</h2>
+        <div class="portal-table-wrap">
+            <table class="portal-table">
+                <thead><tr><th>الإجراء</th><th>المبلغ</th><th>التاريخ</th><th>الحالة</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.SurplusDecisions)
+                    {
+                        <tr>
+                            <td>@item.DecisionType</td>
+                            <td>@item.SurplusAmount.ToString("N2") ر.س</td>
+                            <td>@item.ApprovedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td>@item.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+}

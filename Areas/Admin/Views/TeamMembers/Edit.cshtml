@@ -1,0 +1,92 @@
+﻿@model Kafo.Web.Models.TeamMember
+
+@{
+    ViewData["Title"] = "تعديل عضو فريق";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>فريق العمل</span>
+        <h1>تعديل عضو الفريق</h1>
+        <p>تعديل الصورة والاسم والمسمى الوظيفي وبيانات التواصل.</p>
+    </div>
+
+    <a class="admin-back-link" href="/Admin/TeamMembers">العودة للقائمة</a>
+</div>
+
+<div class="team-admin-layout">
+    <div class="admin-form-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+            <input asp-for="UpdatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+            {
+                <div class="admin-image-preview">
+                    <span>الصورة الحالية</span>
+                    <img src="@Model.ImagePath" alt="@Model.FullName" />
+                </div>
+            }
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="FullName">اسم عضو الفريق</label>
+                    <input asp-for="FullName" />
+                    <span asp-validation-for="FullName"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="JobTitle">المسمى الوظيفي</label>
+                    <input asp-for="JobTitle" />
+                    <span asp-validation-for="JobTitle"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email">البريد الإلكتروني</label>
+                    <input asp-for="Email" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Phone">رقم الجوال</label>
+                    <input asp-for="Phone" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DisplayOrder">الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير الصورة</label>
+                    <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp" />
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Bio">نبذة مختصرة</label>
+                    <textarea asp-for="Bio" rows="5"></textarea>
+                </div>
+
+                <div class="form-check full">
+                    <input asp-for="IsActive" />
+                    <label asp-for="IsActive">مفعل</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="admin-submit-btn" type="submit">حفظ التعديل</button>
+                <a href="/Admin/TeamMembers">إلغاء</a>
+            </div>
+        </form>
+    </div>
+
+    <aside class="team-admin-side-note">
+        <span>معاينة مختصرة</span>
+        <h2>@Model.FullName</h2>
+        <p>@Model.JobTitle</p>
+    </aside>
+</div>

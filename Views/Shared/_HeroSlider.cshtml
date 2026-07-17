@@ -1,0 +1,53 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.Slider>
+
+<section class="kafo-main-slider" aria-label="السلايدر الرئيسي">
+    @if (Model != null && Model.Any())
+    {
+        <div class="kafo-slider-track" id="kafoSlider">
+            @foreach (var slide in Model)
+            {
+                <article class="kafo-slide">
+                    <img src="@slide.ImagePath" alt="@(string.IsNullOrWhiteSpace(slide.Title) ? "سلايدر جمعية كفو" : slide.Title)" />
+
+                    @if (!string.IsNullOrWhiteSpace(slide.Title) ||
+                         !string.IsNullOrWhiteSpace(slide.Description) ||
+                         (!string.IsNullOrWhiteSpace(slide.ButtonText) && !string.IsNullOrWhiteSpace(slide.ButtonUrl)))
+                    {
+                        <div class="kafo-slide-content">
+                            @if (!string.IsNullOrWhiteSpace(slide.Title))
+                            {
+                                <h1>@slide.Title</h1>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(slide.Description))
+                            {
+                                <p>@slide.Description</p>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(slide.ButtonText) && !string.IsNullOrWhiteSpace(slide.ButtonUrl))
+                            {
+                                <a href="@slide.ButtonUrl">@slide.ButtonText</a>
+                            }
+                        </div>
+                    }
+                </article>
+            }
+        </div>
+
+        @if (Model.Count > 1)
+        {
+            <button type="button" class="kafo-arrow kafo-arrow-prev" id="prevSlide" aria-label="السابق">‹</button>
+            <button type="button" class="kafo-arrow kafo-arrow-next" id="nextSlide" aria-label="التالي">›</button>
+        }
+    }
+    else
+    {
+        <article class="kafo-slide fallback-slide">
+            <div class="kafo-slide-content">
+                <h1>مرحباً بكم في جمعية كفو</h1>
+                <p>يمكن إضافة صور السلايدر من لوحة تحكم مدير النظام.</p>
+                <a href="/Admin/Sliders">إدارة السلايدر</a>
+            </div>
+        </article>
+    }
+</section>

@@ -1,0 +1,138 @@
+@model DonorReportsIndexViewModel
+@{
+    ViewData["Title"] = "تقارير الدعم";
+    var printAllUrl = $"/Portal/Donor/Reports/PrintAll?year={Model.SelectedYear}&status={Uri.EscapeDataString(Model.SelectedStatus ?? string.Empty)}";
+}
+
+<section class="support-report-hero">
+    <div>
+        <span class="support-report-kicker">بوابة الداعمين</span>
+        <h2>تقارير الدعم</h2>
+        <p>استعرض تفاصيل جميع مساهماتك، وحمّل تقرير كل دعم بشكل مستقل أو أنشئ تقريرًا شاملًا لجميع مساهماتك.</p>
+    </div>
+    <a class="support-report-primary" href="@printAllUrl" target="_blank" rel="noopener noreferrer">
+        <span>⇩</span>
+        تقرير الدعم الشامل
+    </a>
+</section>
+
+<section class="support-report-stats">
+    <article><span>عدد المساهمات</span><strong>@Model.TotalContributions</strong><small>مساهمة مسجلة</small></article>
+    <article><span>إجمالي الدعم</span><strong>@Model.TotalSupportAmount.ToString("N2")</strong><small>ريال سعودي</small></article>
+    <article><span>المبلغ المصروف</span><strong>@Model.TotalSpentAmount.ToString("N2")</strong><small>ريال سعودي</small></article>
+    <article><span>إجمالي المستفيدين</span><strong>@Model.TotalBeneficiaries</strong><small>مستفيد</small></article>
+</section>
+
+<section class="support-report-filter-panel">
+    <form method="get" action="/Portal/Donor/Reports" class="support-report-filters">
+        <div>
+            <label for="year">السنة</label>
+            <select id="year" name="year">
+                <option value="">جميع السنوات</option>
+                @foreach (var year in Model.AvailableYears)
+                {
+                    if (Model.SelectedYear == year)
+                    {
+                        <option value="@year" selected>@year</option>
+                    }
+                    else
+                    {
+                        <option value="@year">@year</option>
+                    }
+                }
+            </select>
+        </div>
+        <div>
+            <label for="status">حالة الدعم</label>
+            <select id="status" name="status">
+                <option value="">جميع الحالات</option>
+                @foreach (var status in new[] { "قيد التنفيذ", "مكتمل", "متوقف", "بانتظار البدء" })
+                {
+                    if (Model.SelectedStatus == status)
+                    {
+                        <option value="@status" selected>@status</option>
+                    }
+                    else
+                    {
+                        <option value="@status">@status</option>
+                    }
+                }
+            </select>
+        </div>
+        <button type="submit">تطبيق التصفية</button>
+        <a href="/Portal/Donor/Reports">إعادة ضبط</a>
+    </form>
+</section>
+
+<section class="support-report-panel">
+    <div class="support-report-panel-head">
+        <div>
+            <h3>سجل تقارير الدعم</h3>
+            <p>كل بطاقة تمثل مساهمة مستقلة ويمكن طباعة تقريرها أو تحميل الملفات المرتبطة بها.</p>
+        </div>
+        <span>@Model.TotalContributions نتيجة</span>
+    </div>
+
+    @if (!Model.Contributions.Any())
+    {
+        <div class="support-report-empty">
+            <strong>لا توجد مساهمات مطابقة</strong>
+            <p>لم يتم العثور على تقارير دعم ضمن خيارات التصفية الحالية.</p>
+        </div>
+    }
+    else
+    {
+        <div class="support-report-list">
+            @foreach (var item in Model.Contributions)
+            {
+                var contribution = item.Contribution;
+                <article class="support-report-card">
+                    <div class="support-report-card-top">
+                        <div class="support-report-title-wrap">
+                            <span class="support-report-status">@contribution.Status</span>
+                            <div>
+                                <h4>@contribution.Title</h4>
+                                <p>@(contribution.ProgramProject?.Title ?? "برنامج غير محدد")</p>
+                            </div>
+                        </div>
+                        <div class="support-report-amount">
+                            <span>قيمة الدعم</span>
+                            <strong>@contribution.TotalAmount.ToString("N2") ر.س</strong>
+                        </div>
+                    </div>
+
+                    <div class="support-report-meta">
+                        <div><span>رقم المساهمة</span><strong dir="ltr">@(string.IsNullOrWhiteSpace(contribution.ContributionCode) ? $"CONT-{contribution.Id:0000}" : contribution.ContributionCode)</strong></div>
+                        <div><span>تاريخ الدعم</span><strong>@contribution.CreatedAt.ToString("yyyy/MM/dd")</strong></div>
+                        <div><span>نسبة الإنجاز</span><strong>@contribution.ProgressPercent%</strong></div>
+                        <div><span>عدد المستفيدين</span><strong>@contribution.BeneficiariesCount</strong></div>
+                    </div>
+
+                    <div class="support-report-progress"><span style="width:@Math.Clamp(contribution.ProgressPercent, 0, 100)%"></span></div>
+
+                    @if (!string.IsNullOrWhiteSpace(contribution.ImpactSummary))
+                    {
+                        <p class="support-report-impact">@contribution.ImpactSummary</p>
+                    }
+
+                    <div class="support-report-card-actions">
+                        <a class="support-report-view" href="/Portal/Donor/Reports/Print/@contribution.Id" target="_blank" rel="noopener noreferrer">عرض وطباعة التقرير</a>
+                        <a href="/Portal/Donor/Contributions/Details/@contribution.Id">تفاصيل المساهمة</a>
+                        @if (item.Reports.Any(r => !string.IsNullOrWhiteSpace(r.FilePath)))
+                        {
+                            <details class="support-report-files">
+                                <summary>الملفات المرفوعة (@item.Reports.Count(r => !string.IsNullOrWhiteSpace(r.FilePath)))</summary>
+                                <div>
+                                    @foreach (var report in item.Reports.Where(r => !string.IsNullOrWhiteSpace(r.FilePath)))
+                                    {
+                                        <a href="/Portal/Donor/Reports/File/@report.Id">@report.Title <small>@report.ReportDate.ToString("yyyy/MM/dd")</small></a>
+                                    }
+                                </div>
+                            </details>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

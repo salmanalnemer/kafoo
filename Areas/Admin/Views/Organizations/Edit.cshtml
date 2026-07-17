@@ -1,0 +1,5 @@
+@model Kafo.Web.ViewModels.Admin.AdminOrganizationFormViewModel
+@{ ViewData["Title"] = "تعديل بيانات الجهة"; }
+<div class="adm-users-hero"><div><span>الشركات والجهات</span><h1>تعديل بيانات الجهة</h1><p>تحديث الملف التعريفي، بيانات الدخول وحالة الحساب.</p></div><div class="adm-users-actions"><a href="/Admin/Organizations/Details/@Model.Id">رجوع للتفاصيل</a></div></div>
+<div class="adm-users-card" style="padding:22px"><form method="post"><partial name="~/Areas/Admin/Views/Organizations/_Form.cshtml" model="Model" /><div style="margin-top:20px"><button class="org-save" type="submit">حفظ التعديلات</button></div></form></div>
+<style>.org-save{border:0;background:#4db748;color:#fff;padding:12px 22px;border-radius:999px;font-weight:900;font:inherit;cursor:pointer}</style>

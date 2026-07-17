@@ -1,0 +1,129 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.AidReport>
+
+@{
+    ViewData["Title"] = "تقارير المساعدات";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="aid-admin-page">
+
+    <div class="aid-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>تقارير المساعدات</h1>
+            <p>إدارة تقارير المساعدات والمستفيدين والمبالغ المصروفة.</p>
+        </div>
+
+        <div class="aid-admin-actions">
+            <a href="/AidReports" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a class="primary" href="/Admin/AidReports/Create">إضافة تقرير جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="aid-admin-filter">
+        <form method="get" action="/Admin/AidReports">
+            <input name="q" value="@search" placeholder="ابحث بعنوان التقرير أو النوع أو الفترة..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/AidReports">مسح</a>
+        </form>
+    </div>
+
+    <div class="aid-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="aid-admin-empty">
+                <h3>لا توجد تقارير حالياً</h3>
+                <p>ابدأ بإضافة أول تقرير مساعدات من زر إضافة تقرير جديد.</p>
+            </div>
+        }
+        else
+        {
+            <div class="aid-admin-table-wrap">
+                <table class="aid-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الغلاف</th>
+                            <th>عنوان التقرير</th>
+                            <th>النوع</th>
+                            <th>الفترة</th>
+                            <th>المستفيدون</th>
+                            <th>الأسر</th>
+                            <th>إجمالي المساعدات</th>
+                            <th>الملف</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.CoverImagePath))
+                                    {
+                                        <img class="aid-admin-cover" src="@item.CoverImagePath" alt="@item.Title" />
+                                    }
+                                    else
+                                    {
+                                        <div class="aid-admin-no-cover">تقرير</div>
+                                    }
+                                </td>
+
+                                <td class="aid-title-cell">
+                                    <strong>@item.Title</strong>
+                                    <span>@item.Description</span>
+                                </td>
+
+                                <td>@item.ReportType</td>
+                                <td>@item.PeriodLabel</td>
+                                <td>@item.BeneficiariesCount.ToString("N0")</td>
+                                <td>@item.FamiliesCount.ToString("N0")</td>
+                                <td>@item.TotalAmount.ToString("N2") ريال</td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                    {
+                                        <a class="aid-file-link" href="@item.FilePath" target="_blank" rel="noopener noreferrer">فتح الملف</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="aid-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="aid-admin-row-actions">
+                                        <a href="/Admin/AidReports/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/AidReports/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/AidReports/Delete/@item.Id" data-confirm="هل تريد حذف هذا التقرير؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

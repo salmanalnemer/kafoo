@@ -1,0 +1,116 @@
+@model Kafo.Web.Models.SatisfactionResponse
+
+@{
+    ViewData["Title"] = "قياس الرضا";
+}
+
+<section class="sat-public-page">
+    <div class="home-container">
+
+        <div class="sat-public-head">
+            <span>التواصل والإعدادات</span>
+            <h1>قياس الرضا</h1>
+            <p>رأيك يهمنا ويساعدنا على تطوير خدمات الجمعية وتحسين تجربة المستفيدين.</p>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="sat-public-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        <div class="sat-public-card">
+            <form method="post" action="/Satisfaction" class="sat-public-form">
+                @Html.AntiForgeryToken()
+        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+            <label>اترك هذا الحقل فارغًا<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="sat-public-grid">
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input asp-for="FullName" placeholder="اختياري" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>رقم الجوال</label>
+                        <input asp-for="Phone" dir="ltr" placeholder="05xxxxxxxx" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input asp-for="Email" dir="ltr" placeholder="example@email.com" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع المستفيد <b>*</b></label>
+                        <select asp-for="BeneficiaryType">
+                            <option value="مستفيد">مستفيد</option>
+                            <option value="متبرع">متبرع</option>
+                            <option value="متطوع">متطوع</option>
+                            <option value="شريك">شريك</option>
+                            <option value="زائر">زائر</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                        <span asp-validation-for="BeneficiaryType"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الخدمة المقدمة <b>*</b></label>
+                        <input asp-for="ServiceName" placeholder="مثال: خدمة المستفيدين / التبرع / التطوع" />
+                        <span asp-validation-for="ServiceName"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>مستوى الرضا <b>*</b></label>
+                        <select asp-for="SatisfactionLevel">
+                            <option value="راضٍ جداً">راضٍ جداً</option>
+                            <option value="راضٍ">راضٍ</option>
+                            <option value="محايد">محايد</option>
+                            <option value="غير راضٍ">غير راضٍ</option>
+                            <option value="غير راضٍ جداً">غير راضٍ جداً</option>
+                        </select>
+                        <span asp-validation-for="SatisfactionLevel"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>التقييم العام <b>*</b></label>
+                        <div class="sat-rating-options">
+                            <label><input type="radio" asp-for="Rating" value="5" checked /> ممتاز 5</label>
+                            <label><input type="radio" asp-for="Rating" value="4" /> جيد جداً 4</label>
+                            <label><input type="radio" asp-for="Rating" value="3" /> جيد 3</label>
+                            <label><input type="radio" asp-for="Rating" value="2" /> مقبول 2</label>
+                            <label><input type="radio" asp-for="Rating" value="1" /> ضعيف 1</label>
+                        </div>
+                        <span asp-validation-for="Rating"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>ما الذي أعجبك في الخدمة؟</label>
+                        <textarea asp-for="PositiveNotes" rows="4" placeholder="اكتب أبرز النقاط الإيجابية"></textarea>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>ما الذي يحتاج إلى تحسين؟</label>
+                        <textarea asp-for="ImprovementNotes" rows="4" placeholder="اكتب ما ترى أنه يحتاج إلى تحسين"></textarea>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>مقترحات إضافية</label>
+                        <textarea asp-for="Suggestions" rows="5" placeholder="اكتب مقترحاتك أو ملاحظاتك العامة"></textarea>
+                    </div>
+                </div>
+
+                <div class="sat-public-actions">
+                    <button type="submit">إرسال التقييم</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>

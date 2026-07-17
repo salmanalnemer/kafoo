@@ -1,0 +1,73 @@
+@model Kafo.Web.ViewModels.Authentication.OtpVerificationViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "التحقق من تسجيل الدخول";
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>رمز التحقق | لوحة تحكم جمعية كفو</title>
+    <style>
+        :root { --purple:#74429a; --green:#4cb748; --dark:#26384d; --muted:#667085; --border:#e5e7eb; }
+        * { box-sizing:border-box; }
+        body { margin:0; min-height:100vh; padding:24px; display:grid; place-items:center; font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif; color:var(--dark); background:radial-gradient(circle at 15% 10%,rgba(76,183,72,.16),transparent 30%),radial-gradient(circle at 85% 90%,rgba(116,66,154,.16),transparent 32%),linear-gradient(135deg,#fff,#f8fafc); }
+        .otp-card { width:min(470px,100%); padding:34px; background:#fff; border:1px solid var(--border); border-radius:28px; box-shadow:0 28px 70px rgba(16,24,40,.13); text-align:center; }
+        .logo { width:88px; height:88px; margin:0 auto 18px; padding:12px; border:1px solid var(--border); border-radius:24px; display:grid; place-items:center; box-shadow:0 12px 28px rgba(16,24,40,.06); }
+        .logo img { max-width:100%; max-height:100%; object-fit:contain; }
+        h1 { margin:0 0 10px; font-size:28px; font-weight:900; color:var(--purple); }
+        p { margin:0 0 20px; color:var(--muted); line-height:1.9; font-weight:700; }
+        .email { direction:ltr; display:inline-block; color:var(--dark); font-weight:900; }
+        form { display:grid; gap:14px; text-align:right; }
+        label { font-weight:900; }
+        input[type=text] { width:100%; min-height:58px; border:1px solid #d0d5dd; border-radius:16px; padding:0 16px; text-align:center; direction:ltr; letter-spacing:10px; font-size:25px; font-weight:900; outline:none; }
+        input[type=text]:focus { border-color:var(--purple); box-shadow:0 0 0 4px rgba(116,66,154,.10); }
+        button { min-height:52px; border:0; border-radius:999px; background:linear-gradient(135deg,var(--purple),#8a56b0); color:#fff; font:inherit; font-weight:900; cursor:pointer; }
+        button:hover { background:linear-gradient(135deg,var(--green),#3fa33d); }
+        .secondary { background:#f2f4f7; color:var(--dark); border:1px solid var(--border); }
+        .back { display:inline-block; margin-top:16px; color:var(--purple); text-decoration:none; font-weight:900; }
+        .validation-summary-errors,.alert-error { background:#fef3f2; border:1px solid #fecdca; color:#b42318; border-radius:14px; padding:12px 14px; margin-bottom:14px; text-align:right; font-weight:800; }
+        .alert-success { background:#ecfdf3; border:1px solid #abefc6; color:#027a48; border-radius:14px; padding:12px 14px; margin-bottom:14px; font-weight:800; }
+        .field-validation-error { color:#b42318; font-size:13px; font-weight:800; }
+        .expires { font-size:13px; margin-top:-8px; }
+    </style>
+</head>
+<body>
+    <main class="otp-card">
+        <div class="logo"><img src="/images/logo1.png" alt="شعار جمعية كفو" /></div>
+        <h1>أدخل رمز التحقق</h1>
+        <p>أرسلنا رمزًا من 6 أرقام إلى<br /><span class="email">@Model.MaskedEmail</span></p>
+
+        @if (TempData["OtpMessage"] is string otpMessage)
+        {
+            <div class="alert-success">@otpMessage</div>
+        }
+        @if (TempData["OtpError"] is string otpError)
+        {
+            <div class="alert-error">@otpError</div>
+        }
+
+        <form method="post" action="/Admin/VerifyOtp" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ChallengeId" />
+            <div asp-validation-summary="ModelOnly"></div>
+            <label asp-for="Code"></label>
+            <input asp-for="Code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autofocus />
+            <span asp-validation-for="Code"></span>
+            <p class="expires">صلاحية الرمز 10 دقائق، وبحد أقصى 5 محاولات.</p>
+            <button type="submit">تحقق ودخول</button>
+        </form>
+
+        <form method="post" action="/Admin/ResendOtp" style="margin-top:10px">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="challengeId" value="@Model.ChallengeId" />
+            <button type="submit" class="secondary">إعادة إرسال الرمز</button>
+        </form>
+
+        <a class="back" href="/Admin/Login">العودة إلى تسجيل الدخول</a>
+    </main>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

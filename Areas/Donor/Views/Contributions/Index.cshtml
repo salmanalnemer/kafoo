@@ -1,0 +1,52 @@
+@model IEnumerable<DonorContribution>
+@{
+    ViewData["Title"] = "مساهماتي";
+}
+
+<section class="portal-panel">
+    <div class="portal-panel-head">
+        <div>
+            <h2>سجل المساهمات</h2>
+            <p>سجل كامل لجميع مساهماتك ومراحل تنفيذها.</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="portal-empty">لا توجد مساهمات حتى الآن.</div>
+    }
+    else
+    {
+        <div class="portal-table-wrap">
+            <table class="portal-table">
+                <thead>
+                    <tr>
+                        <th>المساهمة</th>
+                        <th>البرنامج</th>
+                        <th>الحالة</th>
+                        <th>نسبة الإنجاز</th>
+                        <th>إجمالي الدعم</th>
+                        <th>المصروف</th>
+                        <th>المتبقي</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.Title</strong></td>
+                            <td>@(item.ProgramProject?.Title ?? "غير مرتبط")</td>
+                            <td><span class="portal-badge">@item.Status</span></td>
+                            <td>@item.ProgressPercent%</td>
+                            <td>@item.TotalAmount.ToString("N2") ر.س</td>
+                            <td>@item.SpentAmount.ToString("N2") ر.س</td>
+                            <td>@item.RemainingAmount.ToString("N2") ر.س</td>
+                            <td><a class="portal-link" href="/Donor/Contributions/Details/@item.Id">عرض</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

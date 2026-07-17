@@ -1,0 +1,78 @@
+@model Kafo.Web.Models.ProgramProject
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="program-details-page">
+    <div class="home-container">
+        <div class="program-details-hero">
+            <div class="program-details-image">
+                @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                {
+                    <img src="@Model.ImagePath" alt="@Model.Title" />
+                }
+                else
+                {
+                    <div class="program-public-placeholder">
+                        <strong>@Model.Category</strong>
+                    </div>
+                }
+            </div>
+
+            <div class="program-details-content">
+                <span>@Model.Category</span>
+                <h1>@Model.Title</h1>
+                <p>@Model.Description</p>
+
+                <div class="program-details-meta">
+                    @if (!string.IsNullOrWhiteSpace(Model.Beneficiaries))
+                    {
+                        <article>
+                            <strong>الفئة المستهدفة</strong>
+                            <span>@Model.Beneficiaries</span>
+                        </article>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.BeneficiariesCount))
+                    {
+                        <article>
+                            <strong>عدد المستفيدين</strong>
+                            <span>@Model.BeneficiariesCount</span>
+                        </article>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Sector))
+                    {
+                        <article>
+                            <strong>القطاع</strong>
+                            <span>@Model.Sector</span>
+                        </article>
+                    }
+                </div>
+
+                <div class="program-details-actions">
+                    <a href="/Programs">العودة للبرامج</a>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ExternalUrl))
+                    {
+                        <a href="@Model.ExternalUrl" target="_blank" rel="noopener noreferrer">زيارة الرابط</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="program-details-text">
+            <h2>تفاصيل البرنامج أو المشروع</h2>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Details))
+            {
+                <div><span style="white-space:pre-line">@Model.Details</span></div>
+            }
+            else
+            {
+                <div><span style="white-space:pre-line">@Model.Description</span></div>
+            }
+        </div>
+    </div>
+</section>

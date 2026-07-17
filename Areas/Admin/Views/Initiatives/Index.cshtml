@@ -1,0 +1,122 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.Initiative>
+
+@{
+    ViewData["Title"] = "مبادرات الجمعية";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="ini-admin-page">
+
+    <div class="ini-admin-hero">
+        <div>
+            <span>التطوع والتوظيف</span>
+            <h1>مبادرات الجمعية</h1>
+            <p>إدارة مبادرات الجمعية المعروضة في الموقع.</p>
+        </div>
+
+        <div class="ini-admin-actions">
+            <a href="/Initiatives" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a class="primary" href="/Admin/Initiatives/Create">إضافة مبادرة جديدة</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="ini-admin-filter">
+        <form method="get" action="/Admin/Initiatives">
+            <input name="q" value="@search" placeholder="ابحث بعنوان المبادرة أو الفئة المستهدفة..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/Initiatives">مسح</a>
+        </form>
+    </div>
+
+    <div class="ini-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="ini-admin-empty">
+                <h3>لا توجد مبادرات حالياً</h3>
+                <p>ابدأ بإضافة أول مبادرة من زر إضافة مبادرة جديدة.</p>
+            </div>
+        }
+        else
+        {
+            <div class="ini-admin-table-wrap">
+                <table class="ini-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>عنوان المبادرة</th>
+                            <th>النوع</th>
+                            <th>الموقع</th>
+                            <th>الفئة المستهدفة</th>
+                            <th>المستفيدون</th>
+                            <th>البداية</th>
+                            <th>النهاية</th>
+                            <th>الحالة</th>
+                            <th>الترتيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                    {
+                                        <img class="ini-admin-image" src="@item.ImagePath" alt="@item.Title" />
+                                    }
+                                    else
+                                    {
+                                        <div class="ini-admin-no-image">مبادرة</div>
+                                    }
+                                </td>
+
+                                <td class="ini-title-cell">
+                                    <strong>@item.Title</strong>
+                                    <span>@item.Description</span>
+                                </td>
+
+                                <td>@item.InitiativeType</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Location) ? "-" : item.Location)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.TargetGroup) ? "-" : item.TargetGroup)</td>
+                                <td>@item.BeneficiariesCount.ToString("N0")</td>
+                                <td>@(item.StartDate.HasValue ? item.StartDate.Value.ToString("yyyy/MM/dd") : "-")</td>
+                                <td>@(item.EndDate.HasValue ? item.EndDate.Value.ToString("yyyy/MM/dd") : "-")</td>
+
+                                <td>
+                                    <span class="ini-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>@item.DisplayOrder</td>
+
+                                <td>
+                                    <div class="ini-admin-row-actions">
+                                        <a href="/Admin/Initiatives/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/Initiatives/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/Initiatives/Delete/@item.Id" data-confirm="هل تريد حذف هذه المبادرة؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

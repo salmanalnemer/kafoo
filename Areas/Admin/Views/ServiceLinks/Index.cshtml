@@ -1,0 +1,97 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.ServiceLink>
+
+@{
+    ViewData["Title"] = "روابط الخدمات";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>البرامج والخدمات</span>
+        <h1>روابط الخدمات والأزرار</h1>
+        <p>إدارة روابط الخدمات التي تظهر في قائمة الخدمات الإلكترونية بالهيدر، مع تحديد رابط داخلي أو خارجي.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/ServiceLinks" target="_blank" rel="noopener noreferrer">معاينة صفحة الخدمات</a>
+        <a class="admin-main-action" href="/Admin/ServiceLinks/Create">إضافة رابط خدمة</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="service-admin-grid">
+    @if (Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <article class="service-admin-card @(item.IsActive ? "" : "disabled")">
+                <div class="service-admin-top">
+                    <div class="service-admin-icon">
+                        @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                        {
+                            <img src="@item.ImagePath" alt="@item.Title" />
+                        }
+                        else
+                        {
+                            <strong>@item.Title.Substring(0, 1)</strong>
+                        }
+                    </div>
+
+                    <div>
+                        <span>@item.Category</span>
+                        <h2>@item.Title</h2>
+                    </div>
+                </div>
+
+                <p>@item.Description</p>
+
+                <div class="service-admin-badges">
+                    <small>@(item.LinkType == "Internal" ? "صفحة داخل الموقع" : "رابط خارجي")</small>
+
+                    @if (!string.IsNullOrWhiteSpace(item.TargetAudience))
+                    {
+                        <small>الفئة: @item.TargetAudience</small>
+                    }
+                </div>
+
+                <div class="service-admin-link" dir="ltr">@item.Url</div>
+
+                <div class="service-admin-meta">
+                    <span>الترتيب: @item.DisplayOrder</span>
+                    @if (item.IsActive)
+                    {
+                        <span class="dash-status active">مفعل</span>
+                    }
+                    else
+                    {
+                        <span class="dash-status inactive">غير مفعل</span>
+                    }
+                </div>
+
+                <div class="service-admin-actions">
+                    <a class="admin-small-btn purple" href="/Admin/ServiceLinks/Edit/@item.Id">تعديل</a>
+                    <a class="admin-small-btn green" href="@item.Url" target="@(item.LinkType == "External" && item.OpenInNewTab ? "_blank" : "_self")">فتح</a>
+
+                    <form method="post" action="/Admin/ServiceLinks/ToggleStatus/@item.Id">
+                        @Html.AntiForgeryToken()
+                        <button class="admin-small-btn green" type="submit">
+                            @(item.IsActive ? "إخفاء" : "إظهار")
+                        </button>
+                    </form>
+
+                    <form method="post" action="/Admin/ServiceLinks/Delete/@item.Id" data-confirm="هل أنت متأكد من حذف رابط الخدمة؟">
+                        @Html.AntiForgeryToken()
+                        <button class="admin-small-btn danger" type="submit">حذف</button>
+                    </form>
+                </div>
+            </article>
+        }
+    }
+    else
+    {
+        <div class="dash-empty">لا توجد روابط خدمات حتى الآن.</div>
+    }
+</div>

@@ -1,0 +1,132 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.GeneralAssemblyMinute>
+
+@{
+    ViewData["Title"] = "محاضر الجمعية العمومية";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="gamn-admin-page">
+
+    <div class="gamn-admin-hero">
+        <div>
+            <span>ملفات الحوكمة</span>
+            <h1>محاضر الجمعية العمومية</h1>
+            <p>إدارة محاضر اجتماعات الجمعية العمومية وملفاتها الرسمية.</p>
+        </div>
+
+        <div class="gamn-admin-actions">
+            <a href="/GeneralAssemblyMinutes" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a class="primary" href="/Admin/GeneralAssemblyMinutes/Create">إضافة محضر جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="gamn-admin-filter">
+        <form method="get" action="/Admin/GeneralAssemblyMinutes">
+            <input name="q" value="@search" placeholder="ابحث بعنوان المحضر أو السنة أو رقم الاجتماع..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/GeneralAssemblyMinutes">مسح</a>
+        </form>
+    </div>
+
+    <div class="gamn-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="gamn-admin-empty">
+                <h3>لا توجد محاضر حالياً</h3>
+                <p>ابدأ بإضافة أول محضر من زر إضافة محضر جديد.</p>
+            </div>
+        }
+        else
+        {
+            <div class="gamn-admin-table-wrap">
+                <table class="gamn-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الغلاف</th>
+                            <th>عنوان المحضر</th>
+                            <th>نوع الاجتماع</th>
+                            <th>رقم الاجتماع</th>
+                            <th>السنة</th>
+                            <th>تاريخ الاجتماع</th>
+                            <th>الحضور</th>
+                            <th>الملف</th>
+                            <th>الحالة</th>
+                            <th>الترتيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.CoverImagePath))
+                                    {
+                                        <img class="gamn-admin-cover" src="@item.CoverImagePath" alt="@item.Title" />
+                                    }
+                                    else
+                                    {
+                                        <div class="gamn-admin-no-cover">محضر</div>
+                                    }
+                                </td>
+
+                                <td class="gamn-title-cell">
+                                    <strong>@item.Title</strong>
+                                    <span>@item.Summary</span>
+                                </td>
+
+                                <td>@item.MeetingType</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.MeetingNumber) ? "-" : item.MeetingNumber)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.FiscalYear) ? "-" : item.FiscalYear)</td>
+                                <td>@item.MeetingDate.ToString("yyyy/MM/dd")</td>
+                                <td>@item.AttendeesCount.ToString("N0")</td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                    {
+                                        <a class="gamn-file-link" href="@item.FilePath" target="_blank" rel="noopener noreferrer">فتح الملف</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="gamn-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>@item.DisplayOrder</td>
+
+                                <td>
+                                    <div class="gamn-admin-row-actions">
+                                        <a href="/Admin/GeneralAssemblyMinutes/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/GeneralAssemblyMinutes/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/GeneralAssemblyMinutes/Delete/@item.Id" data-confirm="هل تريد حذف هذا المحضر؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

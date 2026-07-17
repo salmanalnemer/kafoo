@@ -1,0 +1,143 @@
+﻿<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>@ViewData["Title"] | جمعية كفو</title>
+
+    <!-- أيقونة الموقع -->
+    <link rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/images/favicon.png?v=20260717-4" />
+
+    <link rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/images/favicon.png?v=20260717-4" />
+
+    <link rel="shortcut icon"
+          type="image/png"
+          href="/images/favicon.png?v=20260717-4" />
+
+    <link rel="apple-touch-icon"
+          sizes="180x180"
+          href="/images/favicon.png?v=20260717-4" />
+
+    <meta name="theme-color" content="#74429a" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="~/css/kafo-theme.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+    @await Html.PartialAsync("_TopBar")
+    @await Html.PartialAsync("_MainHeader")
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="big-footer">
+        <div class="footer-green-line"></div>
+
+        <div class="footer-container footer-grid-large">
+            <section class="footer-about">
+                <h2>عن جمعية كفو لتمكين ذوي الإعاقة</h2>
+
+                <p>
+                    نسعى لتمكين ذوي الإعاقة ودمجهم في المجتمع
+                    من خلال برامج نوعية ومستدامة.
+                </p>
+
+                <a class="footer-whatsapp" href="#">
+                    واتساب
+                </a>
+            </section>
+
+            <section>
+                <h3>روابط مهمة</h3>
+
+                <a href="/admin">دخول الموظفين</a>
+                <a href="/">الرئيسية</a>
+                <a href="#">من نحن</a>
+                <a href="#">برامجنا</a>
+                <a href="#">المركز الإعلامي</a>
+                <a href="#">اتصل بنا</a>
+            </section>
+
+            <section>
+                <h3>أحدث المشاريع</h3>
+
+                <div class="footer-project">
+                    <div class="footer-project-img">
+                        كفو
+                    </div>
+
+                    <div>
+                        <strong>مشاهدة التفاصيل</strong>
+                        <span>أحدث برامج الجمعية</span>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>تواصل معنا</h3>
+
+                <div class="footer-contact-item">
+                    <span>📍</span>
+
+                    <div>
+                        <strong>العنوان:</strong>
+                        <p>المملكة العربية السعودية</p>
+                    </div>
+                </div>
+
+                <div class="footer-contact-item">
+                    <span>✉</span>
+
+                    <div>
+                        <strong>البريد الإلكتروني:</strong>
+                        <p>info@kafo.org.sa</p>
+                    </div>
+                </div>
+
+                <div class="footer-contact-item">
+                    <span>⏱</span>
+
+                    <div>
+                        <strong>أوقات العمل:</strong>
+
+                        <p>
+                            من الأحد إلى الخميس من 8:00 صباحاً
+                            إلى 2 ظهراً
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="footer-copy">
+            جميع الحقوق محفوظة © @DateTime.Now.Year
+            جمعية كفو لتمكين ذوي الإعاقة.
+        </div>
+    </footer>
+
+    <script src="~/js/kafo-ui.js"
+            asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="/js/security-ui.js" defer></script>
+</body>
+</html>

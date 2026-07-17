@@ -1,0 +1,203 @@
+﻿@model Kafo.Web.ViewModels.Admin.BeneficiaryDataUpdateAdminViewModel
+
+@{
+    ViewData["Title"] = "تحديث بيانات المستفيدين";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>الخدمات الإلكترونية</span>
+        <h1>صفحة تحديث بيانات المستفيدين</h1>
+        <p>إدارة محتوى الصفحة، فيديو الشرح، الأزرار، والمستندات المطلوبة.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/BeneficiaryDataUpdate" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="beneficiary-admin-layout">
+    <div class="admin-form-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form" action="/Admin/Pages/BeneficiaryDataUpdate">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Page.Id" type="hidden" />
+            <input asp-for="Page.VideoPath" type="hidden" />
+            <input asp-for="Page.CreatedAt" type="hidden" />
+            <input asp-for="Page.UpdatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Page.Title">عنوان الصفحة</label>
+                    <input asp-for="Page.Title" />
+                    <span asp-validation-for="Page.Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.Subtitle">العنوان الفرعي</label>
+                    <input asp-for="Page.Subtitle" />
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Page.Description">وصف الصفحة</label>
+                    <textarea asp-for="Page.Description" rows="5"></textarea>
+                    <span asp-validation-for="Page.Description"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.VideoSourceType">مصدر الفيديو</label>
+                    <select asp-for="Page.VideoSourceType" id="beneficiaryVideoType">
+                        <option value="Youtube">رابط YouTube</option>
+                        <option value="Upload">رفع فيديو</option>
+                    </select>
+                </div>
+
+                <div class="form-group beneficiary-youtube-field">
+                    <label asp-for="Page.YoutubeUrl">رابط YouTube</label>
+                    <input asp-for="Page.YoutubeUrl" dir="ltr" placeholder="https://www.youtube.com/watch?v=..." />
+                </div>
+
+                <div class="form-group beneficiary-upload-field">
+                    <label>رفع فيديو</label>
+                    <input type="file" name="videoFile" accept=".mp4,.webm,.mov" />
+                    <small>المسموح MP4 / WEBM / MOV حتى 100MB.</small>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.PrimaryButtonText">نص الزر الرئيسي</label>
+                    <input asp-for="Page.PrimaryButtonText" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.PrimaryButtonUrl">رابط الزر الرئيسي</label>
+                    <input asp-for="Page.PrimaryButtonUrl" dir="ltr" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.SecondaryButtonText">نص الزر الثاني</label>
+                    <input asp-for="Page.SecondaryButtonText" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.SecondaryButtonUrl">رابط الزر الثاني</label>
+                    <input asp-for="Page.SecondaryButtonUrl" dir="ltr" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.AlertTitle">عنوان التنبيه</label>
+                    <input asp-for="Page.AlertTitle" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.AlertText">نص التنبيه</label>
+                    <textarea asp-for="Page.AlertText" rows="3"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="Page.OpenPrimaryInNewTab" />
+                    <label asp-for="Page.OpenPrimaryInNewTab">فتح الزر الرئيسي في تبويب جديد إذا كان خارجي</label>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.WhatsAppNumber">رقم الواتساب</label>
+                    <input asp-for="Page.WhatsAppNumber" dir="ltr" placeholder="مثال: 966500000000 أو 0500000000" />
+                    <small>اكتب الرقم بصيغة 9665xxxxxxxx أو 05xxxxxxxx.</small>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Page.WhatsAppButtonText">نص زر الواتساب</label>
+                    <input asp-for="Page.WhatsAppButtonText" placeholder="تواصل عبر واتساب" />
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Page.WhatsAppMessage">رسالة واتساب الافتراضية</label>
+                    <textarea asp-for="Page.WhatsAppMessage" rows="3" placeholder="السلام عليكم، أرغب بالمساعدة..."></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="Page.ShowWhatsAppButton" />
+                    <label asp-for="Page.ShowWhatsAppButton">إظهار زر واتساب للزائر</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="Page.IsActive" />
+                    <label asp-for="Page.IsActive">إظهار الصفحة</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="admin-submit-btn" type="submit">حفظ الصفحة</button>
+            </div>
+        </form>
+    </div>
+
+    <aside class="beneficiary-admin-side">
+        <span>إدارة المستندات المطلوبة</span>
+
+        <form method="post" action="/Admin/Pages/BeneficiaryDataUpdate/AddRequirement" class="beneficiary-req-admin-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="NewRequirement.Title" placeholder="اسم المستند المطلوب" />
+            <input asp-for="NewRequirement.Icon" placeholder="الأيقونة مثل ✓ أو ▣" />
+            <input asp-for="NewRequirement.DisplayOrder" type="number" placeholder="الترتيب" />
+
+            <label>
+                <input asp-for="NewRequirement.IsActive" />
+                مفعل
+            </label>
+
+            <button type="submit">إضافة مستند</button>
+        </form>
+
+        <div class="beneficiary-admin-req-list">
+            @foreach (var item in Model.Requirements)
+            {
+                <div class="beneficiary-admin-req-item @(item.IsActive ? "" : "disabled")">
+                    <div>
+                        <b>@item.Icon</b>
+                        <strong>@item.Title</strong>
+                        <small>الترتيب: @item.DisplayOrder</small>
+                    </div>
+
+                    <div class="beneficiary-admin-req-actions">
+                        <form method="post" action="/Admin/Pages/BeneficiaryDataUpdate/ToggleRequirement/@item.Id">
+                            @Html.AntiForgeryToken()
+                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                        </form>
+
+                        <form method="post" action="/Admin/Pages/BeneficiaryDataUpdate/DeleteRequirement/@item.Id" data-confirm="حذف المستند؟">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="danger">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </aside>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const select = document.getElementById("beneficiaryVideoType");
+            const youtube = document.querySelector(".beneficiary-youtube-field");
+            const upload = document.querySelector(".beneficiary-upload-field");
+
+            function refreshVideoFields() {
+                const isUpload = select.value === "Upload";
+                youtube.style.display = isUpload ? "none" : "";
+                upload.style.display = isUpload ? "" : "none";
+            }
+
+            select.addEventListener("change", refreshVideoFields);
+            refreshVideoFields();
+        })();
+    </script>
+}

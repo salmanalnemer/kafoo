@@ -1,0 +1,82 @@
+@model Kafo.Web.ViewModels.Admin.AdminUserFormViewModel
+@using Kafo.Web.Security
+
+@{
+    ViewData["Title"] = "تسجيل مستخدم لوحة تحكم";
+    var actorRoleCode = ViewBag.ActorRoleCode as string ?? AdminRolePolicy.Supervisor;
+    var canCreateManagers = actorRoleCode == AdminRolePolicy.SystemManager;
+}
+
+<div class="adm-users-page">
+    <div class="adm-users-hero">
+        <div>
+            <span>مستخدمي لوحة التحكم</span>
+            <h1>تسجيل مستخدم جديد</h1>
+            <p>أنشئ حسابًا بالبريد الإلكتروني وحدد دوره. سيرسل النظام رابطًا آمنًا وأحادي الاستخدام لإنشاء كلمة المرور.</p>
+        </div>
+
+        <div class="adm-users-actions">
+            <a href="/Admin/Users">رجوع</a>
+        </div>
+    </div>
+
+    <div class="adm-form-card">
+        <form method="post" action="/Admin/Users/Create" class="adm-form">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="adm-form-grid">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input asp-for="FullName" autocomplete="name" />
+                    <span asp-validation-for="FullName"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>اسم المستخدم الداخلي</label>
+                    <input asp-for="UserName" dir="ltr" autocomplete="username" />
+                    <span asp-validation-for="UserName"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>البريد الإلكتروني للدخول وOTP</label>
+                    <input asp-for="Email" type="email" dir="ltr" autocomplete="email" />
+                    <span asp-validation-for="Email"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الجوال</label>
+                    <input asp-for="Phone" dir="ltr" inputmode="tel" />
+                    <span asp-validation-for="Phone"></span>
+                </div>
+
+                <div class="form-group full">
+                    <label>نوع المستخدم</label>
+                    <select asp-for="RoleCode">
+                        @if (canCreateManagers)
+                        {
+                            <option value="@AdminRolePolicy.SystemManager">مدير النظام — كامل الصلاحيات وإدارة جميع الأدوار</option>
+                            <option value="@AdminRolePolicy.AdministrationManager">مدير الإدارة — كامل صفحات الإدارة وإدارة المشرفين</option>
+                        }
+                        <option value="@AdminRolePolicy.Supervisor">مشرف — يدخل فقط للصفحات المحددة له</option>
+                    </select>
+                    <span asp-validation-for="RoleCode"></span>
+                </div>
+
+                <div class="adm-form-note full">
+                    لن تظهر كلمة المرور داخل لوحة التحكم. بعد حفظ الحساب سيصل رابط إعداد كلمة المرور إلى البريد، وعند تسجيل الدخول سيصل رمز OTP إلى البريد نفسه.
+                </div>
+
+                <label class="adm-check">
+                    <input asp-for="IsActive" />
+                    <span>الحساب مفعل</span>
+                </label>
+            </div>
+
+            <div class="adm-form-actions">
+                <button type="submit">إنشاء الحساب وإرسال رابط الإعداد</button>
+            </div>
+        </form>
+    </div>
+</div>

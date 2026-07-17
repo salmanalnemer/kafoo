@@ -1,0 +1,92 @@
+﻿@model Kafo.Web.Models.ContactMessage
+
+@{
+    ViewData["Title"] = "تفاصيل الرسالة";
+}
+
+<div class="msg-admin-page">
+
+    <div class="msg-admin-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>تفاصيل الرسالة #@Model.Id</h1>
+            <p>مراجعة الرسالة وتحديث حالتها وملاحظات الإدارة.</p>
+        </div>
+
+        <div class="msg-admin-actions">
+            <a href="/Admin/Messages">رجوع لصندوق الرسائل</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="msg-details-grid">
+        <div class="msg-details-card">
+            <h2>بيانات المرسل</h2>
+
+            <dl>
+                <dt>الاسم</dt>
+                <dd>@Model.FullName</dd>
+
+                <dt>رقم الجوال</dt>
+                <dd dir="ltr">@Model.Phone</dd>
+
+                <dt>البريد الإلكتروني</dt>
+                <dd dir="ltr">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
+
+                <dt>نوع الرسالة</dt>
+                <dd>@Model.MessageType</dd>
+
+                <dt>عنوان الرسالة</dt>
+                <dd>@Model.Subject</dd>
+
+                <dt>الحالة</dt>
+                <dd>@Model.Status</dd>
+
+                <dt>تاريخ الإرسال</dt>
+                <dd>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</dd>
+            </dl>
+        </div>
+
+        <div class="msg-details-card">
+            <h2>إدارة الرسالة</h2>
+
+            <div class="msg-files-box">
+                @if (!string.IsNullOrWhiteSpace(Model.AttachmentPath))
+                {
+                    <a href="@Model.AttachmentPath" target="_blank" rel="noopener noreferrer" download>تحميل المرفق</a>
+                }
+                else
+                {
+                    <span>لا يوجد مرفق</span>
+                }
+            </div>
+
+            <form method="post" action="/Admin/Messages/UpdateStatus/@Model.Id" class="msg-status-form">
+                @Html.AntiForgeryToken()
+
+                <label>حالة الرسالة</label>
+                <select name="status">
+                    @if (Model.Status == "جديدة") { <option value="جديدة" selected>جديدة</option> } else { <option value="جديدة">جديدة</option> }
+                    @if (Model.Status == "قيد المعالجة") { <option value="قيد المعالجة" selected>قيد المعالجة</option> } else { <option value="قيد المعالجة">قيد المعالجة</option> }
+                    @if (Model.Status == "تم الرد") { <option value="تم الرد" selected>تم الرد</option> } else { <option value="تم الرد">تم الرد</option> }
+                    @if (Model.Status == "مغلقة") { <option value="مغلقة" selected>مغلقة</option> } else { <option value="مغلقة">مغلقة</option> }
+                </select>
+
+                <label>ملاحظات الإدارة</label>
+                <textarea name="adminNotes" rows="5">@Model.AdminNotes</textarea>
+
+                <button type="submit">حفظ الحالة</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="msg-details-card">
+        <h2>نص الرسالة</h2>
+        <p>@Model.MessageBody</p>
+    </div>
+
+</div>

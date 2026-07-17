@@ -1,0 +1,190 @@
+@model DonorProgramSupportViewModel
+@{
+    ViewData["Title"] = "دعم برنامج";
+    var supportProgramImage = !string.IsNullOrWhiteSpace(Model.Program?.ImagePath)
+        ? (Model.Program.ImagePath.StartsWith("~/")
+            ? Url.Content(Model.Program.ImagePath)
+            : Model.Program.ImagePath.StartsWith("/") ? Model.Program.ImagePath : "/" + Model.Program.ImagePath.TrimStart('/'))
+        : null;
+}
+
+<div class="donor-support-layout compact-support-layout">
+    <section class="portal-panel highlight donor-program-mini-card">
+        @if (!string.IsNullOrWhiteSpace(supportProgramImage))
+        {
+            <div class="donor-program-mini-image">
+                <img src="@supportProgramImage" alt="@Model.Program?.Title" />
+            </div>
+        }
+
+        <div class="donor-program-mini-content">
+            <div class="donor-program-mini-head">
+                <div>
+                    <span class="portal-badge">@Model.Program?.Category</span>
+                    <h2>@Model.Program?.Title</h2>
+                </div>
+                <a class="portal-btn light" href="/Portal/Donor/Programs">رجوع</a>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Program?.Description))
+            {
+                <div class="portal-program-description-wrap support-description">
+                    <p class="portal-program-description" id="support-program-description">@Model.Program.Description</p>
+                    <button type="button" class="portal-read-more" aria-expanded="false" aria-controls="support-program-description">قراءة المزيد</button>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="portal-panel donor-bank-selector-panel">
+        <div class="donor-bank-selector-head">
+            <div>
+                <span class="portal-badge">الدفع والتحويل</span>
+                <h2>اختر البنك</h2>
+                <p>اضغط على شعار البنك لإظهار بيانات الحساب.</p>
+            </div>
+        </div>
+
+        @if (Model.BankAccounts.Count > 0)
+        {
+            <div class="donor-bank-logo-list" role="tablist" aria-label="الحسابات البنكية">
+                @for (var index = 0; index < Model.BankAccounts.Count; index++)
+                {
+                    var account = Model.BankAccounts[index];
+                    <button type="button"
+                            class="donor-bank-logo-button @(index == 0 ? "is-active" : "")"
+                            data-bank-target="bank-details-@account.Id"
+                            role="tab"
+                            aria-selected="@(index == 0 ? "true" : "false")">
+                        @if (!string.IsNullOrWhiteSpace(account.LogoPath))
+                        {
+                            <img src="@account.LogoPath" alt="شعار @account.BankName" loading="lazy" />
+                        }
+                        else
+                        {
+                            <span class="donor-bank-fallback">@account.BankName[..1]</span>
+                        }
+                        <span>@account.BankName</span>
+                    </button>
+                }
+            </div>
+
+            <div class="donor-bank-details-wrap">
+                @for (var index = 0; index < Model.BankAccounts.Count; index++)
+                {
+                    var account = Model.BankAccounts[index];
+                    <article id="bank-details-@account.Id" class="donor-bank-details @(index == 0 ? "is-active" : "")" role="tabpanel">
+                        <div class="donor-bank-details-title">
+                            <strong>@account.BankName</strong>
+                            @if (index == 0)
+                            {
+                                <span>الحساب الرئيسي</span>
+                            }
+                        </div>
+                        <div class="donor-bank-details-grid">
+                            <div><span>اسم الحساب</span><strong>@account.AccountName</strong></div>
+                            @if (!string.IsNullOrWhiteSpace(account.AccountNumber))
+                            {
+                                <div><span>رقم الحساب</span><strong dir="ltr">@account.AccountNumber</strong></div>
+                            }
+                            <div class="iban-cell"><span>رقم الآيبان</span><strong dir="ltr">@account.Iban</strong></div>
+                        </div>
+                        <button type="button" class="portal-btn light donor-copy-iban" data-iban="@account.Iban">نسخ الآيبان</button>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="portal-empty">لا توجد حسابات بنكية مفعلة حاليًا.</div>
+        }
+    </section>
+</div>
+
+<section class="portal-panel donor-contribution-form-panel">
+    <div class="portal-panel-head">
+        <div>
+            <span class="portal-badge">بيانات المساهمة</span>
+            <h2>تسجيل الدعم</h2>
+            <p>أدخل قيمة المبلغ ورقم العملية البنكية بعد إتمام التحويل.</p>
+        </div>
+    </div>
+
+    <form method="post" class="portal-form donor-contribution-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ProgramProjectId" />
+
+        <div class="portal-form-grid donor-support-fields">
+            <div>
+                <label asp-for="Amount"></label>
+                <div class="money-input-wrap">
+                    <input asp-for="Amount" type="number" min="1" step="0.01" inputmode="decimal" placeholder="أدخل مبلغ الدعم" />
+                    <span>ر.س</span>
+                </div>
+                <span asp-validation-for="Amount"></span>
+            </div>
+            <div>
+                <label asp-for="TransactionNumber"></label>
+                <input asp-for="TransactionNumber" dir="ltr" autocomplete="off" maxlength="100" placeholder="رقم العملية أو مرجع التحويل" />
+                <span asp-validation-for="TransactionNumber"></span>
+            </div>
+            <div class="span-2">
+                <label asp-for="Notes"></label>
+                <textarea asp-for="Notes" rows="3" placeholder="ملاحظات إضافية اختيارية"></textarea>
+                <span asp-validation-for="Notes"></span>
+            </div>
+        </div>
+
+        <div class="portal-actions">
+            <button type="submit">إرسال المساهمة</button>
+            <a class="portal-btn light" href="/Portal/Donor/Programs">إلغاء</a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('.portal-read-more').forEach((button) => {
+            button.addEventListener('click', () => {
+                const description = document.getElementById(button.getAttribute('aria-controls'));
+                if (!description) return;
+                const isExpanded = description.classList.toggle('is-expanded');
+                button.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+                button.textContent = isExpanded ? 'عرض أقل' : 'قراءة المزيد';
+            });
+        });
+
+        document.querySelectorAll('.donor-bank-logo-button').forEach((button) => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.donor-bank-logo-button').forEach((item) => {
+                    item.classList.remove('is-active');
+                    item.setAttribute('aria-selected', 'false');
+                });
+                document.querySelectorAll('.donor-bank-details').forEach((item) => item.classList.remove('is-active'));
+                button.classList.add('is-active');
+                button.setAttribute('aria-selected', 'true');
+                document.getElementById(button.dataset.bankTarget)?.classList.add('is-active');
+            });
+        });
+
+        document.querySelectorAll('.donor-copy-iban').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const iban = button.dataset.iban || '';
+                if (!iban) return;
+                try {
+                    await navigator.clipboard.writeText(iban);
+                    const originalText = button.textContent;
+                    button.textContent = 'تم النسخ';
+                    button.disabled = true;
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 1600);
+                } catch {
+                    window.prompt('انسخ رقم الآيبان:', iban);
+                }
+            });
+        });
+    </script>
+}

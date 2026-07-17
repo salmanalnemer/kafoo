@@ -1,0 +1,99 @@
+@model IEnumerable<ProgramProject>
+@{
+    ViewData["Title"] = "البرامج المراد دعمها";
+    var selectedCategory = ViewBag.SelectedCategory as string;
+    var categories = ViewBag.Categories as IEnumerable<string> ?? Enumerable.Empty<string>();
+}
+
+<section class="portal-panel highlight">
+    <div class="portal-panel-head">
+        <div>
+            <h2>اختيار البرنامج المراد دعمه</h2>
+            <p>اختر البرنامج أو المبادرة التي ترغب في دعمها، وسيتم تسجيل طلب الدعم ومتابعته عبر لوحة الداعم.</p>
+        </div>
+        <a class="portal-btn light" href="/Portal/Donor/Contributions">مساهماتي</a>
+    </div>
+
+    <div class="portal-filter-bar">
+        <a class="@(string.IsNullOrWhiteSpace(selectedCategory) ? "is-current" : "")" href="/Portal/Donor/Programs">كل البرامج</a>
+        @foreach (var category in categories)
+        {
+            <a class="@(selectedCategory == category ? "is-current" : "")" href="/Portal/Donor/Programs?category=@Uri.EscapeDataString(category)">@category</a>
+        }
+    </div>
+</section>
+
+@if (!Model.Any())
+{
+    <section class="portal-panel"><div class="portal-empty">لا توجد برامج متاحة للدعم حاليًا.</div></section>
+}
+else
+{
+    <section class="portal-card-grid">
+        @foreach (var item in Model)
+        {
+            <article class="portal-program-card">
+                @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                {
+                    var programImage = item.ImagePath.StartsWith("~/")
+                        ? Url.Content(item.ImagePath)
+                        : item.ImagePath.StartsWith("/") ? item.ImagePath : "/" + item.ImagePath.TrimStart('/');
+                    <img src="@programImage" alt="@item.Title" loading="lazy" data-hide-on-error="true" />
+                    <div class="portal-program-placeholder is-hidden">كفو</div>
+                }
+                else
+                {
+                    <div class="portal-program-placeholder">كفو</div>
+                }
+                <div>
+                    <span class="portal-badge">@item.Category</span>
+                    <h2>@item.Title</h2>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <div class="portal-program-description-wrap">
+                            <p class="portal-program-description" id="program-description-@item.Id">@item.Description</p>
+                            <button type="button"
+                                    class="portal-read-more"
+                                    aria-expanded="false"
+                                    aria-controls="program-description-@item.Id">
+                                قراءة المزيد
+                            </button>
+                        </div>
+                    }
+                    <div class="portal-meta-row">
+                        @if (!string.IsNullOrWhiteSpace(item.Beneficiaries))
+                        {
+                            <small>الفئة: @item.Beneficiaries</small>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.BeneficiariesCount))
+                        {
+                            <small>المستفيدون: @item.BeneficiariesCount</small>
+                        }
+                    </div>
+                    <div class="portal-actions">
+                        <a class="portal-btn" href="/Portal/Donor/Programs/Support/@item.Id">دعم البرنامج</a>
+                        @if (!string.IsNullOrWhiteSpace(item.ExternalUrl))
+                        {
+                            <a class="portal-btn light" href="@item.ExternalUrl" target="_blank" rel="noopener noreferrer">تفاصيل خارجية</a>
+                        }
+                    </div>
+                </div>
+            </article>
+        }
+    </section>
+}
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.portal-read-more').forEach((button) => {
+            button.addEventListener('click', () => {
+                const description = document.getElementById(button.getAttribute('aria-controls'));
+                if (!description) return;
+
+                const isExpanded = description.classList.toggle('is-expanded');
+                button.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+                button.textContent = isExpanded ? 'عرض أقل' : 'قراءة المزيد';
+            });
+        });
+    </script>
+}

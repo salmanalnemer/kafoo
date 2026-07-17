@@ -1,0 +1,105 @@
+@model Kafo.Web.Models.FeedbackEntry
+
+@{
+    ViewData["Title"] = "التغذية الراجعة";
+}
+
+<section class="fb-public-page">
+    <div class="home-container">
+
+        <div class="fb-public-head">
+            <span>التواصل والإعدادات</span>
+            <h1>التغذية الراجعة</h1>
+            <p>شاركنا ملاحظاتك ومقترحاتك لنتمكن من تحسين خدمات الجمعية وتجربة المستفيدين.</p>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="fb-public-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        <div class="fb-public-card">
+            <form method="post" enctype="multipart/form-data" action="/Feedback" class="fb-public-form">
+                @Html.AntiForgeryToken()
+        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+            <label>اترك هذا الحقل فارغًا<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="fb-public-grid">
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input asp-for="FullName" placeholder="اختياري" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>رقم الجوال</label>
+                        <input asp-for="Phone" dir="ltr" placeholder="05xxxxxxxx" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input asp-for="Email" dir="ltr" placeholder="example@email.com" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع التغذية الراجعة <b>*</b></label>
+                        <select asp-for="FeedbackType">
+                            <option value="ملاحظة">ملاحظة</option>
+                            <option value="اقتراح">اقتراح</option>
+                            <option value="تحسين خدمة">تحسين خدمة</option>
+                            <option value="مشكلة">مشكلة</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                        <span asp-validation-for="FeedbackType"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الخدمة المرتبطة</label>
+                        <input asp-for="RelatedService" placeholder="مثال: خدمة المستفيدين / التبرع / التطوع" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>التقييم العام</label>
+                        <select asp-for="Rating">
+                            <option value="5">ممتاز 5</option>
+                            <option value="4">جيد جداً 4</option>
+                            <option value="3">جيد 3</option>
+                            <option value="2">مقبول 2</option>
+                            <option value="1">ضعيف 1</option>
+                        </select>
+                        <span asp-validation-for="Rating"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>عنوان التغذية الراجعة <b>*</b></label>
+                        <input asp-for="Subject" placeholder="اكتب عنوان مختصر" />
+                        <span asp-validation-for="Subject"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>نص التغذية الراجعة <b>*</b></label>
+                        <textarea asp-for="FeedbackBody" rows="6" placeholder="اكتب ملاحظتك أو مقترحك بالتفصيل"></textarea>
+                        <span asp-validation-for="FeedbackBody"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>مرفق اختياري</label>
+                        <input type="file" name="attachmentFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" />
+                        <small>يمكن إرفاق ملف داعم بصيغة PDF أو صورة أو Word.</small>
+                    </div>
+                </div>
+
+                <div class="fb-public-actions">
+                    <button type="submit">إرسال التغذية الراجعة</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>

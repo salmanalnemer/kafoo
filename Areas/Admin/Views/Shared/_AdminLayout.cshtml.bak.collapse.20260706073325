@@ -1,0 +1,296 @@
+﻿@{
+    var title = ViewData["Title"]?.ToString() ?? "لوحة التحكم";
+    var currentPath = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
+
+    Func<string, string> active = url =>
+    {
+        var value = url.ToLowerInvariant();
+        return currentPath.StartsWith(value) ? "is-active" : "";
+    };
+}
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title | لوحة التحكم</title>
+
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+</head>
+
+<body class="kafo-admin-body">
+    <div class="kafo-admin-shell">
+
+        <aside class="kafo-admin-sidebar">
+            <div class="kafo-admin-brand">
+                <img src="/images/logo1.png" alt="جمعية كفؤ" />
+                <div>
+                    <strong>لوحة التحكم</strong>
+                    <span>جمعية كفؤ</span>
+                </div>
+            </div>
+
+            <nav class="kafo-admin-nav">
+
+                <div class="kafo-menu-section">
+                    <div class="kafo-menu-title">الرئيسية</div>
+
+                    <a class="@active("/Admin")" href="/Admin">
+                        <span class="kafo-menu-icon">◉</span>
+                        <span>لوحة المعلومات</span>
+                    </a>
+
+                    <a class="@active("/Admin/Sliders")" href="/Admin/Sliders">
+                        <span class="kafo-menu-icon">▣</span>
+                        <span>إدارة الصفحة الرئيسية</span>
+                    </a>
+
+                    <a class="@active("/Admin/HomeStatistics")" href="/Admin/HomeStatistics">
+                        <span class="kafo-menu-icon">▤</span>
+                        <span>الأرقام والإحصائيات</span>
+                    </a>
+
+                    <a class="@active("/Admin/StrategicGoals")" href="/Admin/StrategicGoals">
+                        <span class="kafo-menu-icon">◎</span>
+                        <span>أهداف الجمعية</span>
+                    </a>
+                </div>
+
+                <div class="kafo-menu-section">
+                    <div class="kafo-menu-title">عن الجمعية</div>
+
+                    <a class="@active("/Admin/Pages/About")" href="/Admin/Pages/About">
+                        <span class="kafo-menu-icon">i</span>
+                        <span>من نحن</span>
+                    </a>
+
+                    <a class="@active("/Admin/Pages/Vision")" href="/Admin/Pages/Vision">
+                        <span class="kafo-menu-icon">◉</span>
+                        <span>الرؤية والرسالة</span>
+                    </a>
+
+                    <a class="@active("/Admin/Pages/President")" href="/Admin/Pages/President">
+                        <span class="kafo-menu-icon">♟</span>
+                        <span>كلمة الرئيس</span>
+                    </a>
+
+                    <a class="@active("/Admin/Pages/ExecutiveManager")" href="/Admin/Pages/ExecutiveManager">
+                        <span class="kafo-menu-icon">✓</span>
+                        <span>المدير التنفيذي</span>
+                    </a>
+
+                    <a class="@active("/Admin/TeamMembers")" href="/Admin/TeamMembers">
+                        <span class="kafo-menu-icon">●●</span>
+                        <span>فريق العمل</span>
+                    </a>
+
+                    <a class="@active("/Admin/Licenses")" href="/Admin/Licenses">
+                        <span class="kafo-menu-icon">▧</span>
+                        <span>تراخيص الجمعية</span>
+                    </a>
+
+                    <a class="@active("/Admin/Pages/OrganizationalStructure")" href="/Admin/Pages/OrganizationalStructure">
+                        <span class="kafo-menu-icon">▦</span>
+                        <span>الهيكل التنظيمي</span>
+                    </a>
+
+                    <a class="@active("/Admin/BankAccounts")" href="/Admin/BankAccounts">
+                        <span class="kafo-menu-icon">▤</span>
+                        <span>الحسابات البنكية</span>
+                    </a>
+                </div>
+
+                <div class="kafo-menu-section">
+                    <div class="kafo-menu-title">البرامج والخدمات</div>
+
+                    <a class="@active("/Admin/Programs")" href="/Admin/Programs">
+                        <span class="kafo-menu-icon">▰</span>
+                        <span>البرامج والمشاريع</span>
+                    </a>
+
+                    <a class="@active("/Admin/ServiceLinks")" href="/Admin/ServiceLinks">
+                        <span class="kafo-menu-icon">∞</span>
+                        <span>روابط الخدمات</span>
+                    </a>
+
+                    <a class="@active("/Admin/InKindDonationRequests")" href="/Admin/InKindDonationRequests">
+                        <span class="kafo-menu-icon">▱</span>
+                        <span>طلبات التبرع العيني</span>
+                    </a>
+
+                    <a class="@active("/Admin/Pages/NewBeneficiaryRegistration")" href="/Admin/Pages/NewBeneficiaryRegistration">
+                        <span class="kafo-menu-icon">☷</span>
+                        <span>تسجيل مستفيد جديد</span>
+                    </a>
+
+                    <a class="@active("/Admin/Pages/BeneficiaryDataUpdate")" href="/Admin/Pages/BeneficiaryDataUpdate">
+                        <span class="kafo-menu-icon">↻</span>
+                        <span>تحديث بيانات المستفيدين</span>
+                    </a>
+                </div>
+
+                <div class="kafo-menu-section">
+                    <div class="kafo-menu-title">المركز الإعلامي</div>
+
+                    <a class="@active("/Admin/News")" href="/Admin/News">
+                        <span class="kafo-menu-icon">▤</span>
+                        <span>إدارة الأخبار</span>
+                    </a>
+
+                    <a class="@active("/Admin/Videos")" href="/Admin/Videos">
+                        <span class="kafo-menu-icon">■</span>
+                        <span>مكتبة الفيديو</span>
+                    </a>
+
+                    <a class="@active("/Admin/SuccessPartners")" href="/Admin/SuccessPartners">
+                        <span class="kafo-menu-icon">❖</span>
+                        <span>شركاء النجاح</span>
+                    </a>
+
+                    <a class="@active("/Admin/AssistanceReports")" href="/Admin/AssistanceReports">
+                        <span class="kafo-menu-icon">◆</span>
+                        <span>تقارير المساعدات</span>
+                    </a>
+                </div>
+
+                <div class="kafo-menu-section">
+                    <div class="kafo-menu-title">ملفات الحوكمة</div>
+
+                    <a class="@active("/Admin/GeneralAssemblyMembers")" href="/Admin/GeneralAssemblyMembers">
+                        <span class="kafo-menu-icon">●●</span>
+                        <span>أعضاء الجمعية العمومية</span>
+                    </a>
+
+                    <a class="@active("/Admin/GeneralAssemblyMinutes")" href="/Admin/GeneralAssemblyMinutes">
+                        <span class="kafo-menu-icon">▨</span>
+                        <span>محاضر الجمعية العمومية</span>
+                    </a>
+
+                    <a class="@active("/Admin/BoardMembers")" href="/Admin/BoardMembers">
+                        <span class="kafo-menu-icon">♟</span>
+                        <span>أعضاء مجلس الإدارة</span>
+                    </a>
+
+                    <a class="@active("/Admin/BoardMinutes")" href="/Admin/BoardMinutes">
+                        <span class="kafo-menu-icon">▧</span>
+                        <span>محاضر مجلس الإدارة</span>
+                    </a>
+
+                    <a class="@active("/Admin/Committees")" href="/Admin/Committees">
+                        <span class="kafo-menu-icon">●●</span>
+                        <span>لجان الجمعية</span>
+                    </a>
+
+                    <a class="@active("/Admin/Policies")" href="/Admin/Policies">
+                        <span class="kafo-menu-icon">♦</span>
+                        <span>السياسات واللوائح</span>
+                    </a>
+
+                    <a class="@active("/Admin/AnnualReports")" href="/Admin/AnnualReports">
+                        <span class="kafo-menu-icon">▣</span>
+                        <span>التقارير السنوية</span>
+                    </a>
+
+                    <a class="@active("/Admin/QuarterReports")" href="/Admin/QuarterReports">
+                        <span class="kafo-menu-icon">◔</span>
+                        <span>التقارير الربعية</span>
+                    </a>
+
+                    <a class="@active("/Admin/FinancialStatements")" href="/Admin/FinancialStatements">
+                        <span class="kafo-menu-icon">﷼</span>
+                        <span>القوائم المالية</span>
+                    </a>
+
+                    <a class="@active("/Admin/OperationalPlans")" href="/Admin/OperationalPlans">
+                        <span class="kafo-menu-icon">⌑</span>
+                        <span>الخطط التشغيلية</span>
+                    </a>
+                </div>
+
+                <div class="kafo-menu-section">
+                    <div class="kafo-menu-title">التطوع والتوظيف</div>
+
+                    <a class="@active("/Admin/VolunteerOpportunities")" href="/Admin/VolunteerOpportunities">
+                        <span class="kafo-menu-icon">◒</span>
+                        <span>الفرص التطوعية</span>
+                    </a>
+
+                    <a class="@active("/Admin/Jobs")" href="/Admin/Jobs">
+                        <span class="kafo-menu-icon">▰</span>
+                        <span>الوظائف</span>
+                    </a>
+
+                    <a class="@active("/Admin/Initiatives")" href="/Admin/Initiatives">
+                        <span class="kafo-menu-icon">◌</span>
+                        <span>المبادرات</span>
+                    </a>
+
+                    <a class="@active("/Admin/JobApplications")" href="/Admin/JobApplications">
+                        <span class="kafo-menu-icon">♟</span>
+                        <span>طلبات التوظيف (CV)</span>
+                    </a>
+
+                    <a class="@active("/Admin/VolunteerRequests")" href="/Admin/VolunteerRequests">
+                        <span class="kafo-menu-icon">♣</span>
+                        <span>طلبات المتطوعين</span>
+                    </a>
+                </div>
+
+                <div class="kafo-menu-section">
+                    <div class="kafo-menu-title">التواصل والإعدادات</div>
+
+                    <a class="@active("/Admin/Messages")" href="/Admin/Messages">
+                        <span class="kafo-menu-icon">▱</span>
+                        <span>صندوق الرسائل</span>
+                    </a>
+
+                    <a class="@active("/Admin/Feedback")" href="/Admin/Feedback">
+                        <span class="kafo-menu-icon">★</span>
+                        <span>التغذية الراجعة</span>
+                    </a>
+
+                    <a class="@active("/Admin/Surveys")" href="/Admin/Surveys">
+                        <span class="kafo-menu-icon">▣</span>
+                        <span>إدارة الاستبيانات</span>
+                    </a>
+
+                    <a class="@active("/Admin/Settings")" href="/Admin/Settings">
+                        <span class="kafo-menu-icon">⚙</span>
+                        <span>الإعدادات العامة</span>
+                    </a>
+
+                    <a class="@active("/Admin/Users")" href="/Admin/Users">
+                        <span class="kafo-menu-icon">♟</span>
+                        <span>إدارة المشرفين والصلاحيات</span>
+                    </a>
+
+                    <a class="@active("/Admin/Profile")" href="/Admin/Profile">
+                        <span class="kafo-menu-icon">●</span>
+                        <span>إعدادات حسابي</span>
+                    </a>
+                </div>
+
+            </nav>
+        </aside>
+
+        <main class="kafo-admin-main">
+            <header class="kafo-admin-topbar">
+                <div>
+                    <span>لوحة التحكم</span>
+                    <h1>@title</h1>
+                </div>
+
+                <a href="/" target="_blank">زيارة الموقع</a>
+            </header>
+
+            <section class="kafo-admin-content">
+                @RenderBody()
+            </section>
+        </main>
+
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

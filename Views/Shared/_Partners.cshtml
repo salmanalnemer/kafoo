@@ -1,0 +1,39 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.SuccessPartner>
+
+<section class="partners-section partners-section-final">
+    <div class="home-container">
+        <div class="section-head">
+            <span>شركاؤنا</span>
+            <h2>شركاء النجاح</h2>
+            <p>شركاء نعتز بهم في مسيرة الأثر والتمكين.</p>
+        </div>
+
+        <div class="partners-grid partners-grid-final">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <a class="partner-card partner-card-final" href="@(string.IsNullOrWhiteSpace(item.WebsiteUrl) ? "#" : item.WebsiteUrl)">
+                        <div class="partner-logo partner-logo-final">
+                            @if (!string.IsNullOrWhiteSpace(item.LogoPath))
+                            {
+                                <img src="@item.LogoPath" alt="@item.Name" />
+                            }
+                            else
+                            {
+                                <span>@item.Name.Substring(0, 1)</span>
+                            }
+                        </div>
+                        <strong>@item.Name</strong>
+                    </a>
+                }
+            }
+            else
+            {
+                <a class="partner-card partner-card-final" href="#"><div class="partner-logo partner-logo-final"><span>ش</span></div><strong>شريك النجاح</strong></a>
+                <a class="partner-card partner-card-final" href="#"><div class="partner-logo partner-logo-final"><span>ك</span></div><strong>كفو</strong></a>
+                <a class="partner-card partner-card-final" href="#"><div class="partner-logo partner-logo-final"><span>م</span></div><strong>مبادرة مجتمعية</strong></a>
+            }
+        </div>
+    </div>
+</section>

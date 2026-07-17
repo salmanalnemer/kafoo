@@ -1,0 +1,145 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.ContactMessage>
+
+@{
+    ViewData["Title"] = "صندوق الرسائل";
+    var search = ViewBag.Search as string ?? "";
+    var status = ViewBag.Status as string ?? "";
+    var type = ViewBag.Type as string ?? "";
+    var archived = ViewBag.Archived is bool b && b;
+}
+
+<div class="msg-admin-page">
+
+    <div class="msg-admin-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>صندوق الرسائل</h1>
+            <p>متابعة رسائل واستفسارات زوار الموقع وإدارة حالتها.</p>
+        </div>
+
+        <div class="msg-admin-actions">
+            <a href="/Contact" target="_blank" rel="noopener noreferrer">معاينة صفحة التواصل</a>
+            <a href="/Admin/Messages?archived=@(!archived)">@(archived ? "الرسائل الحالية" : "الأرشيف")</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="msg-admin-filter">
+        <form method="get" action="/Admin/Messages">
+            <input type="hidden" name="archived" value="@archived.ToString().ToLower()" />
+
+            <input name="q" value="@search" placeholder="ابحث بالاسم أو الجوال أو البريد أو عنوان الرسالة..." />
+
+            <select name="type">
+                <option value="">كل الأنواع</option>
+                @if (type == "استفسار") { <option value="استفسار" selected>استفسار</option> } else { <option value="استفسار">استفسار</option> }
+                @if (type == "شكوى") { <option value="شكوى" selected>شكوى</option> } else { <option value="شكوى">شكوى</option> }
+                @if (type == "اقتراح") { <option value="اقتراح" selected>اقتراح</option> } else { <option value="اقتراح">اقتراح</option> }
+                @if (type == "طلب خدمة") { <option value="طلب خدمة" selected>طلب خدمة</option> } else { <option value="طلب خدمة">طلب خدمة</option> }
+                @if (type == "أخرى") { <option value="أخرى" selected>أخرى</option> } else { <option value="أخرى">أخرى</option> }
+            </select>
+
+            <select name="status">
+                <option value="">كل الحالات</option>
+                @if (status == "جديدة") { <option value="جديدة" selected>جديدة</option> } else { <option value="جديدة">جديدة</option> }
+                @if (status == "قيد المعالجة") { <option value="قيد المعالجة" selected>قيد المعالجة</option> } else { <option value="قيد المعالجة">قيد المعالجة</option> }
+                @if (status == "تم الرد") { <option value="تم الرد" selected>تم الرد</option> } else { <option value="تم الرد">تم الرد</option> }
+                @if (status == "مغلقة") { <option value="مغلقة" selected>مغلقة</option> } else { <option value="مغلقة">مغلقة</option> }
+            </select>
+
+            <button type="submit">بحث</button>
+            <a href="/Admin/Messages">مسح</a>
+        </form>
+    </div>
+
+    <div class="msg-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="msg-admin-empty">
+                <h3>لا توجد رسائل حالياً</h3>
+                <p>ستظهر الرسائل هنا بعد إرسالها من صفحة التواصل.</p>
+            </div>
+        }
+        else
+        {
+            <div class="msg-admin-table-wrap">
+                <table class="msg-admin-table">
+                    <thead>
+                        <tr>
+                            <th>رقم</th>
+                            <th>المرسل</th>
+                            <th>الجوال</th>
+                            <th>البريد</th>
+                            <th>نوع الرسالة</th>
+                            <th>العنوان</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                            <th>مرفق</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.IsRead ? "" : "msg-unread-row")">
+                                <td>#@item.Id</td>
+
+                                <td class="msg-title-cell">
+                                    <strong>@item.FullName</strong>
+                                    @if (!item.IsRead)
+                                    {
+                                        <span>رسالة جديدة</span>
+                                    }
+                                </td>
+
+                                <td dir="ltr">@item.Phone</td>
+                                <td dir="ltr">@(string.IsNullOrWhiteSpace(item.Email) ? "-" : item.Email)</td>
+                                <td>@item.MessageType</td>
+                                <td>@item.Subject</td>
+
+                                <td>
+                                    <span class="msg-status">@item.Status</span>
+                                </td>
+
+                                <td>@item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.AttachmentPath))
+                                    {
+                                        <a class="msg-file-link" href="@item.AttachmentPath" target="_blank" rel="noopener noreferrer" download>تحميل</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="msg-admin-row-actions">
+                                        <a href="/Admin/Messages/Details/@item.Id">تفاصيل</a>
+
+                                        <form method="post" action="/Admin/Messages/Archive/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsArchived ? "استعادة" : "أرشفة")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/Messages/Delete/@item.Id" data-confirm="هل تريد حذف الرسالة؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

@@ -1,0 +1,180 @@
+﻿@model Kafo.Web.ViewModels.Admin.VisionMissionAdminViewModel
+
+@{
+    ViewData["Title"] = "الرؤية والرسالة";
+    var icons = new[]
+    {
+        "fa-solid fa-eye",
+        "fa-solid fa-envelope",
+        "fa-solid fa-gem",
+        "fa-solid fa-heart",
+        "fa-solid fa-award",
+        "fa-solid fa-star",
+        "fa-solid fa-hand-holding-heart",
+        "fa-solid fa-bullseye",
+        "fa-solid fa-people-group",
+        "fa-solid fa-lightbulb",
+        "fa-solid fa-seedling",
+        "fa-solid fa-shield-heart"
+    };
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>عن الجمعية</span>
+        <h1>الرؤية والرسالة والقيم</h1>
+        <p>إضافة وتعديل البطاقات التي تظهر في صفحة الرؤية والرسالة.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/Vision" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="vision-admin-editor">
+    <div class="admin-form-card">
+        <form method="post" action="/Admin/Pages/CreateVisionCard" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Form.Title">عنوان البطاقة</label>
+                    <input asp-for="Form.Title" placeholder="مثال: رؤيتنا" />
+                    <span asp-validation-for="Form.Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Form.DisplayOrder">الترتيب</label>
+                    <input asp-for="Form.DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Form.Content">المحتوى</label>
+                    <textarea asp-for="Form.Content" rows="5" placeholder="اكتب محتوى البطاقة"></textarea>
+                    <span asp-validation-for="Form.Content"></span>
+                </div>
+
+                <div class="form-group full">
+                    <label>اختر الأيقونة المناسبة</label>
+                    <input asp-for="Form.Icon" type="hidden" id="visionIconInput" />
+
+                    <div class="vision-icon-picker">
+                        @foreach (var icon in icons)
+                        {
+                            <button type="button" class="vision-icon-option @(Model.Form.Icon == icon ? "selected" : "")" data-icon="@icon">
+                                <i class="@icon"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="form-check full">
+                    <input asp-for="Form.IsActive" />
+                    <label asp-for="Form.IsActive">مفعل</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="admin-submit-btn" type="submit">حفظ البطاقة</button>
+            </div>
+        </form>
+    </div>
+
+    <aside class="vision-admin-live-card">
+        <span>معاينة البطاقة</span>
+        <div class="vision-admin-live-icon">
+            <i id="visionLiveIcon" class="fa-solid fa-eye"></i>
+        </div>
+        <h2 id="visionLiveTitle">عنوان البطاقة</h2>
+        <p id="visionLiveContent">محتوى البطاقة يظهر هنا بشكل مباشر أثناء الكتابة.</p>
+    </aside>
+</div>
+
+<div class="vision-current-section">
+    <h2>البطاقات الحالية</h2>
+
+    <div class="vision-current-grid">
+        @foreach (var item in Model.Cards)
+        {
+            <article class="vision-current-card @(item.IsActive ? "" : "disabled")">
+                <form method="post" action="/Admin/Pages/DeleteVisionCard/@item.Id" data-confirm="حذف البطاقة؟">
+                    @Html.AntiForgeryToken()
+                    <button class="vision-delete-btn" type="submit" title="حذف">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
+
+                <div class="vision-current-icon">
+                    <i class="@item.Icon"></i>
+                </div>
+
+                <h3>@item.Title</h3>
+                <p>@item.Content</p>
+
+                <div class="vision-current-actions">
+                    <a class="admin-small-btn purple" href="/Admin/Pages/EditVisionCard/@item.Id">تعديل</a>
+
+                    <form method="post" action="/Admin/Pages/ToggleVisionCardStatus/@item.Id">
+                        @Html.AntiForgeryToken()
+                        <button class="admin-small-btn green" type="submit">
+                            @(item.IsActive ? "إخفاء" : "إظهار")
+                        </button>
+                    </form>
+                </div>
+            </article>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const iconInput = document.getElementById("visionIconInput");
+            const liveIcon = document.getElementById("visionLiveIcon");
+            const liveTitle = document.getElementById("visionLiveTitle");
+            const liveContent = document.getElementById("visionLiveContent");
+
+            const titleInput = document.getElementById("Form_Title");
+            const contentInput = document.getElementById("Form_Content");
+            const buttons = document.querySelectorAll(".vision-icon-option");
+
+            function setIcon(icon) {
+                if (!iconInput || !liveIcon) return;
+
+                iconInput.value = icon;
+                liveIcon.className = icon;
+
+                buttons.forEach(btn => {
+                    btn.classList.toggle("selected", btn.dataset.icon === icon);
+                });
+            }
+
+            buttons.forEach(btn => {
+                btn.addEventListener("click", function () {
+                    setIcon(btn.dataset.icon);
+                });
+            });
+
+            if (titleInput) {
+                titleInput.addEventListener("input", function () {
+                    liveTitle.textContent = titleInput.value || "عنوان البطاقة";
+                });
+            }
+
+            if (contentInput) {
+                contentInput.addEventListener("input", function () {
+                    liveContent.textContent = contentInput.value || "محتوى البطاقة يظهر هنا بشكل مباشر أثناء الكتابة.";
+                });
+            }
+
+            setIcon(iconInput && iconInput.value ? iconInput.value : "fa-solid fa-eye");
+        })();
+    </script>
+}

@@ -1,0 +1,100 @@
+﻿@model Kafo.Web.Models.VideoLibraryItem
+
+@{
+    ViewData["Title"] = Model.Title;
+
+    var latest = ViewBag.LatestVideos as IReadOnlyList<Kafo.Web.Models.VideoLibraryItem>
+        ?? new List<Kafo.Web.Models.VideoLibraryItem>();
+
+    string GetYoutubeEmbedUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return "";
+
+        var value = url.Trim();
+
+        if (value.Contains("youtube.com/embed/"))
+            return value;
+
+        if (value.Contains("youtu.be/"))
+        {
+            var id = value.Split("youtu.be/").Last().Split("?").First().Trim('/');
+            return $"https://www.youtube.com/embed/{id}";
+        }
+
+        if (value.Contains("watch?v="))
+        {
+            var id = value.Split("watch?v=").Last().Split("&").First();
+            return $"https://www.youtube.com/embed/{id}";
+        }
+
+        return value;
+    }
+
+    var embedUrl = GetYoutubeEmbedUrl(Model.YoutubeUrl);
+}
+
+<section class="video-details-page">
+    <div class="home-container">
+
+        <article class="video-details-card">
+            <div class="video-details-head">
+                <span>@Model.Category</span>
+                <h1>@Model.Title</h1>
+
+                <div class="video-details-meta">
+                    <small>تاريخ النشر: @Model.PublishedAt.ToString("yyyy/MM/dd")</small>
+                    <small>المصدر: @(Model.VideoSourceType == "Upload" ? "ملف فيديو" : "YouTube")</small>
+                </div>
+            </div>
+
+            <div class="video-player-frame">
+                @if (Model.VideoSourceType == "Upload" && !string.IsNullOrWhiteSpace(Model.VideoPath))
+                {
+                    <video controls preload="metadata">
+                        <source src="@Model.VideoPath" />
+                        المتصفح لا يدعم تشغيل الفيديو.
+                    </video>
+                }
+                else if (!string.IsNullOrWhiteSpace(embedUrl))
+                {
+                    <iframe src="@embedUrl" title="@Model.Title" allowfullscreen></iframe>
+                }
+                else
+                {
+                    <div class="video-player-empty">
+                        <div>
+                            <strong>الفيديو غير متاح حالياً</strong>
+                            <span>يرجى مراجعة رابط الفيديو من لوحة التحكم.</span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="video-details-description">
+                    @Model.Description
+                </div>
+            }
+        </article>
+
+        @if (latest.Any())
+        {
+            <aside class="video-latest-box">
+                <h2>فيديوهات أخرى</h2>
+
+                <div class="video-latest-grid">
+                    @foreach (var item in latest)
+                    {
+                        <a href="/Videos/Details/@item.Id" class="video-latest-item">
+                            <strong>@item.Title</strong>
+                            <span>@item.PublishedAt.ToString("yyyy/MM/dd")</span>
+                        </a>
+                    }
+                </div>
+            </aside>
+        }
+
+    </div>
+</section>

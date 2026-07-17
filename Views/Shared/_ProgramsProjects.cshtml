@@ -1,0 +1,75 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.ProgramProject>
+
+@if (Model != null && Model.Any())
+{
+    var activePrograms = Model
+        .Where(x => x.IsActive)
+        .OrderBy(x => x.DisplayOrder)
+        .ThenByDescending(x => x.CreatedAt)
+        .Take(9)
+        .ToList();
+
+    if (activePrograms.Any())
+    {
+        <section class="home-programs-section">
+            <div class="home-container">
+                <div class="home-programs-head">
+                    <div>
+                        <span>برامجنا ومشاريعنا</span>
+                        <h2>برامج ومشاريع نوعية لخدمة المستفيدين وتمكينهم.</h2>
+                    </div>
+
+                    <a class="home-programs-all" href="/Programs">تصفح الجميع ←</a>
+                </div>
+
+                <div class="home-programs-tabs">
+                    <button type="button" class="home-program-tab active" data-program-filter="all">الكل</button>
+                    <button type="button" class="home-program-tab" data-program-filter="برنامج">برامج الجمعية</button>
+                    <button type="button" class="home-program-tab" data-program-filter="مشروع">المشاريع</button>
+                    <button type="button" class="home-program-tab" data-program-filter="مبادرة">المبادرات</button>
+                </div>
+
+                <div class="home-programs-grid">
+                    @foreach (var item in activePrograms)
+                    {
+                        <article class="home-program-card" data-program-category="@item.Category">
+                            <div class="home-program-image">
+                                @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                {
+                                    <img src="@item.ImagePath" alt="@item.Title" />
+                                }
+                                else
+                                {
+                                    <div class="home-program-placeholder">
+                                        <strong>@item.Category</strong>
+                                    </div>
+                                }
+
+                                <span>@item.Category</span>
+                            </div>
+
+                            <div class="home-program-body">
+                                <h3>@item.Title</h3>
+                                <p>@item.Description</p>
+
+                                <div class="home-program-meta">
+                                    @if (!string.IsNullOrWhiteSpace(item.Beneficiaries))
+                                    {
+                                        <small>@item.Beneficiaries</small>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(item.BeneficiariesCount))
+                                    {
+                                        <small>@item.BeneficiariesCount</small>
+                                    }
+                                </div>
+
+                                <a href="/Programs/Details/@item.Id">تفاصيل البرنامج</a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+}

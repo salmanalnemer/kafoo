@@ -1,0 +1,122 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.VolunteerOpportunity>
+
+@{
+    ViewData["Title"] = "الفرص التطوعية";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="vo-admin-page">
+
+    <div class="vo-admin-hero">
+        <div>
+            <span>التطوع والتوظيف</span>
+            <h1>الفرص التطوعية</h1>
+            <p>إدارة الفرص التطوعية المعروضة للزوار والمتطوعين.</p>
+        </div>
+
+        <div class="vo-admin-actions">
+            <a href="/VolunteerOpportunities" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a class="primary" href="/Admin/VolunteerOpportunities/Create">إضافة فرصة جديدة</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="vo-admin-filter">
+        <form method="get" action="/Admin/VolunteerOpportunities">
+            <input name="q" value="@search" placeholder="ابحث بعنوان الفرصة أو الموقع..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/VolunteerOpportunities">مسح</a>
+        </form>
+    </div>
+
+    <div class="vo-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="vo-admin-empty">
+                <h3>لا توجد فرص تطوعية حالياً</h3>
+                <p>ابدأ بإضافة أول فرصة تطوعية من زر إضافة فرصة جديدة.</p>
+            </div>
+        }
+        else
+        {
+            <div class="vo-admin-table-wrap">
+                <table class="vo-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>عنوان الفرصة</th>
+                            <th>النوع</th>
+                            <th>الموقع</th>
+                            <th>البداية</th>
+                            <th>النهاية</th>
+                            <th>الساعات</th>
+                            <th>المقاعد</th>
+                            <th>الحالة</th>
+                            <th>الترتيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                    {
+                                        <img class="vo-admin-image" src="@item.ImagePath" alt="@item.Title" />
+                                    }
+                                    else
+                                    {
+                                        <div class="vo-admin-no-image">فرصة</div>
+                                    }
+                                </td>
+
+                                <td class="vo-title-cell">
+                                    <strong>@item.Title</strong>
+                                    <span>@item.Description</span>
+                                </td>
+
+                                <td>@item.OpportunityType</td>
+                                <td>@(item.IsRemote ? "عن بعد" : (string.IsNullOrWhiteSpace(item.Location) ? "-" : item.Location))</td>
+                                <td>@(item.StartDate.HasValue ? item.StartDate.Value.ToString("yyyy/MM/dd") : "-")</td>
+                                <td>@(item.EndDate.HasValue ? item.EndDate.Value.ToString("yyyy/MM/dd") : "-")</td>
+                                <td>@item.VolunteerHours</td>
+                                <td>@item.SeatsCount</td>
+
+                                <td>
+                                    <span class="vo-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>@item.DisplayOrder</td>
+
+                                <td>
+                                    <div class="vo-admin-row-actions">
+                                        <a href="/Admin/VolunteerOpportunities/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/VolunteerOpportunities/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/VolunteerOpportunities/Delete/@item.Id" data-confirm="هل تريد حذف هذه الفرصة؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

@@ -1,0 +1,32 @@
+﻿@model Kafo.Web.Models.OrganizationalStructurePage
+
+@{
+    ViewData["Title"] = "الهيكل التنظيمي";
+}
+
+<section class="org-public-page">
+    <div class="home-container">
+        <div class="org-public-head">
+            <span>عن الجمعية</span>
+            <h1>@Model.Title</h1>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p>@Model.Description</p>
+            }
+        </div>
+
+        <div class="org-public-viewer">
+            @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+            {
+                <img src="@Model.ImagePath" alt="@Model.Title" />
+            }
+            else
+            {
+                <div class="org-public-empty">
+                    لا توجد صورة منشورة للهيكل التنظيمي حتى الآن.
+                </div>
+            }
+        </div>
+    </div>
+</section>

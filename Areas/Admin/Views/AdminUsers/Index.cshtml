@@ -1,0 +1,129 @@
+@model Kafo.Web.ViewModels.Admin.AdminUsersIndexViewModel
+@using Kafo.Web.Security
+
+@{
+    ViewData["Title"] = "مستخدمي لوحة التحكم والصلاحيات";
+    var actorRoleLabel = AdminRolePolicy.GetLabel(Model.CurrentUserRoleCode);
+}
+
+<div class="adm-users-page">
+    <div class="adm-users-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>مستخدمي لوحة التحكم والصلاحيات</h1>
+            <p>تسجيل مستخدمي الإدارة وتحديد دور كل مستخدم والصفحات التي يستطيع الوصول إليها. حسابك الحالي: @actorRoleLabel.</p>
+        </div>
+
+        <div class="adm-users-actions">
+            <a class="primary" href="/Admin/Users/Create">تسجيل مستخدم جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert-error">@TempData["Error"]</div>
+    }
+
+    <div class="adm-users-filter">
+        <form method="get" action="/Admin/Users">
+            <input name="q" value="@Model.Search" placeholder="ابحث بالاسم أو اسم المستخدم أو البريد..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/Users">مسح</a>
+        </form>
+    </div>
+
+    <div class="adm-users-card">
+        @if (Model.Users.Count == 0)
+        {
+            <div class="adm-empty">
+                <h3>لا يوجد مستخدمون مطابقون</h3>
+            </div>
+        }
+        else
+        {
+            <div class="adm-table-wrap">
+                <table class="adm-users-table">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>اسم المستخدم</th>
+                            <th>البريد</th>
+                            <th>الجوال</th>
+                            <th>الدور</th>
+                            <th>الحالة</th>
+                            <th>آخر دخول</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model.Users)
+                        {
+                            <tr>
+                                <td class="adm-user-title">
+                                    <strong>@item.User.FullName</strong>
+                                    <span>#@item.User.Id</span>
+                                </td>
+
+                                <td dir="ltr">@item.User.UserName</td>
+                                <td dir="ltr">@(string.IsNullOrWhiteSpace(item.User.Email) ? "-" : item.User.Email)</td>
+                                <td dir="ltr">@(string.IsNullOrWhiteSpace(item.User.Phone) ? "-" : item.User.Phone)</td>
+
+                                <td>
+                                    <span class="adm-badge @(item.RoleCode == AdminRolePolicy.SystemManager ? "super" : item.RoleCode == AdminRolePolicy.AdministrationManager ? "manager" : "")">
+                                        @item.RoleLabel
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="adm-status @(item.User.IsActive ? "active" : "disabled")">
+                                        @(item.User.IsActive ? "مفعل" : "معطل")
+                                    </span>
+                                </td>
+
+                                <td>@(item.User.LastLoginAt.HasValue ? item.User.LastLoginAt.Value.ToString("yyyy/MM/dd HH:mm") : "-")</td>
+
+                                <td>
+                                    <div class="adm-row-actions">
+                                        @if (item.CanEdit)
+                                        {
+                                            <a href="/Admin/Users/Edit/@item.User.Id">تعديل</a>
+
+                                            <form method="post" action="/Admin/Users/SendPasswordSetupLink/@item.User.Id" data-confirm="سيتم إبطال الجلسات السابقة وإرسال رابط آمن لإعداد كلمة المرور. متابعة؟">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit">إرسال رابط إعداد</button>
+                                            </form>
+                                        }
+
+                                        @if (item.CanManagePermissions)
+                                        {
+                                            <a href="/Admin/Users/Permissions/@item.User.Id">صلاحيات الصفحات</a>
+                                        }
+
+                                        @if (item.CanDelete)
+                                        {
+                                            <form method="post" action="/Admin/Users/Delete/@item.User.Id" data-confirm="هل تريد حذف هذا المستخدم نهائيًا؟">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="danger">حذف</button>
+                                            </form>
+                                        }
+
+                                        @if (!item.CanEdit && !item.CanManagePermissions && !item.CanDelete)
+                                        {
+                                            <span>لا توجد إجراءات متاحة</span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

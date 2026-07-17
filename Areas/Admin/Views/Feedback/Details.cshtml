@@ -1,0 +1,88 @@
+﻿@model Kafo.Web.Models.SatisfactionResponse
+
+@{
+    ViewData["Title"] = "تفاصيل قياس الرضا";
+}
+
+<div class="sat-admin-page">
+
+    <div class="sat-admin-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>تفاصيل قياس الرضا #@Model.Id</h1>
+            <p>مراجعة تقييم المستفيد وملاحظاته ومقترحاته.</p>
+        </div>
+
+        <div class="sat-admin-actions">
+            <a href="/Admin/Satisfaction">رجوع لقياس الرضا</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="sat-details-grid">
+        <div class="sat-details-card">
+            <h2>بيانات الرد</h2>
+
+            <dl>
+                <dt>الاسم</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.FullName) ? "غير محدد" : Model.FullName)</dd>
+
+                <dt>الجوال</dt>
+                <dd dir="ltr">@(string.IsNullOrWhiteSpace(Model.Phone) ? "-" : Model.Phone)</dd>
+
+                <dt>البريد</dt>
+                <dd dir="ltr">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
+
+                <dt>نوع المستفيد</dt>
+                <dd>@Model.BeneficiaryType</dd>
+
+                <dt>الخدمة</dt>
+                <dd>@Model.ServiceName</dd>
+
+                <dt>مستوى الرضا</dt>
+                <dd>@Model.SatisfactionLevel</dd>
+
+                <dt>التقييم</dt>
+                <dd>@Model.Rating / 5</dd>
+
+                <dt>تاريخ الإرسال</dt>
+                <dd>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</dd>
+            </dl>
+        </div>
+
+        <div class="sat-details-card">
+            <h2>ملاحظات الإدارة</h2>
+
+            <form method="post" action="/Admin/Satisfaction/SaveNotes/@Model.Id" class="sat-notes-form">
+                @Html.AntiForgeryToken()
+
+                <label>ملاحظات داخلية</label>
+                <textarea name="adminNotes" rows="8">@Model.AdminNotes</textarea>
+
+                <button type="submit">حفظ الملاحظات</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="sat-response-grid">
+        <div class="sat-details-card">
+            <h2>ما الذي أعجب المستفيد؟</h2>
+            <p>@(string.IsNullOrWhiteSpace(Model.PositiveNotes) ? "لا توجد ملاحظات." : Model.PositiveNotes)</p>
+        </div>
+
+        <div class="sat-details-card">
+            <h2>ما الذي يحتاج تحسين؟</h2>
+            <p>@(string.IsNullOrWhiteSpace(Model.ImprovementNotes) ? "لا توجد ملاحظات." : Model.ImprovementNotes)</p>
+        </div>
+
+        <div class="sat-details-card full">
+            <h2>المقترحات</h2>
+            <p>@(string.IsNullOrWhiteSpace(Model.Suggestions) ? "لا توجد مقترحات." : Model.Suggestions)</p>
+        </div>
+    </div>
+
+</div>

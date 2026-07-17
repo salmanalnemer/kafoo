@@ -1,0 +1,88 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.ProgramProject>
+
+@{
+    ViewData["Title"] = "البرامج والمشاريع";
+    var categories = ViewBag.Categories as IReadOnlyList<string> ?? new List<string>();
+    string? selectedCategory = ViewBag.SelectedCategory as string;
+}
+
+<section class="programs-public-page">
+    <div class="home-container">
+        <div class="programs-page-head">
+            <span>برامجنا ومشاريعنا</span>
+            <h1>البرامج والمشاريع</h1>
+            <p>مبادرات وبرامج نوعية لتمكين ذوي الإعاقة، ودعم التدريب والتأهيل والمشاركة الفاعلة في المجتمع.</p>
+        </div>
+
+        <div class="programs-filter-bar">
+            <a class="@(string.IsNullOrWhiteSpace(selectedCategory) ? "active" : "")" href="/Programs">الكل</a>
+
+            @foreach (var category in categories)
+            {
+                <a class="@(selectedCategory == category ? "active" : "")" href="/Programs?category=@category">@category</a>
+            }
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="programs-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="program-public-card">
+                        <div class="program-public-image">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <div class="program-public-placeholder">
+                                    <strong>@item.Category</strong>
+                                </div>
+                            }
+
+                            <span>@item.Category</span>
+                        </div>
+
+                        <div class="program-public-body">
+                            <h2>@item.Title</h2>
+                            <p>@item.Description</p>
+
+                            <div class="program-public-meta">
+                                @if (!string.IsNullOrWhiteSpace(item.Beneficiaries))
+                                {
+                                    <span>الفئة: @item.Beneficiaries</span>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(item.BeneficiariesCount))
+                                {
+                                    <span>المستفيدون: @item.BeneficiariesCount</span>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(item.Sector))
+                                {
+                                    <span>القطاع: @item.Sector</span>
+                                }
+                            </div>
+
+                            <div class="program-public-actions">
+                                <a href="/Programs/Details/@item.Id">التفاصيل</a>
+
+                                @if (!string.IsNullOrWhiteSpace(item.ExternalUrl))
+                                {
+                                    <a href="@item.ExternalUrl" target="_blank" rel="noopener noreferrer">رابط خارجي</a>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="programs-empty-public">
+                لا توجد برامج أو مشاريع منشورة حالياً.
+            </div>
+        }
+    </div>
+</section>

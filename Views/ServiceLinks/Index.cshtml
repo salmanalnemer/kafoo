@@ -1,0 +1,70 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.ServiceLink>
+
+@{
+    ViewData["Title"] = "روابط الخدمات";
+    var categories = ViewBag.Categories as IReadOnlyList<string> ?? new List<string>();
+    string? selectedCategory = ViewBag.SelectedCategory as string;
+}
+
+<section class="services-public-page">
+    <div class="home-container">
+        <div class="services-page-head">
+            <span>خدمات الجمعية</span>
+            <h1>روابط الخدمات</h1>
+            <p>وصول سريع إلى الخدمات الإلكترونية والنماذج والروابط المهمة للمستفيدين والشركاء.</p>
+        </div>
+
+        <div class="services-filter-bar">
+            <a class="@(string.IsNullOrWhiteSpace(selectedCategory) ? "active" : "")" href="/ServiceLinks">الكل</a>
+
+            @foreach (var category in categories)
+            {
+                <a class="@(selectedCategory == category ? "active" : "")" href="/ServiceLinks?category=@category">@category</a>
+            }
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="services-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="service-public-card">
+                        <div class="service-public-icon">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <strong>@item.Title.Substring(0, 1)</strong>
+                            }
+                        </div>
+
+                        <div class="service-public-body">
+                            <span>@item.Category</span>
+                            <h2>@item.Title</h2>
+                            <p>@item.Description</p>
+
+                            @if (!string.IsNullOrWhiteSpace(item.TargetAudience))
+                            {
+                                <small>الفئة المستهدفة: @item.TargetAudience</small>
+                            }
+
+                            <a href="@item.Url"
+                               target="@(item.OpenInNewTab ? "_blank" : "_self")"
+                               rel="noopener">
+                                @item.ButtonText
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="services-empty-public">
+                لا توجد روابط خدمات منشورة حالياً.
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,158 @@
+﻿@using Kafo.Web.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+
+@{
+    var serviceLinks = await Db.ServiceLinks
+        .AsNoTracking()
+        .Where(x => x.IsActive)
+        .OrderBy(x => x.DisplayOrder)
+        .ThenBy(x => x.Id)
+        .ToListAsync();
+
+    var donateLink = serviceLinks.FirstOrDefault(x =>
+        (x.Category ?? "").Contains("تبرع") ||
+        x.Title.Contains("تبرع") ||
+        x.Title.Contains("المتجر") ||
+        (!string.IsNullOrWhiteSpace(x.Url) && x.Url.Contains("store", StringComparison.OrdinalIgnoreCase)));
+
+    var donateHref = !string.IsNullOrWhiteSpace(donateLink?.Url)
+        ? donateLink.Url
+        : "/BankAccounts";
+
+    var donateIsExternal = donateLink != null &&
+        !donateHref.StartsWith("/") &&
+        donateLink.OpenInNewTab;
+
+    var donateTarget = donateIsExternal ? "_blank" : "_self";
+
+    var menuServiceLinks = serviceLinks
+        .Where(x => (donateLink == null || x.Id != donateLink.Id)
+            && !string.Equals(x.Url, "/NewBeneficiaryRegistration", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+}
+
+<header class="kafo-official-header">
+    <div class="kafo-official-inner">
+
+        <a class="kafo-official-logo" href="/" aria-label="الرئيسية">
+            <img src="/images/logo1.png" alt="جمعية كفؤ" />
+        </a>
+
+        <nav class="kafo-official-nav" aria-label="القائمة الرئيسية">
+            <a href="/" class="kafo-official-link">الرئيسية</a>
+
+            <div class="kafo-official-menu">
+                <button type="button">عن الجمعية <span>⌄</span></button>
+                <div class="kafo-official-dropdown">
+                    <a href="/About">من نحن</a>
+                    <a href="/Vision">الرؤية والرسالة والأهداف</a>
+                    <a href="/Team">فريق العمل</a>
+                    <a href="/President">كلمة رئيس المجلس</a>
+                    <a href="/ExecutiveManager">المدير التنفيذي</a>
+                    <a href="/Licenses">تراخيص الجمعية</a>
+                    <a href="/OrganizationalStructure">الهيكل التنظيمي</a>
+                    <a href="/BankAccounts">الحسابات البنكية</a>
+                </div>
+            </div>
+
+            <a href="/Programs" class="kafo-official-link">البرامج والمشاريع</a>
+
+            <div class="kafo-official-menu">
+                <button type="button">الخدمات الإلكترونية <span>⌄</span></button>
+
+                <div class="kafo-official-dropdown">
+                    <a href="/NewBeneficiaryRegistration">تسجيل مستفيد جديد</a>
+
+                    @if (menuServiceLinks.Any())
+                    {
+                        foreach (var item in menuServiceLinks)
+                        {
+                            var href = string.IsNullOrWhiteSpace(item.Url) ? "#" : item.Url;
+                            var isExternal = !href.StartsWith("/") &&
+                                             !href.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase) &&
+                                             !href.StartsWith("tel:", StringComparison.OrdinalIgnoreCase);
+
+                            var target = isExternal && item.OpenInNewTab ? "_blank" : "_self";
+
+                            <a href="@href" target="@target" rel="noopener">
+                                @item.Title
+                                @if (isExternal)
+                                {
+                                    <small>↗</small>
+                                }
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="kafo-official-menu">
+                <button type="button">المركز الإعلامي <span>⌄</span></button>
+                <div class="kafo-official-dropdown">
+                    <a href="/News">الأخبار</a>
+                    <a href="/AidReports">تقارير المساعدات</a>
+                    <a href="/SuccessPartners">شركاء النجاح</a>
+                    <a href="/Videos">مكتبة الفيديو</a>
+                </div>
+            </div>
+
+            <div class="kafo-official-menu">
+                <button type="button">الحوكمة <span>⌄</span></button>
+                <div class="kafo-official-dropdown kafo-official-dropdown-wide">
+                    <a href="/Governance/GeneralAssemblyMembers">أعضاء الجمعية العمومية</a>
+                    <a href="/Governance/GeneralAssemblyMinutes">محاضر الجمعية العمومية</a>
+                    <a href="/Governance/BoardMembers">أعضاء مجلس الإدارة</a>
+                    <a href="/Governance/BoardMinutes">محاضر مجلس الإدارة</a>
+                    <a href="/Governance/Committees">لجان الجمعية</a>
+                    <a href="/Governance/Policies">السياسات واللوائح</a>
+                    <a href="/Governance/AnnualReports">التقارير السنوية</a>
+                    <a href="/Governance/QuarterReports">التقارير الربعية</a>
+                    <a href="/Governance/FinancialStatements">القوائم المالية</a>
+                    <a href="/Governance/OperationalPlans">الخطط</a>
+                </div>
+            </div>
+
+            <div class="kafo-official-menu">
+                <button type="button">التطوع <span>⌄</span></button>
+                <div class="kafo-official-dropdown">
+                    <a href="/VolunteerOpportunities">الفرص التطوعية</a>
+                    <a href="/Initiatives">مبادرات الجمعية</a>
+                </div>
+            </div>
+
+            <div class="kafo-official-menu">
+                <button type="button">تواصل معنا <span>⌄</span></button>
+                <div class="kafo-official-dropdown">
+                    <!--<a href="/Complaints">الشكاوى والاقتراحات</a>-->
+                    <a href="/Contact">تواصل معنا</a>
+                    <a href="/Satisfaction">قياس الرضا</a>
+                    <a href="/Feedback">التغذية الراجعة</a>
+                    <a href="/JobApplications">التوظيف</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="kafo-official-tools">
+            <a class="kafo-official-donate" href="@donateHref" target="@donateTarget" rel="noopener">تبرع الآن</a>
+
+            <button type="button" class="kafo-official-icon-btn" aria-label="البحث">
+                <span>⌕</span>
+            </button>
+
+            <div class="kafo-official-lang">
+                <button type="button">
+                    اللغة
+                    <span>⌄</span>
+                </button>
+                <div class="kafo-official-lang-menu">
+                    <a href="#">العربية</a>
+                    <a href="#">English</a>
+                </div>
+            </div>
+
+            <a class="kafo-official-admin" href="/Portal/Login">الدخول الموحد</a>
+        </div>
+
+    </div>
+</header>

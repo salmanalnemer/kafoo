@@ -1,0 +1,94 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.VideoLibraryItem>
+
+@{
+    ViewData["Title"] = "مكتبة الفيديو";
+
+    string GetYoutubeThumbnail(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return "";
+
+        var value = url.Trim();
+        var id = "";
+
+        if (value.Contains("youtu.be/"))
+            id = value.Split("youtu.be/").Last().Split("?").First().Trim('/');
+
+        if (value.Contains("watch?v="))
+            id = value.Split("watch?v=").Last().Split("&").First();
+
+        if (value.Contains("youtube.com/embed/"))
+            id = value.Split("youtube.com/embed/").Last().Split("?").First().Trim('/');
+
+        return string.IsNullOrWhiteSpace(id) ? "" : $"https://img.youtube.com/vi/{id}/hqdefault.jpg";
+    }
+}
+
+<section class="videos-public-page">
+    <div class="home-container">
+
+        <div class="videos-public-head">
+            <span>المركز الإعلامي</span>
+            <h1>مكتبة الفيديو</h1>
+            <p>شاهد مقاطع الفيديو الخاصة ببرامج الجمعية ومبادراتها وأنشطتها.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="videos-public-empty">
+                <h3>لا توجد فيديوهات حالياً</h3>
+                <p>سيتم عرض الفيديوهات هنا عند إضافتها من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="videos-public-grid">
+                @foreach (var item in Model)
+                {
+                    var thumb = !string.IsNullOrWhiteSpace(item.ThumbnailPath)
+                        ? item.ThumbnailPath
+                        : GetYoutubeThumbnail(item.YoutubeUrl);
+
+                    <article class="videos-public-card">
+                        <a href="/Videos/Details/@item.Id" class="videos-public-image">
+                            @if (!string.IsNullOrWhiteSpace(thumb))
+                            {
+                                <img src="@thumb" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <div>فيديو</div>
+                            }
+
+                            <b>▶</b>
+
+                            @if (item.IsFeatured)
+                            {
+                                <em>مميز</em>
+                            }
+                        </a>
+
+                        <div class="videos-public-content">
+                            <span>@item.Category</span>
+
+                            <h2>
+                                <a href="/Videos/Details/@item.Id">@item.Title</a>
+                            </h2>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p>@item.Description</p>
+                            }
+
+                            <div class="videos-public-meta">
+                                <small>@item.PublishedAt.ToString("yyyy/MM/dd")</small>
+                                <a href="/Videos/Details/@item.Id">مشاهدة الفيديو</a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

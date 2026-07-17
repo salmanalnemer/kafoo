@@ -1,0 +1,393 @@
+﻿@model Kafo.Web.Models.Organizations.OpportunityRequest
+@{
+    ViewData["Title"] = "إدارة طلب الاستقطاب";
+
+    var requestStatuses = ViewBag.RequestStatuses as string[] ?? Array.Empty<string>();
+    var candidateStatuses = ViewBag.CandidateStatuses as string[] ?? Array.Empty<string>();
+
+    var salaryText = Model.SalaryAmount.HasValue
+        ? $"{Model.SalaryAmount.Value:N0} ر.س"
+        : "غير محدد";
+
+    var leaveText = Model.AnnualLeaveDays.HasValue
+        ? Model.AnnualLeaveDays.Value == 0
+            ? "لا ينطبق"
+            : $"{Model.AnnualLeaveDays.Value} يومًا"
+        : "غير محدد";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin-organization-request.css"
+      asp-append-version="true" />
+
+<div class="aor-page">
+    <header class="aor-hero">
+        <div class="aor-hero-copy">
+            <span class="aor-eyebrow">@Model.OrganizationAccount?.Name</span>
+            <h1>@Model.Title</h1>
+            <p>
+                @Model.OpportunityType
+                <span>•</span>
+                @(Model.City ?? "مدينة غير محددة")
+                <span>•</span>
+                طلب رقم #@Model.Id
+            </p>
+        </div>
+
+        <div class="aor-hero-actions">
+            <a class="aor-btn aor-btn-secondary"
+               href="/Admin/Organizations/Details/@Model.OrganizationAccountId">
+                ملف الجهة
+            </a>
+
+            <a class="aor-btn aor-btn-light"
+               href="/Admin/Organizations">
+                كل الجهات
+            </a>
+        </div>
+    </header>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert-error">@TempData["Error"]</div>
+    }
+
+    <section class="aor-summary-grid">
+        <article>
+            <span>حالة الطلب</span>
+            <strong>@Model.Status</strong>
+        </article>
+
+        <article>
+            <span>عدد الفرص</span>
+            <strong>@Model.AvailableCount</strong>
+        </article>
+
+        <article>
+            <span>عدد المرشحين</span>
+            <strong>@Model.Candidates.Count</strong>
+        </article>
+
+        <article>
+            <span>نوع الدوام</span>
+            <strong>@(Model.EmploymentType ?? "غير محدد")</strong>
+        </article>
+
+        <article>
+            <span>الراتب / المكافأة</span>
+            <strong>@salaryText</strong>
+        </article>
+    </section>
+
+    <div class="aor-main-grid">
+        <section class="aor-card">
+            <div class="aor-card-head">
+                <div>
+                    <span class="aor-section-number">01</span>
+                    <div>
+                        <h2>بيانات الفرصة</h2>
+                        <p>ملخص منظم لجميع بيانات طلب الاستقطاب.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="aor-table-wrap">
+                <table class="aor-details-table">
+                    <tbody>
+                        <tr>
+                            <th>نوع الفرصة</th>
+                            <td>@Model.OpportunityType</td>
+                            <th>طبيعة العمل</th>
+                            <td>@Model.WorkNature</td>
+                        </tr>
+                        <tr>
+                            <th>المدينة</th>
+                            <td>@(Model.City ?? "غير محدد")</td>
+                            <th>مقر العمل</th>
+                            <td>@(Model.WorkLocation ?? "غير محدد")</td>
+                        </tr>
+                        <tr>
+                            <th>نوع الدوام</th>
+                            <td>@(Model.EmploymentType ?? "غير محدد")</td>
+                            <th>الساعات / المدة</th>
+                            <td>@(Model.WorkHours ?? "غير محدد")</td>
+                        </tr>
+                        <tr>
+                            <th>الراتب / المكافأة</th>
+                            <td class="aor-emphasis">@salaryText</td>
+                            <th>الإجازة السنوية</th>
+                            <td>@leaveText</td>
+                        </tr>
+                        <tr>
+                            <th>المؤهلات</th>
+                            <td colspan="3">@(Model.Qualifications ?? "غير محدد")</td>
+                        </tr>
+                        <tr>
+                            <th>المهارات</th>
+                            <td colspan="3">@(Model.Skills ?? "غير محدد")</td>
+                        </tr>
+                        <tr>
+                            <th>فئات الإعاقة المناسبة</th>
+                            <td colspan="3">
+                                @(Model.SuitableDisabilityTypes ?? "جميع الفئات المناسبة")
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>الوصف والمهام</th>
+                            <td colspan="3" class="aor-description">@Model.Description</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="aor-card aor-status-card">
+            <div class="aor-card-head">
+                <div>
+                    <span class="aor-section-number">02</span>
+                    <div>
+                        <h2>تحديث مسار الطلب</h2>
+                        <p>غيّر الحالة وأرسل إشعارًا للجهة.</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post"
+                  action="/Admin/Organizations/Requests/@Model.Id/Status"
+                  class="aor-status-form">
+                @Html.AntiForgeryToken()
+
+                <label>
+                    <span>الحالة الجديدة</span>
+                    <select name="status" required>
+                        @foreach (var status in requestStatuses)
+                        {
+                            <option value="@status"
+                                    selected="@(Model.Status == status)">
+                                @status
+                            </option>
+                        }
+                    </select>
+                </label>
+
+                <label>
+                    <span>رسالة الإشعار</span>
+                    <textarea name="message"
+                              rows="4"
+                              maxlength="1000"
+                              placeholder="اختياري، ستظهر الرسالة للجهة داخل البوابة"></textarea>
+                </label>
+
+                <button type="submit" class="aor-btn aor-btn-primary">
+                    حفظ وإشعار الجهة
+                </button>
+            </form>
+
+            <div class="aor-current-status">
+                <span>الحالة الحالية</span>
+                <strong>@Model.Status</strong>
+                <small>
+                    آخر تحديث:
+                    @Model.UpdatedAt.ToString("yyyy/MM/dd - hh:mm tt")
+                </small>
+            </div>
+        </aside>
+    </div>
+
+    <section class="aor-card">
+        <div class="aor-card-head">
+            <div>
+                <span class="aor-section-number">03</span>
+                <div>
+                    <h2>إضافة مرشح جديد</h2>
+                    <p>أدخل بيانات المرشح وارفع السيرة الذاتية مباشرة من جهازك.</p>
+                </div>
+            </div>
+        </div>
+
+        <form class="aor-candidate-add"
+              method="post"
+              enctype="multipart/form-data"
+              action="/Admin/Organizations/Requests/@Model.Id/Candidates/Add">
+            @Html.AntiForgeryToken()
+
+            <div class="aor-candidate-grid">
+                <label class="aor-field">
+                    <span>اسم المرشح <b>*</b></span>
+                    <input name="candidateName"
+                           required
+                           maxlength="180"
+                           autocomplete="off"
+                           placeholder="اكتب اسم المرشح الكامل" />
+                </label>
+
+                <label class="aor-upload-field"
+                       for="candidateCvInput">
+                    <input id="candidateCvInput"
+                           name="cvFile"
+                           type="file"
+                           accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+
+                    <span class="aor-upload-icon">↑</span>
+
+                    <span class="aor-upload-copy">
+                        <strong>رفع السيرة الذاتية</strong>
+                        <small>PDF أو DOC أو DOCX — بحد أقصى 10MB</small>
+                        <em id="candidateCvFileName">لم يتم اختيار ملف</em>
+                    </span>
+
+                    <span class="aor-upload-button">اختيار ملف</span>
+                </label>
+
+                <label class="aor-field">
+                    <span>المؤهلات</span>
+                    <textarea name="qualifications"
+                              rows="4"
+                              maxlength="1200"
+                              placeholder="مثال: دبلوم، بكالوريوس، شهادات مهنية..."></textarea>
+                </label>
+
+                <label class="aor-field">
+                    <span>المهارات</span>
+                    <textarea name="skills"
+                              rows="4"
+                              maxlength="1200"
+                              placeholder="مثال: خدمة العملاء، الحاسب، التواصل..."></textarea>
+                </label>
+            </div>
+
+            <div class="aor-form-footer">
+                <span>سيتم حفظ الملف داخل النظام وربطه بالمرشح تلقائيًا.</span>
+
+                <button type="submit" class="aor-btn aor-btn-primary">
+                    إضافة المرشح وإشعار الجهة
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="aor-card">
+        <div class="aor-card-head aor-candidates-head">
+            <div>
+                <span class="aor-section-number">04</span>
+                <div>
+                    <h2>المرشحون</h2>
+                    <p>متابعة السيرة الذاتية وحالة كل مرشح.</p>
+                </div>
+            </div>
+
+            <span class="aor-count-badge">@Model.Candidates.Count مرشح</span>
+        </div>
+
+        <div class="aor-table-wrap">
+            <table class="aor-candidates-table">
+                <thead>
+                    <tr>
+                        <th>المرشح</th>
+                        <th>المؤهلات والمهارات</th>
+                        <th>السيرة الذاتية</th>
+                        <th>الحالة والملاحظات</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (!Model.Candidates.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="aor-empty">
+                                لم تتم إضافة مرشحين لهذا الطلب حتى الآن.
+                            </td>
+                        </tr>
+                    }
+
+                    @foreach (var candidate in Model.Candidates)
+                    {
+                        var initial = string.IsNullOrWhiteSpace(candidate.CandidateName)
+                            ? "م"
+                            : candidate.CandidateName.Trim()[0].ToString();
+
+                        <tr>
+                            <td>
+                                <div class="aor-candidate-identity">
+                                    <span>@initial</span>
+                                    <div>
+                                        <strong>@candidate.CandidateName</strong>
+                                        <small>
+                                            أضيف في
+                                            @candidate.CreatedAt.ToString("yyyy/MM/dd")
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="aor-candidate-info">
+                                    <span>
+                                        <b>المؤهلات:</b>
+                                        @(candidate.Qualifications ?? "غير محدد")
+                                    </span>
+                                    <span>
+                                        <b>المهارات:</b>
+                                        @(candidate.Skills ?? "غير محدد")
+                                    </span>
+                                </div>
+                            </td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(candidate.CvFilePath))
+                                {
+                                    <a class="aor-cv-link"
+                                       href="@candidate.CvFilePath"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        فتح السيرة الذاتية
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="aor-no-file">لا توجد سيرة مرفوعة</span>
+                                }
+                            </td>
+
+                            <td>
+                                <form class="aor-candidate-update"
+                                      method="post"
+                                      action="/Admin/Organizations/Candidates/@candidate.Id/Update">
+                                    @Html.AntiForgeryToken()
+
+                                    <select name="status"
+                                            aria-label="حالة المرشح">
+                                        @foreach (var status in candidateStatuses)
+                                        {
+                                            <option value="@status"
+                                                    selected="@(candidate.Status == status)">
+                                                @status
+                                            </option>
+                                        }
+                                    </select>
+
+                                    <input name="organizationNotes"
+                                           value="@candidate.OrganizationNotes"
+                                           maxlength="1200"
+                                           placeholder="ملاحظات على المرشح" />
+
+                                    <button type="submit">حفظ</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin-organization-request.js"
+            asp-append-version="true"></script>
+}

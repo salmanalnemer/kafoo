@@ -1,0 +1,39 @@
+@model Kafo.Web.Models.ExecutiveManagerMessage
+
+@{
+    ViewData["Title"] = "كلمة المدير التنفيذي";
+}
+
+<section class="president-public-page executive-public-page">
+    <div class="home-container">
+        <div class="president-public-hero">
+            <div class="president-public-image">
+                @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                {
+                    <img src="@Model.ImagePath" alt="@Model.ManagerName" />
+                }
+                else
+                {
+                    <div class="president-placeholder">
+                        <span>صورة</span>
+                        <strong>المدير التنفيذي</strong>
+                    </div>
+                }
+            </div>
+
+            <div class="president-public-content">
+                <span>عن الجمعية</span>
+                <h1>@Model.Title</h1>
+
+                <div class="president-person">
+                    <strong>@Model.ManagerName</strong>
+                    <small>@Model.PositionTitle</small>
+                </div>
+
+                <div class="president-message-text">
+                    <span style="white-space:pre-line">@Model.MessageText</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

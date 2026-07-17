@@ -1,0 +1,66 @@
+@model Kafo.Web.Models.SiteContentPage
+
+@{
+    ViewData["Title"] = "من نحن";
+}
+
+<section class="about-public-page">
+    <div class="home-container">
+        <div class="about-public-hero">
+            <div class="about-public-content">
+                <span>عن الجمعية</span>
+                <h1>@Model.Title</h1>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Subtitle))
+                {
+                    <h2>@Model.Subtitle</h2>
+                }
+
+                <div class="about-public-text">
+                    <span style="white-space:pre-line">@Model.Content</span>
+                </div>
+
+                <div class="about-public-tags">
+                    <strong>تمكين</strong>
+                    <strong>تأهيل مهني</strong>
+                    <strong>جودة الحياة</strong>
+                    <strong>رؤية 2030</strong>
+                </div>
+            </div>
+
+            <div class="about-public-media">
+                @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                {
+                    <img src="@Model.ImagePath" alt="@Model.Title" />
+                }
+                else
+                {
+                    <div class="about-public-placeholder">
+                        <strong>كفؤ</strong>
+                        <span>لتمكين ذوي الإعاقة</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="about-public-cards">
+            <article>
+                <span>01</span>
+                <h3>التدريب والتأهيل</h3>
+                <p>برامج تدريبية وتأهيلية تساعد المستفيدين على اكتساب المهارات المناسبة.</p>
+            </article>
+
+            <article>
+                <span>02</span>
+                <h3>رفع الوعي</h3>
+                <p>تعزيز وعي المجتمع تجاه قدرات ذوي الإعاقة وحقوقهم وفرص تمكينهم.</p>
+            </article>
+
+            <article>
+                <span>03</span>
+                <h3>المشاركة الفاعلة</h3>
+                <p>تمكين المستفيدين من المشاركة في المجتمع وسوق العمل بما يتناسب مع قدراتهم.</p>
+            </article>
+        </div>
+    </div>
+</section>

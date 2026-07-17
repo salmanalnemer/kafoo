@@ -1,0 +1,90 @@
+@model Kafo.Web.Models.ContactMessage
+
+@{
+    ViewData["Title"] = "تواصل معنا";
+}
+
+<section class="contact-public-page">
+    <div class="home-container">
+
+        <div class="contact-public-head">
+            <span>التواصل والإعدادات</span>
+            <h1>تواصل معنا</h1>
+            <p>نسعد باستقبال استفساراتكم وملاحظاتكم عبر نموذج التواصل.</p>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="contact-public-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        <div class="contact-public-card">
+            <form method="post" enctype="multipart/form-data" action="/Contact" class="contact-public-form">
+                @Html.AntiForgeryToken()
+        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+            <label>اترك هذا الحقل فارغًا<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="contact-public-grid">
+                    <div class="form-group">
+                        <label>الاسم الكامل <b>*</b></label>
+                        <input asp-for="FullName" placeholder="اكتب الاسم الكامل" />
+                        <span asp-validation-for="FullName"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>رقم الجوال <b>*</b></label>
+                        <input asp-for="Phone" dir="ltr" placeholder="05xxxxxxxx" />
+                        <span asp-validation-for="Phone"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input asp-for="Email" dir="ltr" placeholder="example@email.com" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع الرسالة <b>*</b></label>
+                        <select asp-for="MessageType">
+                            <option value="استفسار">استفسار</option>
+                            <option value="شكوى">شكوى</option>
+                            <option value="اقتراح">اقتراح</option>
+                            <option value="طلب خدمة">طلب خدمة</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                        <span asp-validation-for="MessageType"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>عنوان الرسالة <b>*</b></label>
+                        <input asp-for="Subject" placeholder="اكتب عنوان الرسالة" />
+                        <span asp-validation-for="Subject"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>نص الرسالة <b>*</b></label>
+                        <textarea asp-for="MessageBody" rows="6" placeholder="اكتب رسالتك هنا"></textarea>
+                        <span asp-validation-for="MessageBody"></span>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>مرفق اختياري</label>
+                        <input type="file" name="attachmentFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" />
+                        <small>يمكن إرفاق ملف داعم بصيغة PDF أو صورة أو Word.</small>
+                    </div>
+                </div>
+
+                <div class="contact-public-actions">
+                    <button type="submit">إرسال الرسالة</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>

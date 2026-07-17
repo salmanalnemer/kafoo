@@ -1,0 +1,87 @@
+@model OrganizationAccount
+@{
+    ViewData["Title"] = "الملف التعريفي";
+}
+
+<section class="org-hero organization-profile-hero">
+    <div>
+        <h2>بيانات الجهة</h2>
+        <p>حدّث اسم الجهة وشعارها ونشاطها وبيانات مسؤول التواصل.</p>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
+    {
+        <img class="organization-profile-logo" src="@Model.LogoPath" alt="شعار @Model.Name" />
+    }
+</section>
+
+<section class="portal-panel">
+    <form method="post" enctype="multipart/form-data" class="portal-form">
+        @Html.AntiForgeryToken()
+        <div class="portal-form-grid">
+            <div>
+                <label for="organization-name">اسم الجهة</label>
+                <input id="organization-name" name="name" value="@Model.Name" required maxlength="220" />
+            </div>
+            <div>
+                <label for="organization-activity">النشاط</label>
+                <input id="organization-activity" name="activity" value="@Model.Activity" maxlength="180" />
+            </div>
+            <div>
+                <label for="organization-city">المدينة</label>
+                <input id="organization-city" name="city" value="@Model.City" maxlength="120" />
+            </div>
+            <div>
+                <label for="organization-contact-name">مسؤول التواصل</label>
+                <input id="organization-contact-name" name="contactName" value="@Model.ContactName" maxlength="180" />
+            </div>
+            <div>
+                <label for="organization-email">البريد الإلكتروني</label>
+                <input id="organization-email" type="email" name="email" value="@Model.Email" maxlength="180" dir="ltr" required />
+                <span asp-validation-for="Email"></span>
+            </div>
+            <div>
+                <label for="organization-phone">رقم الجوال</label>
+                <input id="organization-phone" name="phone" value="@Model.Phone" maxlength="40" inputmode="tel" dir="ltr" />
+            </div>
+            <div class="span-2">
+                <label for="organization-logo">شعار الجهة</label>
+                <input id="organization-logo" type="file" name="logo" accept=".png,.jpg,.jpeg,.webp" />
+                <small>PNG أو JPG أو WebP، بحد أقصى 3MB.</small>
+            </div>
+        </div>
+        <div class="portal-actions">
+            <button type="submit">حفظ التغييرات</button>
+        </div>
+    </form>
+</section>
+
+<section class="portal-panel portal-password-card">
+    <div class="portal-panel-head">
+        <div>
+            <h2>تغيير كلمة المرور</h2>
+            <p>غيّر كلمة المرور الحالية دوريًا، وسيتم إبطال الجلسات السابقة بعد الحفظ.</p>
+        </div>
+    </div>
+
+    <form method="post" action="/Portal/Organization/Profile/Password" class="portal-form">
+        @Html.AntiForgeryToken()
+        <div class="portal-form-grid">
+            <div>
+                <label for="organization-current-password">كلمة المرور الحالية</label>
+                <input id="organization-current-password" name="CurrentPassword" type="password" autocomplete="current-password" required />
+            </div>
+            <div>
+                <label for="organization-new-password">كلمة المرور الجديدة</label>
+                <input id="organization-new-password" name="NewPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required />
+                <small>12 حرفًا على الأقل، تشمل حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا.</small>
+            </div>
+            <div>
+                <label for="organization-confirm-password">تأكيد كلمة المرور الجديدة</label>
+                <input id="organization-confirm-password" name="ConfirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required />
+            </div>
+        </div>
+        <div class="portal-actions">
+            <button type="submit">تغيير كلمة المرور</button>
+        </div>
+    </form>
+</section>

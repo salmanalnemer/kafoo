@@ -1,0 +1,81 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.GeneralAssemblyMinute>
+
+@{
+    ViewData["Title"] = "محاضر الجمعية العمومية";
+}
+
+<section class="gamn-public-page">
+    <div class="home-container">
+
+        <div class="gamn-public-head">
+            <span>ملفات الحوكمة</span>
+            <h1>محاضر الجمعية العمومية</h1>
+            <p>استعراض محاضر اجتماعات الجمعية العمومية المعتمدة وملفاتها الرسمية.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="gamn-public-empty">
+                <h3>لا توجد محاضر حالياً</h3>
+                <p>سيتم عرض محاضر الجمعية العمومية هنا عند إضافتها من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="gamn-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="gamn-public-card">
+                        <div class="gamn-card-cover">
+                            @if (!string.IsNullOrWhiteSpace(item.CoverImagePath))
+                            {
+                                <img src="@item.CoverImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <strong>محضر</strong>
+                            }
+
+                            @if (item.IsFeatured)
+                            {
+                                <b>مميز</b>
+                            }
+                        </div>
+
+                        <div class="gamn-card-content">
+                            <span>@item.MeetingType</span>
+                            <h2>@item.Title</h2>
+
+                            <div class="gamn-card-meta">
+                                <small>تاريخ الاجتماع: @item.MeetingDate.ToString("yyyy/MM/dd")</small>
+
+                                @if (!string.IsNullOrWhiteSpace(item.FiscalYear))
+                                {
+                                    <small>السنة: @item.FiscalYear</small>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(item.MeetingNumber))
+                                {
+                                    <small>رقم الاجتماع: @item.MeetingNumber</small>
+                                }
+
+                                <small>عدد الحضور: @item.AttendeesCount.ToString("N0")</small>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Summary))
+                            {
+                                <p>@item.Summary</p>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                            {
+                                <a href="@item.FilePath" target="_blank" rel="noopener noreferrer" class="gamn-card-file">عرض المحضر</a>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

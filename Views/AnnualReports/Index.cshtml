@@ -1,0 +1,80 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.AnnualReportDocument>
+
+@{
+    ViewData["Title"] = "التقارير السنوية";
+}
+
+<section class="annual-public-page">
+    <div class="home-container">
+
+        <div class="annual-public-head">
+            <span>ملفات الحوكمة</span>
+            <h1>التقارير السنوية</h1>
+            <p>استعراض وتحميل التقارير السنوية المعتمدة للجمعية.</p>
+        </div>
+
+        <div class="annual-table-card">
+            <div class="annual-table-wrap">
+                <table class="annual-public-table">
+                    <thead>
+                        <tr>
+                            <th>العنوان</th>
+                            <th>السنة</th>
+                            <th>التصنيف</th>
+                            <th>تحميل</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="annual-empty-row">
+                                    لا توجد ملفات حالياً.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="annual-title-cell">
+                                        <span class="pdf-mark">PDF</span>
+                                        <div>
+                                            <strong>@item.Title</strong>
+                                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                                            {
+                                                <small>@item.Description</small>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td>@item.Year</td>
+
+                                    <td>
+                                        <span class="annual-category">@item.Category</span>
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                        {
+                                            <a class="annual-download" href="@item.FilePath" target="_blank" rel="noopener noreferrer" download>
+                                                تحميل
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>

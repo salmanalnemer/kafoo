@@ -1,0 +1,320 @@
+﻿<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] | لوحة تحكم جمعية كفو</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+</head>
+<body class="admin-body admin-layout-body">
+    <aside class="kafo-admin-sidebar" id="adminSidebar">
+        <div class="kafo-sidebar-head">
+            <a class="kafo-sidebar-logo" href="/Admin/Dashboard" title="لوحة التحكم">
+                <img src="~/images/logo1.png" asp-append-version="true" alt="شعار جمعية كفو" />
+            </a>
+
+            <button type="button" class="kafo-sidebar-toggle" id="sidebarToggle" aria-label="فتح وإغلاق القائمة">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <nav class="kafo-sidebar-menu">
+            <div class="kafo-menu-group">
+                <span class="kafo-menu-title">الرئيسية</span>
+
+                <a href="/Admin/Dashboard" title="لوحة المعلومات">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>لوحة المعلومات</span>
+                </a>
+
+                <a href="/Admin/Sliders" title="إدارة الصفحة الرئيسية">
+                    <i class="fa-solid fa-images"></i>
+                    <span>إدارة الصفحة الرئيسية</span>
+                </a>
+
+                <a href="/Admin/HomeStatistics" title="الأرقام والإحصائيات">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span>الأرقام والإحصائيات</span>
+                </a>
+
+                <a href="/Admin/StrategicGoals" title="أهداف الجمعية">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span>أهداف الجمعية</span>
+                </a>
+            </div>
+
+            <div class="kafo-menu-group">
+                <span class="kafo-menu-title">عن الجمعية</span>
+
+                <a href="/Admin/Pages/About" title="من نحن">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>من نحن</span>
+                </a>
+
+                <a href="/Admin/Pages/Vision" title="الرؤية والرسالة">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>الرؤية والرسالة</span>
+                </a>
+
+                <a href="/Admin/Pages/President" title="كلمة الرئيس">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>كلمة الرئيس</span>
+                </a>
+
+                <a href="/Admin/Pages/ExecutiveManager" title="المدير التنفيذي">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>المدير التنفيذي</span>
+                </a>
+
+                <a href="/Admin/TeamMembers" title="فريق العمل">
+                    <i class="fa-solid fa-users"></i>
+                    <span>فريق العمل</span>
+                </a>
+
+                <a href="/Admin/Licenses" title="تراخيص الجمعية">
+                    <i class="fa-solid fa-file-contract"></i>
+                    <span>تراخيص الجمعية</span>
+                </a>
+
+                <a href="/Admin/Pages/OrganizationalStructure" title="الهيكل التنظيمي">
+                    <i class="fa-solid fa-sitemap"></i>
+                    <span>الهيكل التنظيمي</span>
+                </a>
+
+                <a href="/Admin/BankAccounts" title="الحسابات البنكية">
+                    <i class="fa-solid fa-money-check-dollar"></i>
+                    <span>الحسابات البنكية</span>
+                </a>
+            </div>
+
+            <div class="kafo-menu-group">
+                <span class="kafo-menu-title">البرامج والخدمات</span>
+
+                <a href="/Admin/Programs" title="البرامج والمشاريع">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>البرامج والمشاريع</span>
+                </a>
+                        <!-- MEDIA_CENTER_GROUP_START -->
+                        <div class="admin-sidebar-group admin-media-center-group">
+                            <button type="button" class="admin-sidebar-group-title" data-admin-group-toggle>
+                                <span class="admin-sidebar-group-icon">📰</span>
+                                <span>المركز الإعلامي</span>
+                                <b>⌄</b>
+                            </button>
+
+                            <div class="admin-sidebar-group-links">
+                                <a href="/Admin/News">
+                                    <span class="admin-sidebar-link-icon">🗞️</span>
+                                    <span>إدارة الأخبار</span>
+                                </a>
+
+                                <a href="/Admin/Videos">
+                                    <span class="admin-sidebar-link-icon">🎬</span>
+                                    <span>مكتبة الفيديو</span>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- MEDIA_CENTER_GROUP_END -->
+
+
+                <a href="/Admin/ServiceLinks" title="روابط الخدمات">
+                    <i class="fa-solid fa-link"></i>
+                    <span>روابط الخدمات</span>
+                </a>
+                        <a href="/Admin/InKindDonationRequests">طلبات التبرع العيني</a>
+                        <a href="/Admin/Pages/NewBeneficiaryRegistration">تسجيل مستفيد جديد</a>
+                        <a href="/Admin/Pages/BeneficiaryDataUpdate" title="تحديث بيانات المستفيدين">
+                    <i class="fa-solid fa-link"></i>
+                    <span>تحديث بيانات المستفيدين</span>
+                </a>
+
+                <a href="/Admin/DonationRequests" title="طلبات التبرع العيني">
+                    <i class="fa-solid fa-box-open"></i>
+                    <span>طلبات التبرع العيني</span>
+                </a>
+
+                <a href="/Admin/ServiceSettings" title="إعدادات الخدمات">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>إعدادات الخدمات</span>
+                </a>
+            </div>
+
+            <div class="kafo-menu-group">
+                <span class="kafo-menu-title">المركز الإعلامي</span>
+
+                <a href="/Admin/Partners" title="شركاء النجاح">
+                    <i class="fa-solid fa-handshake"></i>
+                    <span>شركاء النجاح</span>
+                </a>
+
+                <a href="/Admin/AidReports" title="تقارير المساعدات">
+                    <i class="fa-solid fa-hand-holding-heart"></i>
+                    <span>تقارير المساعدات</span>
+                </a>
+            </div>
+
+            <div class="kafo-menu-group">
+                <span class="kafo-menu-title">ملفات الحوكمة</span>
+
+                <a href="/Admin/GeneralAssemblyMembers" title="أعضاء الجمعية العمومية">
+                    <i class="fa-solid fa-users-line"></i>
+                    <span>أعضاء الجمعية العمومية</span>
+                </a>
+
+                <a href="/Admin/GeneralAssemblyMinutes" title="محاضر الجمعية العمومية">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <span>محاضر الجمعية العمومية</span>
+                </a>
+
+                <a href="/Admin/BoardMembers" title="أعضاء مجلس الإدارة">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>أعضاء مجلس الإدارة</span>
+                </a>
+
+                <a href="/Admin/BoardMinutes" title="محاضر مجلس الإدارة">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>محاضر مجلس الإدارة</span>
+                </a>
+
+                <a href="/Admin/Committees" title="لجان الجمعية">
+                    <i class="fa-solid fa-people-group"></i>
+                    <span>لجان الجمعية</span>
+                </a>
+
+                <a href="/Admin/Policies" title="السياسات واللوائح">
+                    <i class="fa-solid fa-gavel"></i>
+                    <span>السياسات واللوائح</span>
+                </a>
+
+                <a href="/Admin/AnnualReports" title="التقارير السنوية">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>التقارير السنوية</span>
+                </a>
+
+                <a href="/Admin/QuarterReports" title="التقارير الربعية">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>التقارير الربعية</span>
+                </a>
+
+                <a href="/Admin/FinancialReports" title="القوائم المالية">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>القوائم المالية</span>
+                </a>
+
+                <a href="/Admin/OperationalPlans" title="الخطط التشغيلية">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>الخطط التشغيلية</span>
+                </a>
+            </div>
+
+            <div class="kafo-menu-group">
+                <span class="kafo-menu-title">التطوع والتوظيف</span>
+
+                <a href="/Admin/VolunteerOpportunities" title="الفرص التطوعية">
+                    <i class="fa-solid fa-hands-helping"></i>
+                    <span>الفرص التطوعية</span>
+                </a>
+
+                <a href="/Admin/Jobs" title="الوظائف">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <span>الوظائف</span>
+                </a>
+
+                <a href="/Admin/Initiatives" title="المبادرات">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>المبادرات</span>
+                </a>
+
+                <a href="/Admin/JobApplications" title="طلبات التوظيف CV">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>طلبات التوظيف (CV)</span>
+                </a>
+
+                <a href="/Admin/VolunteerRequests" title="طلبات المتطوعين">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>طلبات المتطوعين</span>
+                </a>
+            </div>
+
+            <div class="kafo-menu-group">
+                <span class="kafo-menu-title">التواصل والإعدادات</span>
+
+                <a href="/Admin/Messages" title="صندوق الرسائل">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                    <span>صندوق الرسائل</span>
+                </a>
+
+                <a href="/Admin/Feedback" title="التغذية الراجعة">
+                    <i class="fa-solid fa-star"></i>
+                    <span>التغذية الراجعة</span>
+                </a>
+
+                <a href="/Admin/Surveys" title="إدارة الاستبيانات">
+                    <i class="fa-solid fa-square-poll-vertical"></i>
+                    <span>إدارة الاستبيانات</span>
+                </a>
+
+                <a href="/Admin/Settings" title="الإعدادات العامة">
+                    <i class="fa-solid fa-gears"></i>
+                    <span>الإعدادات العامة</span>
+                </a>
+
+                <a href="/Admin/AdminUsers" title="إدارة المشرفين والصلاحيات">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>إدارة المشرفين والصلاحيات</span>
+                </a>
+
+                <a href="/Admin/Profile" title="إعدادات حسابي">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <span>إعدادات حسابي</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="kafo-admin-main" id="adminMain">
+        <header class="kafo-admin-header">
+            <div class="kafo-header-title">
+                <button type="button" class="kafo-mobile-sidebar-btn" id="mobileSidebarToggle" aria-label="فتح القائمة">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <div>
+                    <span>لوحة تحكم جمعية كفو</span>
+                    <strong>@ViewData["Title"]</strong>
+                </div>
+            </div>
+
+            <div class="kafo-admin-user">
+                <a href="/" target="_blank" class="kafo-view-site">عرض الموقع</a>
+                <span>مدير النظام</span>
+                <div class="kafo-admin-avatar">م</div>
+            </div>
+        </header>
+
+        <section class="kafo-admin-content">
+            @RenderBody()
+        </section>
+    </main>
+
+    <div class="kafo-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <script src="~/js/admin-sidebar.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+
+
+
+
+
+

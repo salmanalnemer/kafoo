@@ -1,0 +1,170 @@
+﻿@model Kafo.Web.Models.ServiceLink
+
+@{
+    ViewData["Title"] = "تعديل رابط خدمة";
+    var categories = new[] { "خدمة إلكترونية", "نموذج", "طلب خدمة", "دعم المستفيدين", "تطوع", "تواصل", "تبرع" };
+    var internalPages = new Dictionary<string, string>
+    {
+        ["/"] = "الرئيسية",
+        ["/About"] = "من نحن",
+        ["/Vision"] = "الرؤية والرسالة",
+        ["/President"] = "كلمة رئيس الجمعية",
+        ["/ExecutiveManager"] = "كلمة المدير التنفيذي",
+        ["/Team"] = "فريق العمل",
+        ["/Licenses"] = "تراخيص الجمعية",
+        ["/OrganizationalStructure"] = "الهيكل التنظيمي",
+        ["/BankAccounts"] = "الحسابات البنكية",
+        ["/Programs"] = "البرامج والمشاريع",
+        ["/ServiceLinks"] = "روابط الخدمات",
+        ["/NewBeneficiaryRegistration"] = "تسجيل مستفيد جديد",
+        ["/BeneficiaryDataUpdate"] = "تحديث بيانات المستفيدين"
+    };
+
+    var externalValue = Model.LinkType == "Internal" ? "" : Model.Url;
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>روابط الخدمات</span>
+        <h1>تعديل رابط الخدمة</h1>
+        <p>تعديل الرابط ونوعه، داخلي أو خارجي.</p>
+    </div>
+
+    <a class="admin-back-link" href="/Admin/ServiceLinks">العودة للقائمة</a>
+</div>
+
+<div class="service-form-layout">
+    <div class="admin-form-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="ImagePath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+            <input asp-for="UpdatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+            {
+                <div class="admin-image-preview">
+                    <span>الصورة الحالية</span>
+                    <img src="@Model.ImagePath" alt="@Model.Title" />
+                </div>
+            }
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Title">عنوان الخدمة</label>
+                    <input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Category">التصنيف</label>
+                    <select asp-for="Category">
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="LinkType">نوع الرابط</label>
+                    <select asp-for="LinkType" id="linkTypeSelect">
+                        <option value="External">رابط خارجي</option>
+                        <option value="Internal">صفحة داخل الموقع</option>
+                    </select>
+                </div>
+
+                <div class="form-group link-external-box">
+                    <label>الرابط الخارجي</label>
+                    <input name="externalUrl" value="@externalValue" dir="ltr" placeholder="https://example.com" />
+                </div>
+
+                <div class="form-group link-internal-box">
+                    <label asp-for="InternalPath">اختر صفحة من داخل الموقع</label>
+                    <select asp-for="InternalPath">
+                        <option value="">اختر الصفحة</option>
+                        @foreach (var internalPage in internalPages)
+                        {
+                            <option value="@internalPage.Key">@internalPage.Value</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Description">وصف الخدمة</label>
+                    <textarea asp-for="Description" rows="4"></textarea>
+                    <span asp-validation-for="Description"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="TargetAudience">الفئة المستهدفة</label>
+                    <input asp-for="TargetAudience" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ButtonText">نص الزر</label>
+                    <input asp-for="ButtonText" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DisplayOrder">الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group">
+                    <label>استبدال الصورة / الأيقونة</label>
+                    <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp" />
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="OpenInNewTab" />
+                    <label asp-for="OpenInNewTab">فتح الرابط الخارجي في تبويب جديد</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label asp-for="IsActive">مفعل</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="admin-submit-btn" type="submit">حفظ التعديل</button>
+                <a href="/Admin/ServiceLinks">إلغاء</a>
+            </div>
+        </form>
+    </div>
+
+    <aside class="service-admin-note">
+        <span>معاينة</span>
+        <h2>@Model.Title</h2>
+        <p dir="ltr">@Model.Url</p>
+    </aside>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const select = document.getElementById("linkTypeSelect");
+            const externalBox = document.querySelector(".link-external-box");
+            const internalBox = document.querySelector(".link-internal-box");
+
+            function refresh() {
+                const isInternal = select.value === "Internal";
+                externalBox.style.display = isInternal ? "none" : "";
+                internalBox.style.display = isInternal ? "" : "none";
+            }
+
+            select.addEventListener("change", refresh);
+            refresh();
+        })();
+    </script>
+}
+
+
+
+
+

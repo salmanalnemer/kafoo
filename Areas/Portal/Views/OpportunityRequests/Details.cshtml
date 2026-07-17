@@ -1,0 +1,275 @@
+﻿@model OpportunityRequest
+@{
+    ViewData["Title"] = "تفاصيل طلب الاستقطاب";
+
+    var stages = new[]
+    {
+        "جديد",
+        "قيد المراجعة",
+        "قيد الترشيح",
+        "تم ترشيح المرشحين",
+        "تم إجراء المقابلات",
+        "تم التوظيف",
+        "تم إغلاق الطلب"
+    };
+
+    var currentStage = Array.IndexOf(stages, Model.Status);
+    if (currentStage < 0)
+    {
+        currentStage = 0;
+    }
+
+    var salaryText = Model.SalaryAmount.HasValue
+        ? $"{Model.SalaryAmount.Value:N0} ر.س"
+        : "غير محدد";
+
+    var leaveText = Model.AnnualLeaveDays.HasValue
+        ? Model.AnnualLeaveDays.Value == 0
+            ? "لا ينطبق"
+            : $"{Model.AnnualLeaveDays.Value} يومًا"
+        : "غير محدد";
+}
+
+<div class="org-request-details-page">
+    <section class="portal-panel org-request-hero">
+        <div class="org-request-hero-main">
+            <div class="org-request-hero-copy">
+                <span class="org-request-kicker">@Model.OpportunityType</span>
+                <h2>@Model.Title</h2>
+                <p>
+                    @(Model.City ?? "مدينة غير محددة")
+                    <span class="org-request-dot">•</span>
+                    @Model.WorkNature
+                    <span class="org-request-dot">•</span>
+                    طلب رقم #@Model.Id
+                </p>
+            </div>
+
+            <div class="org-request-hero-side">
+                <span class="portal-badge org-request-status">@Model.Status</span>
+
+                <div class="org-request-details-actions">
+                    <a class="portal-btn light"
+                       href="/Portal/Organization/OpportunityRequests/Edit/@Model.Id">
+                        تعديل البيانات
+                    </a>
+
+                    <form method="post"
+                          action="/Portal/Organization/OpportunityRequests/Delete/@Model.Id"
+                          data-confirm="هل أنت متأكد من حذف الطلب؟ سيتم حذف الطلب والمرشحين والبيانات المرتبطة به نهائيًا.">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="portal-btn danger">حذف الطلب</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="portal-panel org-request-section">
+        <div class="org-request-section-head">
+            <div>
+                <span class="org-request-section-number">01</span>
+                <div>
+                    <h2>مسار الطلب</h2>
+                    <p>الحالة الحالية ومراحل معالجة الطلب.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="org-request-timeline-compact">
+            @for (var i = 0; i < stages.Length; i++)
+            {
+                var stageCss = i < currentStage
+                    ? "is-complete"
+                    : i == currentStage
+                        ? "is-current"
+                        : "";
+
+                <div class="org-request-stage @stageCss">
+                    <span class="org-request-stage-index">@(i + 1)</span>
+                    <span class="org-request-stage-label">@stages[i]</span>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="portal-panel org-request-section">
+        <div class="org-request-section-head">
+            <div>
+                <span class="org-request-section-number">02</span>
+                <div>
+                    <h2>ملخص بيانات الفرصة</h2>
+                    <p>أهم البيانات التشغيلية والمالية في جدول واحد.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="org-request-table-wrap">
+            <table class="org-request-details-table">
+                <tbody>
+                    <tr>
+                        <th>نوع الفرصة</th>
+                        <td>@Model.OpportunityType</td>
+                        <th>عدد الفرص</th>
+                        <td>@Model.AvailableCount</td>
+                    </tr>
+                    <tr>
+                        <th>المدينة</th>
+                        <td>@(Model.City ?? "غير محدد")</td>
+                        <th>مقر العمل</th>
+                        <td>@(Model.WorkLocation ?? "غير محدد")</td>
+                    </tr>
+                    <tr>
+                        <th>طبيعة العمل</th>
+                        <td>@Model.WorkNature</td>
+                        <th>نوع الدوام</th>
+                        <td>@(Model.EmploymentType ?? "غير محدد")</td>
+                    </tr>
+                    <tr>
+                        <th>ساعات العمل</th>
+                        <td>@(Model.WorkHours ?? "غير محدد")</td>
+                        <th>الراتب أو المكافأة</th>
+                        <td class="org-request-value-emphasis">@salaryText</td>
+                    </tr>
+                    <tr>
+                        <th>الإجازة السنوية</th>
+                        <td>@leaveText</td>
+                        <th>عدد المرشحين</th>
+                        <td>@Model.Candidates.Count</td>
+                    </tr>
+                    <tr>
+                        <th>تاريخ إنشاء الطلب</th>
+                        <td>@Model.CreatedAt.ToString("yyyy/MM/dd - hh:mm tt")</td>
+                        <th>آخر تحديث</th>
+                        <td>@Model.UpdatedAt.ToString("yyyy/MM/dd - hh:mm tt")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="portal-panel org-request-section">
+        <div class="org-request-section-head">
+            <div>
+                <span class="org-request-section-number">03</span>
+                <div>
+                    <h2>الوصف ومتطلبات الترشيح</h2>
+                    <p>المهام والمؤهلات والمهارات والفئات المناسبة.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="org-request-info-layout">
+            <article class="org-request-description-card">
+                <span>الوصف والمهام المطلوبة</span>
+                <p>@Model.Description</p>
+            </article>
+
+            <div class="org-request-info-table-wrap">
+                <table class="org-request-info-table">
+                    <tbody>
+                        <tr>
+                            <th>المؤهل المطلوب</th>
+                            <td>@(Model.Qualifications ?? "غير محدد")</td>
+                        </tr>
+                        <tr>
+                            <th>المهارات المطلوبة</th>
+                            <td>@(Model.Skills ?? "غير محدد")</td>
+                        </tr>
+                        <tr>
+                            <th>أنواع الإعاقة المناسبة</th>
+                            <td>@(Model.SuitableDisabilityTypes ?? "جميع الفئات المناسبة")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="portal-panel org-request-section">
+        <div class="org-request-section-head org-request-candidates-head">
+            <div>
+                <span class="org-request-section-number">04</span>
+                <div>
+                    <h2>المرشحون</h2>
+                    <p>إدارة حالة المرشحين وملاحظات الجهة.</p>
+                </div>
+            </div>
+
+            <span class="org-request-count-badge">@Model.Candidates.Count مرشح</span>
+        </div>
+
+        @if (!Model.Candidates.Any())
+        {
+            <div class="portal-empty org-request-empty">
+                لم يتم ترشيح مستفيدين لهذا الطلب حتى الآن.
+            </div>
+        }
+        else
+        {
+            <div class="org-request-table-wrap">
+                <table class="org-request-candidates-table">
+                    <thead>
+                        <tr>
+                            <th>المرشح</th>
+                            <th>المؤهلات</th>
+                            <th>الحالة</th>
+                            <th>ملاحظات الجهة</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var candidate in Model.Candidates)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="org-request-candidate-name">
+                                        <span>@candidate.CandidateName.Substring(0, 1)</span>
+                                        <strong>@candidate.CandidateName</strong>
+                                    </div>
+                                </td>
+                                <td>@(candidate.Qualifications ?? "غير محدد")</td>
+                                <td>
+                                    <span class="org-request-candidate-status">@candidate.Status</span>
+                                </td>
+                                <td colspan="2">
+                                    <form method="post"
+                                          action="/Portal/Organization/OpportunityRequests/UpdateCandidateStatus/@Model.Id"
+                                          class="org-request-candidate-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="candidateId" value="@candidate.Id" />
+
+                                        <select name="status" aria-label="حالة المرشح">
+                                            <option value="تم التواصل"
+                                                    selected="@(candidate.Status == "تم التواصل")">
+                                                تم التواصل
+                                            </option>
+                                            <option value="تمت المقابلة"
+                                                    selected="@(candidate.Status == "تمت المقابلة")">
+                                                تمت المقابلة
+                                            </option>
+                                            <option value="تم القبول"
+                                                    selected="@(candidate.Status == "تم القبول")">
+                                                تم القبول
+                                            </option>
+                                            <option value="لم يتم القبول"
+                                                    selected="@(candidate.Status == "لم يتم القبول")">
+                                                لم يتم القبول
+                                            </option>
+                                        </select>
+
+                                        <input name="notes"
+                                               value="@candidate.OrganizationNotes"
+                                               placeholder="ملاحظات الجهة" />
+
+                                        <button type="submit">حفظ</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

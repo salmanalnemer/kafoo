@@ -1,0 +1,137 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.SatisfactionResponse>
+
+@{
+    ViewData["Title"] = "قياس الرضا";
+    var search = ViewBag.Search as string ?? "";
+    var level = ViewBag.Level as string ?? "";
+    var archived = ViewBag.Archived is bool b && b;
+}
+
+<div class="sat-admin-page">
+
+    <div class="sat-admin-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>قياس الرضا Satisfaction</h1>
+            <p>متابعة تقييمات المستفيدين وقياس رضاهم عن الخدمات المقدمة.</p>
+        </div>
+
+        <div class="sat-admin-actions">
+            <a href="/Satisfaction" target="_blank" rel="noopener noreferrer">معاينة صفحة الرضا</a>
+            <a href="/Admin/Satisfaction?archived=@(!archived)">@(archived ? "الردود الحالية" : "الأرشيف")</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="sat-stats-grid">
+        <div>
+            <strong>@(Model?.Count ?? 0)</strong>
+            <span>إجمالي الردود المعروضة</span>
+        </div>
+
+        <div>
+            <strong>@(Model?.Count(x => !x.IsRead) ?? 0)</strong>
+            <span>ردود جديدة</span>
+        </div>
+
+        <div>
+            <strong>@(Model != null && Model.Any() ? Model.Average(x => x.Rating).ToString("0.0") : "0.0")</strong>
+            <span>متوسط التقييم</span>
+        </div>
+    </div>
+
+    <div class="sat-admin-filter">
+        <form method="get" action="/Admin/Satisfaction">
+            <input type="hidden" name="archived" value="@archived.ToString().ToLower()" />
+
+            <input name="q" value="@search" placeholder="ابحث بالاسم أو الجوال أو الخدمة أو المقترحات..." />
+
+            <select name="level">
+                <option value="">كل مستويات الرضا</option>
+                @if (level == "راضٍ جداً") { <option value="راضٍ جداً" selected>راضٍ جداً</option> } else { <option value="راضٍ جداً">راضٍ جداً</option> }
+                @if (level == "راضٍ") { <option value="راضٍ" selected>راضٍ</option> } else { <option value="راضٍ">راضٍ</option> }
+                @if (level == "محايد") { <option value="محايد" selected>محايد</option> } else { <option value="محايد">محايد</option> }
+                @if (level == "غير راضٍ") { <option value="غير راضٍ" selected>غير راضٍ</option> } else { <option value="غير راضٍ">غير راضٍ</option> }
+                @if (level == "غير راضٍ جداً") { <option value="غير راضٍ جداً" selected>غير راضٍ جداً</option> } else { <option value="غير راضٍ جداً">غير راضٍ جداً</option> }
+            </select>
+
+            <button type="submit">بحث</button>
+            <a href="/Admin/Satisfaction">مسح</a>
+        </form>
+    </div>
+
+    <div class="sat-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="sat-admin-empty">
+                <h3>لا توجد ردود رضا حالياً</h3>
+                <p>ستظهر الردود هنا بعد إرسالها من صفحة قياس الرضا.</p>
+            </div>
+        }
+        else
+        {
+            <div class="sat-admin-table-wrap">
+                <table class="sat-admin-table">
+                    <thead>
+                        <tr>
+                            <th>رقم</th>
+                            <th>المستفيد</th>
+                            <th>نوع المستفيد</th>
+                            <th>الخدمة</th>
+                            <th>مستوى الرضا</th>
+                            <th>التقييم</th>
+                            <th>الجوال</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.IsRead ? "" : "sat-unread-row")">
+                                <td>#@item.Id</td>
+
+                                <td class="sat-title-cell">
+                                    <strong>@(string.IsNullOrWhiteSpace(item.FullName) ? "غير محدد" : item.FullName)</strong>
+                                    @if (!item.IsRead)
+                                    {
+                                        <span>رد جديد</span>
+                                    }
+                                </td>
+
+                                <td>@item.BeneficiaryType</td>
+                                <td>@item.ServiceName</td>
+                                <td><span class="sat-level">@item.SatisfactionLevel</span></td>
+                                <td><span class="sat-rating">@item.Rating / 5</span></td>
+                                <td dir="ltr">@(string.IsNullOrWhiteSpace(item.Phone) ? "-" : item.Phone)</td>
+                                <td>@item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+
+                                <td>
+                                    <div class="sat-admin-row-actions">
+                                        <a href="/Admin/Satisfaction/Details/@item.Id">تفاصيل</a>
+
+                                        <form method="post" action="/Admin/Satisfaction/Archive/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsArchived ? "استعادة" : "أرشفة")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/Satisfaction/Delete/@item.Id" data-confirm="هل تريد حذف رد قياس الرضا؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

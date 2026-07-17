@@ -1,0 +1,86 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.TeamMember>
+
+@{
+    ViewData["Title"] = "فريق العمل";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>عن الجمعية</span>
+        <h1>فريق العمل</h1>
+        <p>إدارة أعضاء فريق العمل الظاهرين في صفحة فريق العمل بالموقع.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/Team" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+        <a class="admin-main-action" href="/Admin/TeamMembers/Create">إضافة عضو</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="team-admin-grid">
+    @if (Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <article class="team-admin-card @(item.IsActive ? "" : "disabled")">
+                <div class="team-admin-photo">
+                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                    {
+                        <img src="@item.ImagePath" alt="@item.FullName" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-user"></i>
+                    }
+                </div>
+
+                <div class="team-admin-info">
+                    <h2>@item.FullName</h2>
+                    <strong>@item.JobTitle</strong>
+
+                    @if (!string.IsNullOrWhiteSpace(item.Bio))
+                    {
+                        <p>@item.Bio</p>
+                    }
+
+                    <div class="team-admin-meta">
+                        <span>الترتيب: @item.DisplayOrder</span>
+                        @if (item.IsActive)
+                        {
+                            <span class="dash-status active">مفعل</span>
+                        }
+                        else
+                        {
+                            <span class="dash-status inactive">غير مفعل</span>
+                        }
+                    </div>
+
+                    <div class="team-admin-actions">
+                        <a class="admin-small-btn purple" href="/Admin/TeamMembers/Edit/@item.Id">تعديل</a>
+
+                        <form method="post" action="/Admin/TeamMembers/ToggleStatus/@item.Id">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-small-btn green" type="submit">
+                                @(item.IsActive ? "إخفاء" : "إظهار")
+                            </button>
+                        </form>
+
+                        <form method="post" action="/Admin/TeamMembers/Delete/@item.Id" data-confirm="هل أنت متأكد من حذف عضو الفريق؟">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-small-btn danger" type="submit">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    }
+    else
+    {
+        <div class="dash-empty">لا يوجد أعضاء فريق عمل حتى الآن.</div>
+    }
+</div>

@@ -1,0 +1,106 @@
+﻿@model Kafo.Web.Models.Initiative
+
+@{
+    ViewData["Title"] = "إضافة مبادرة";
+}
+
+<div class="ini-admin-page">
+
+    <div class="ini-admin-hero">
+        <div>
+            <span>التطوع والتوظيف</span>
+            <h1>إضافة مبادرة</h1>
+            <p>أدخل بيانات مبادرة الجمعية كما ستظهر في الموقع.</p>
+        </div>
+
+        <div class="ini-admin-actions">
+            <a href="/Admin/Initiatives">رجوع للمبادرات</a>
+        </div>
+    </div>
+
+    <div class="ini-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/Initiatives/Create" class="ini-form">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="ini-form-grid">
+                <div class="form-group">
+                    <label>عنوان المبادرة</label>
+                    <input asp-for="Title" placeholder="مثال: مبادرة تمكين الأسر" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع المبادرة</label>
+                    <input asp-for="InitiativeType" placeholder="مبادرة مجتمعية / صحية / تعليمية..." />
+                </div>
+
+                <div class="form-group">
+                    <label>موقع التنفيذ</label>
+                    <input asp-for="Location" placeholder="مثال: مقر الجمعية / مدينة حائل..." />
+                </div>
+
+                <div class="form-group">
+                    <label>الفئة المستهدفة</label>
+                    <input asp-for="TargetGroup" placeholder="مثال: الأسر المستفيدة / ذوي الإعاقة..." />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد المستفيدين</label>
+                    <input asp-for="BeneficiariesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>رابط المشاركة / التسجيل</label>
+                    <input asp-for="RegistrationUrl" dir="ltr" placeholder="https://..." />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ البداية</label>
+                    <input asp-for="StartDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ النهاية</label>
+                    <input asp-for="EndDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>صورة المبادرة</label>
+                    <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف المبادرة</label>
+                    <textarea asp-for="Description" rows="4" placeholder="وصف مختصر عن المبادرة"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>أهداف المبادرة</label>
+                    <textarea asp-for="Objectives" rows="4" placeholder="أهداف المبادرة بشكل مختصر"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>مبادرة مميزة</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار المبادرة</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ المبادرة</button>
+            </div>
+        </form>
+    </div>
+
+</div>

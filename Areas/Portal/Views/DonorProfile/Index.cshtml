@@ -1,0 +1,101 @@
+@model DonorProfileViewModel
+@{
+    ViewData["Title"] = "بيانات الحساب";
+}
+
+<section class="portal-panel highlight">
+    <div class="portal-panel-head">
+        <div>
+            <h2>حساب الداعم</h2>
+            <p>يمكنك تحديث بيانات التواصل الأساسية لضمان وصول الإشعارات والتقارير.</p>
+        </div>
+    </div>
+
+    <div class="portal-grid compact">
+        <article class="portal-mini-stat"><span>نوع الداعم</span><strong>@Model.DonorType</strong></article>
+        <article class="portal-mini-stat"><span>تاريخ إنشاء الحساب</span><strong>@Model.CreatedAt.ToString("yyyy/MM/dd")</strong></article>
+        <article class="portal-mini-stat"><span>آخر دخول</span><strong>@(Model.LastLoginAt?.ToString("yyyy/MM/dd") ?? "—")</strong></article>
+        <article class="portal-mini-stat"><span>رقم الحساب</span><strong>@Model.Id</strong></article>
+    </div>
+</section>
+
+<section class="portal-panel">
+    <h2>تحديث البيانات</h2>
+    <form method="post" class="portal-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="portal-form-grid">
+            <div>
+                <label asp-for="FullName">اسم الداعم</label>
+                <input asp-for="FullName" />
+                <span asp-validation-for="FullName"></span>
+            </div>
+            <div>
+                <label asp-for="DonorType">نوع الداعم</label>
+                <select asp-for="DonorType">
+                    <option>فرد</option>
+                    <option>جهة</option>
+                    <option>شركة</option>
+                    <option>مؤسسة مانحة</option>
+                </select>
+                <span asp-validation-for="DonorType"></span>
+            </div>
+            <div>
+                <label asp-for="OrganizationName">اسم الجهة / الشركة</label>
+                <input asp-for="OrganizationName" />
+                <span asp-validation-for="OrganizationName"></span>
+            </div>
+            <div>
+                <label asp-for="Email">البريد الإلكتروني</label>
+                <input asp-for="Email" type="email" dir="ltr" />
+                <span asp-validation-for="Email"></span>
+            </div>
+            <div>
+                <label asp-for="Phone">رقم الجوال</label>
+                <input asp-for="Phone" inputmode="tel" dir="ltr" />
+                <span asp-validation-for="Phone"></span>
+            </div>
+        </div>
+
+        <div class="portal-actions">
+            <button type="submit">حفظ التعديلات</button>
+            <a class="portal-btn light" href="/Portal/Donor/Dashboard">رجوع</a>
+        </div>
+    </form>
+</section>
+
+<section class="portal-panel portal-password-card">
+    <div class="portal-panel-head">
+        <div>
+            <h2>تغيير كلمة المرور</h2>
+            <p>استخدم هذه الصفحة لتغيير كلمة المرور الحالية وإغلاق الجلسات السابقة.</p>
+        </div>
+    </div>
+
+    <form method="post" action="/Portal/Donor/Profile/Password" class="portal-form">
+        @Html.AntiForgeryToken()
+        <div class="portal-form-grid">
+            <div>
+                <label for="donor-current-password">كلمة المرور الحالية</label>
+                <input id="donor-current-password" name="CurrentPassword" type="password" autocomplete="current-password" required />
+            </div>
+            <div>
+                <label for="donor-new-password">كلمة المرور الجديدة</label>
+                <input id="donor-new-password" name="NewPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required />
+                <small>12 حرفًا على الأقل، تشمل حرفًا كبيرًا وصغيرًا ورقمًا ورمزًا.</small>
+            </div>
+            <div>
+                <label for="donor-confirm-password">تأكيد كلمة المرور الجديدة</label>
+                <input id="donor-confirm-password" name="ConfirmPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required />
+            </div>
+        </div>
+        <div class="portal-actions">
+            <button type="submit">تغيير كلمة المرور</button>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

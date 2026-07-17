@@ -1,0 +1,68 @@
+@model IEnumerable<OrganizationNotification>
+@{
+    ViewData["Title"] = "إشعارات الجهة";
+    var unreadCount = Model.Count(x => !x.IsRead);
+}
+
+<section class="portal-panel highlight">
+    <div class="portal-panel-head">
+        <div>
+            <h2>إشعارات الجهة</h2>
+            <p>كل تحديث يخص طلبات الاستقطاب، الترشيحات، المرشحين، وإغلاق الطلبات يظهر هنا وفي جرس الهيدر.</p>
+        </div>
+        @if (unreadCount > 0)
+        {
+            <form method="post" action="/Portal/Organization/Notifications/MarkAllRead">
+                @Html.AntiForgeryToken()
+                <button class="portal-btn" type="submit">تعليم الكل كمقروء</button>
+            </form>
+        }
+    </div>
+
+    <div class="portal-grid compact">
+        <article class="portal-mini-stat"><span>إجمالي الإشعارات</span><strong>@Model.Count()</strong></article>
+        <article class="portal-mini-stat"><span>غير مقروءة</span><strong>@unreadCount</strong></article>
+        <article class="portal-mini-stat"><span>أرسلت SMS</span><strong>@Model.Count(x => x.SentBySms)</strong></article>
+        <article class="portal-mini-stat"><span>أرسلت بريد</span><strong>@Model.Count(x => x.SentByEmail)</strong></article>
+    </div>
+</section>
+
+<section class="portal-panel">
+    @if (!Model.Any())
+    {
+        <div class="portal-empty">لا توجد إشعارات حتى الآن.</div>
+    }
+    else
+    {
+        <div class="portal-timeline notifications-list">
+            @foreach (var item in Model)
+            {
+                <article class="@(item.IsRead ? "" : "is-unread")">
+                    <strong>@item.Title</strong>
+                    <p>@item.Message</p>
+                    <div class="portal-meta-row">
+                        <small>@item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</small>
+                        @if (item.OpportunityRequestId.HasValue)
+                        {
+                            <a class="portal-link" href="/Portal/Organization/OpportunityRequests/Details/@item.OpportunityRequestId.Value">تفاصيل الطلب</a>
+                        }
+                    </div>
+                    <div class="portal-meta-row">
+                        @if (item.SentBySms)
+                        {
+                            <span class="portal-badge">SMS</span>
+                        }
+                        @if (item.SentByEmail)
+                        {
+                            <span class="portal-badge">Email</span>
+                        }
+                        @if (!item.IsRead)
+                        {
+                            <span class="portal-badge">جديد</span>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,16 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminDonorAccountFormViewModel
+@{
+    ViewData["Title"] = "تعديل داعم";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>حسابات الداعمين</span>
+        <h1>تعديل بيانات الداعم</h1>
+        <p>تحديث بيانات الحساب وحالة التفعيل. اترك كلمة المرور فارغة إذا لا تريد تغييرها.</p>
+    </div>
+    <a class="admin-back-link" href="/Admin/Donors/Details/@Model.Id">رجوع</a>
+</div>
+
+<partial name="~/Areas/Admin/Views/Donors/_DonorAccountForm.cshtml" model="Model" />
+

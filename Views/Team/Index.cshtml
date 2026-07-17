@@ -1,0 +1,66 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.TeamMember>
+
+@{
+    ViewData["Title"] = "فريق العمل";
+}
+
+<section class="team-public-page">
+    <div class="home-container">
+        <div class="team-page-head">
+            <span>عن الجمعية</span>
+            <h1>فريق العمل</h1>
+            <p>نخبة من الكفاءات تعمل على خدمة المستفيدين وتحقيق مستهدفات الجمعية.</p>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="team-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="team-public-card">
+                        <div class="team-public-image">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.FullName" />
+                            }
+                            else
+                            {
+                                <div class="team-public-placeholder">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="team-public-body">
+                            <h2>@item.FullName</h2>
+                            <strong>@item.JobTitle</strong>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Bio))
+                            {
+                                <p>@item.Bio</p>
+                            }
+
+                            <div class="team-public-contact">
+                                @if (!string.IsNullOrWhiteSpace(item.Email))
+                                {
+                                    <a href="mailto:@item.Email"><i class="fa-solid fa-envelope"></i></a>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(item.Phone))
+                                {
+                                    <a href="tel:@item.Phone"><i class="fa-solid fa-phone"></i></a>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="team-empty-public">
+                لا توجد بيانات لفريق العمل حالياً.
+            </div>
+        }
+    </div>
+</section>

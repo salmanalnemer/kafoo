@@ -1,0 +1,242 @@
+﻿@model Kafo.Web.ViewModels.Admin.DashboardViewModel
+
+@{
+    ViewData["Title"] = "لوحة المعلومات";
+}
+
+<div class="kafo-dashboard">
+    <section class="dash-hero">
+        <div>
+            <span>مرحباً بك</span>
+            <h1>لوحة معلومات جمعية كفو</h1>
+            <p>
+                مركز تحكم سريع لمتابعة محتوى الموقع وإدارة السلايدر، الإحصائيات،
+                البرامج، الأخبار، وشركاء النجاح.
+            </p>
+        </div>
+
+        <div class="dash-hero-actions">
+            <a href="/" target="_blank" rel="noopener noreferrer">عرض الموقع</a>
+            <a href="/Admin/Sliders">إدارة السلايدر</a>
+        </div>
+    </section>
+
+    <section class="dash-kpi-grid">
+        <article class="dash-kpi-card">
+            <div class="dash-kpi-icon"><i class="fa-solid fa-images"></i></div>
+            <div>
+                <span>السلايدر</span>
+                <strong>@Model.SlidersCount</strong>
+                <small>المفعل: @Model.ActiveSlidersCount</small>
+            </div>
+        </article>
+
+        <article class="dash-kpi-card">
+            <div class="dash-kpi-icon"><i class="fa-solid fa-chart-simple"></i></div>
+            <div>
+                <span>الإحصائيات</span>
+                <strong>@Model.StatisticsCount</strong>
+                <small>تظهر في الرئيسية</small>
+            </div>
+        </article>
+
+        <article class="dash-kpi-card">
+            <div class="dash-kpi-icon"><i class="fa-solid fa-bullseye"></i></div>
+            <div>
+                <span>الأهداف</span>
+                <strong>@Model.GoalsCount</strong>
+                <small>أهداف الجمعية</small>
+            </div>
+        </article>
+
+        <article class="dash-kpi-card">
+            <div class="dash-kpi-icon"><i class="fa-solid fa-diagram-project"></i></div>
+            <div>
+                <span>البرامج</span>
+                <strong>@Model.ProgramsCount</strong>
+                <small>المفعل: @Model.ActiveProgramsCount</small>
+            </div>
+        </article>
+
+        <article class="dash-kpi-card">
+            <div class="dash-kpi-icon"><i class="fa-solid fa-newspaper"></i></div>
+            <div>
+                <span>الأخبار</span>
+                <strong>@Model.NewsCount</strong>
+                <small>المفعل: @Model.ActiveNewsCount</small>
+            </div>
+        </article>
+
+        <article class="dash-kpi-card">
+            <div class="dash-kpi-icon"><i class="fa-solid fa-handshake"></i></div>
+            <div>
+                <span>الشركاء</span>
+                <strong>@Model.PartnersCount</strong>
+                <small>المفعل: @Model.ActivePartnersCount</small>
+            </div>
+        </article>
+    </section>
+
+    <section class="dash-shortcuts">
+        <a href="/Admin/Sliders">
+            <i class="fa-solid fa-images"></i>
+            <strong>السلايدر</strong>
+            <span>إضافة وتعديل صور الصفحة الرئيسية</span>
+        </a>
+
+        <a href="/Admin/HomeStatistics">
+            <i class="fa-solid fa-chart-line"></i>
+            <strong>الأرقام والإحصائيات</strong>
+            <span>إدارة أرقام العدادات في الرئيسية</span>
+        </a>
+
+        <a href="/Admin/StrategicGoals">
+            <i class="fa-solid fa-bullseye"></i>
+            <strong>أهداف الجمعية</strong>
+            <span>إدارة الأهداف الاستراتيجية</span>
+        </a>
+
+        <a href="/Admin/Programs">
+            <i class="fa-solid fa-diagram-project"></i>
+            <strong>البرامج والمشاريع</strong>
+            <span>إدارة كروت البرامج وصفحات التفاصيل</span>
+        </a>
+
+        <a href="/Admin/News">
+            <i class="fa-solid fa-newspaper"></i>
+            <strong>الأخبار</strong>
+            <span>إدارة آخر المستجدات</span>
+        </a>
+
+        <a href="/Admin/Partners">
+            <i class="fa-solid fa-handshake"></i>
+            <strong>شركاء النجاح</strong>
+            <span>إدارة شعارات الشركاء</span>
+        </a>
+    </section>
+
+    <section class="dash-lists-grid">
+        <div class="dash-panel">
+            <div class="dash-panel-head">
+                <h2>آخر البرامج والمشاريع</h2>
+                <a href="/Admin/Programs">عرض الكل</a>
+            </div>
+
+            @if (Model.LatestPrograms.Any())
+            {
+                foreach (var item in Model.LatestPrograms)
+                {
+                    <div class="dash-row-item">
+                        <div class="dash-row-image">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <span>كفو</span>
+                            }
+                        </div>
+
+                        <div class="dash-row-content">
+                            <strong>@item.Title</strong>
+                            <small>@item.CreatedAt.ToString("yyyy/MM/dd")</small>
+                        </div>
+
+                        <div class="dash-row-actions">
+                            <span class="dash-status @(item.IsActive ? "active" : "inactive")">
+                                @(item.IsActive ? "مفعل" : "غير مفعل")
+                            </span>
+                            <a href="@item.EditUrl">تعديل</a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="dash-empty">لا توجد برامج حتى الآن.</div>
+            }
+        </div>
+
+        <div class="dash-panel">
+            <div class="dash-panel-head">
+                <h2>آخر الأخبار</h2>
+                <a href="/Admin/News">عرض الكل</a>
+            </div>
+
+            @if (Model.LatestNews.Any())
+            {
+                foreach (var item in Model.LatestNews)
+                {
+                    <div class="dash-row-item">
+                        <div class="dash-row-image">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <span>خبر</span>
+                            }
+                        </div>
+
+                        <div class="dash-row-content">
+                            <strong>@item.Title</strong>
+                            <small>@item.CreatedAt.ToString("yyyy/MM/dd")</small>
+                        </div>
+
+                        <div class="dash-row-actions">
+                            <span class="dash-status @(item.IsActive ? "active" : "inactive")">
+                                @(item.IsActive ? "مفعل" : "غير مفعل")
+                            </span>
+                            <a href="@item.EditUrl">تعديل</a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="dash-empty">لا توجد أخبار حتى الآن.</div>
+            }
+        </div>
+
+        <div class="dash-panel dash-panel-wide">
+            <div class="dash-panel-head">
+                <h2>آخر السلايدات</h2>
+                <a href="/Admin/Sliders">إدارة السلايدر</a>
+            </div>
+
+            @if (Model.LatestSliders.Any())
+            {
+                <div class="dash-slider-list">
+                    @foreach (var item in Model.LatestSliders)
+                    {
+                        <article class="dash-slider-item">
+                            <div class="dash-slider-img">
+                                @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                {
+                                    <img src="@item.ImagePath" alt="@item.Title" />
+                                }
+                                else
+                                {
+                                    <span>سلايدر</span>
+                                }
+                            </div>
+
+                            <div>
+                                <strong>@item.Title</strong>
+                                <small>@item.CreatedAt.ToString("yyyy/MM/dd")</small>
+                            </div>
+
+                            <a href="@item.EditUrl">تعديل</a>
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="dash-empty">لا توجد سلايدات حتى الآن.</div>
+            }
+        </div>
+    </section>
+</div>

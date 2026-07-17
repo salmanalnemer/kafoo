@@ -1,0 +1,80 @@
+﻿@model Kafo.Web.Models.LicenseDocument
+
+@{
+    ViewData["Title"] = "تعديل ترخيص";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>تراخيص الجمعية</span>
+        <h1>تعديل الترخيص</h1>
+        <p>تعديل العنوان أو الوصف أو استبدال الملف الحالي.</p>
+    </div>
+
+    <a class="admin-back-link" href="/Admin/Licenses">العودة للقائمة</a>
+</div>
+
+<div class="license-edit-layout">
+    <div class="admin-form-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="FilePath" type="hidden" />
+            <input asp-for="FileType" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+            <input asp-for="UpdatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Title">عنوان الترخيص</label>
+                    <input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DisplayOrder">الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Description">وصف مختصر</label>
+                    <textarea asp-for="Description" rows="4"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>استبدال الملف</label>
+                    <input type="file" name="licenseFile" accept=".jpg,.jpeg,.png,.webp,.pdf" />
+                    <small>اتركه فارغاً للاحتفاظ بالملف الحالي.</small>
+                </div>
+
+                <div class="form-check full">
+                    <input asp-for="IsActive" />
+                    <label asp-for="IsActive">مفعل</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="admin-submit-btn" type="submit">حفظ التعديل</button>
+                <a href="/Admin/Licenses">إلغاء</a>
+            </div>
+        </form>
+    </div>
+
+    <aside class="license-current-preview">
+        <span>الملف الحالي</span>
+
+        @if (Model.FileType == "pdf")
+        {
+            <iframe src="@Model.FilePath#toolbar=0&navpanes=0" title="@Model.Title"></iframe>
+        }
+        else
+        {
+            <img src="@Model.FilePath" alt="@Model.Title" />
+        }
+
+        <a href="@Model.FilePath" target="_blank" rel="noopener noreferrer">فتح الملف في تبويب جديد</a>
+    </aside>
+</div>

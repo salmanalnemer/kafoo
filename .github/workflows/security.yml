@@ -1,0 +1,34 @@
+name: Security and Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.302
+          cache: true
+          cache-dependency-path: Kafo.Web.csproj
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Static security regression checks
+        run: python scripts/security-static-check.py
+      - name: Restore
+        run: dotnet restore
+      - name: Build release
+        run: dotnet build Kafo.Web.csproj -c Release --no-restore
+      - name: Audit vulnerable packages
+        run: dotnet list Kafo.Web.csproj package --vulnerable --include-transitive
+      - name: Audit deprecated packages
+        run: dotnet list Kafo.Web.csproj package --deprecated --include-transitive

@@ -1,0 +1,88 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.LicenseDocument>
+
+@{
+    ViewData["Title"] = "تراخيص الجمعية";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>عن الجمعية</span>
+        <h1>تراخيص الجمعية</h1>
+        <p>إدارة تراخيص الجمعية ورفعها كصورة أو PDF، وتظهر مباشرة داخل الموقع.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/Licenses" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+        <a class="admin-main-action" href="/Admin/Licenses/Create">إضافة ترخيص</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="licenses-admin-grid">
+    @if (Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <article class="license-admin-card @(item.IsActive ? "" : "disabled")">
+                <div class="license-admin-preview">
+                    @if (item.FileType == "pdf")
+                    {
+                        <iframe src="@item.FilePath#toolbar=0&navpanes=0" title="@item.Title"></iframe>
+                    }
+                    else
+                    {
+                        <img src="@item.FilePath" alt="@item.Title" />
+                    }
+                </div>
+
+                <div class="license-admin-body">
+                    <div class="license-admin-type">
+                        <span>@(item.FileType == "pdf" ? "PDF" : "صورة")</span>
+                        @if (item.IsActive)
+                        {
+                            <span class="dash-status active">مفعل</span>
+                        }
+                        else
+                        {
+                            <span class="dash-status inactive">غير مفعل</span>
+                        }
+                    </div>
+
+                    <h2>@item.Title</h2>
+
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <p>@item.Description</p>
+                    }
+
+                    <small>الترتيب: @item.DisplayOrder</small>
+
+                    <div class="license-admin-actions">
+                        <a class="admin-small-btn purple" href="/Admin/Licenses/Edit/@item.Id">تعديل</a>
+                        <a class="admin-small-btn green" href="/Licenses/Details/@item.Id" target="_blank" rel="noopener noreferrer">عرض</a>
+
+                        <form method="post" action="/Admin/Licenses/ToggleStatus/@item.Id">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-small-btn green" type="submit">
+                                @(item.IsActive ? "إخفاء" : "إظهار")
+                            </button>
+                        </form>
+
+                        <form method="post" action="/Admin/Licenses/Delete/@item.Id" data-confirm="هل أنت متأكد من حذف الترخيص؟">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-small-btn danger" type="submit">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    }
+    else
+    {
+        <div class="dash-empty">لا توجد تراخيص حتى الآن.</div>
+    }
+</div>

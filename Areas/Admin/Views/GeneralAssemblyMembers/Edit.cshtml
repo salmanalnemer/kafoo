@@ -1,0 +1,104 @@
+﻿@model Kafo.Web.Models.GeneralAssemblyMember
+
+@{
+    ViewData["Title"] = "تعديل عضو جمعية عمومية";
+}
+
+<div class="gam-admin-page">
+
+    <div class="gam-admin-hero">
+        <div>
+            <span>ملفات الحوكمة</span>
+            <h1>تعديل عضو جمعية عمومية</h1>
+            <p>تحديث بيانات العضو والتحكم في ظهوره بالموقع.</p>
+        </div>
+
+        <div class="gam-admin-actions">
+            <a href="/GeneralAssemblyMembers" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/GeneralAssemblyMembers">رجوع للأعضاء</a>
+        </div>
+    </div>
+
+    <div class="gam-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/GeneralAssemblyMembers/Edit/@Model.Id" class="gam-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="PhotoPath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="gam-form-grid">
+                <div class="form-group">
+                    <label>اسم العضو</label>
+                    <input asp-for="FullName" />
+                    <span asp-validation-for="FullName"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع العضوية</label>
+                    <input asp-for="MembershipType" />
+                </div>
+
+                <div class="form-group">
+                    <label>المنصب / الصفة</label>
+                    <input asp-for="PositionTitle" />
+                </div>
+
+                <div class="form-group">
+                    <label>رقم العضوية</label>
+                    <input asp-for="MembershipNumber" />
+                </div>
+
+                <div class="form-group">
+                    <label>الدورة / الفترة</label>
+                    <input asp-for="TermLabel" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ الانضمام</label>
+                    <input asp-for="JoinedAt" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير صورة العضو</label>
+                    <input type="file" name="photoFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
+                {
+                    <div class="form-group full">
+                        <label>الصورة الحالية</label>
+                        <img class="gam-edit-preview" src="@Model.PhotoPath" alt="@Model.FullName" />
+                    </div>
+                }
+
+                <div class="form-group full">
+                    <label>نبذة مختصرة</label>
+                    <textarea asp-for="Bio" rows="4"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>عضو مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار العضو</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,80 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.FinancialStatementDocument>
+
+@{
+    ViewData["Title"] = "القوائم المالية";
+}
+
+<section class="financial-public-page">
+    <div class="home-container">
+
+        <div class="financial-public-head">
+            <span>ملفات الحوكمة</span>
+            <h1>القوائم المالية</h1>
+            <p>استعراض وتحميل القوائم المالية المعتمدة للجمعية.</p>
+        </div>
+
+        <div class="financial-table-card">
+            <div class="financial-table-wrap">
+                <table class="financial-public-table">
+                    <thead>
+                        <tr>
+                            <th>العنوان</th>
+                            <th>السنة</th>
+                            <th>التصنيف</th>
+                            <th>تحميل</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="financial-empty-row">
+                                    لا توجد ملفات حالياً.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="financial-title-cell">
+                                        <span class="pdf-mark">PDF</span>
+                                        <div>
+                                            <strong>@item.Title</strong>
+                                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                                            {
+                                                <small>@item.Description</small>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td>@item.Year</td>
+
+                                    <td>
+                                        <span class="financial-category">@item.Category</span>
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                        {
+                                            <a class="financial-download" href="@item.FilePath" target="_blank" rel="noopener noreferrer" download>
+                                                تحميل
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>

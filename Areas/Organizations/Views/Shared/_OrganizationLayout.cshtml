@@ -1,0 +1,176 @@
+@{
+    var title = ViewData["Title"]?.ToString() ?? "بوابة الشركات والجهات";
+    var currentPath = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
+
+    Func<string, string> active = url =>
+    {
+        var value = url.ToLowerInvariant();
+
+        if (value == "/organizations" || value == "/organizations/")
+        {
+            return currentPath == "/organizations" || currentPath == "/organizations/" ? "is-active" : "";
+        }
+
+        return currentPath.StartsWith(value) ? "is-active" : "";
+    };
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title | بوابة الشركات والجهات</title>
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+</head>
+<body class="kafo-admin-body portal-body organization-portal">
+    <div class="kafo-admin-shell portal-admin-shell">
+
+        <aside class="kafo-admin-sidebar portal-admin-sidebar">
+            <a class="kafo-admin-brand portal-admin-brand" href="/Organizations">
+                <img src="/images/logo1.png" alt="جمعية كفؤ" />
+                <div>
+                    <strong>بوابة الشركات والجهات</strong>
+                    <span>الاستقطاب والتوظيف والفرص</span>
+                </div>
+            </a>
+
+            <nav class="kafo-admin-nav portal-admin-nav">
+                <div class="kafo-menu-section" data-section="organization-main">
+                    <button type="button" class="kafo-menu-title">
+                        <span>الرئيسية</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@active("/Organizations")" href="/Organizations">
+                            <span class="kafo-menu-icon">◉</span>
+                            <span>لوحة الجهة</span>
+                        </a>
+                        <a class="@active("/Organizations/OpportunityRequests")" href="/Organizations/OpportunityRequests">
+                            <span class="kafo-menu-icon">▤</span>
+                            <span>طلبات الاستقطاب</span>
+                        </a>
+                        <a class="@active("/Organizations/OpportunityRequests/Create")" href="/Organizations/OpportunityRequests/Create">
+                            <span class="kafo-menu-icon">＋</span>
+                            <span>طلب جديد</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="organization-opportunities">
+                    <button type="button" class="kafo-menu-title">
+                        <span>الفرص العامة</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a href="/Jobs">
+                            <span class="kafo-menu-icon">▰</span>
+                            <span>الوظائف</span>
+                        </a>
+                        <a href="/VolunteerOpportunities">
+                            <span class="kafo-menu-icon">◒</span>
+                            <span>الفرص التطوعية</span>
+                        </a>
+                        <a href="/Programs">
+                            <span class="kafo-menu-icon">◎</span>
+                            <span>برامج الجمعية</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="organization-account">
+                    <button type="button" class="kafo-menu-title">
+                        <span>الحساب والتواصل</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a href="/Organizations/Reports">
+                            <span class="kafo-menu-icon">▣</span>
+                            <span>التقارير</span>
+                        </a>
+                        <a href="/Organizations/Evaluations">
+                            <span class="kafo-menu-icon">⭐</span>
+                            <span>تقييم الخدمة</span>
+                        </a>
+                        <a href="/Contact">
+                            <span class="kafo-menu-icon">▱</span>
+                            <span>التواصل مع الجمعية</span>
+                        </a>
+                    </div>
+                </div>
+
+                <form class="portal-sidebar-logout" method="post" action="/Organizations/Logout">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">
+                        <span class="kafo-menu-icon">🚪</span>
+                        <span>تسجيل الخروج</span>
+                    </button>
+                </form>
+            </nav>
+        </aside>
+
+        <main class="kafo-admin-main portal-admin-main">
+            <header class="kafo-admin-topbar portal-admin-topbar">
+                <div>
+                    <span>جمعية كفؤ</span>
+                    <h1>@title</h1>
+                </div>
+
+                <div class="portal-top-actions">
+                    <span class="portal-user-chip">@User.Identity?.Name</span>
+                    <a href="/" target="_blank" rel="noopener noreferrer">زيارة الموقع</a>
+                </div>
+            </header>
+
+            <section class="kafo-admin-content portal-admin-content">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="portal-alert success">@TempData["Success"]</div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="portal-alert error">@TempData["Error"]</div>
+                }
+
+                @RenderBody()
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        (function () {
+            var sections = document.querySelectorAll(".kafo-menu-section");
+
+            sections.forEach(function (section) {
+                var key = "kafo-portal-sidebar-" + section.getAttribute("data-section");
+                var button = section.querySelector(".kafo-menu-title");
+                var hasActive = section.querySelector("a.is-active") !== null;
+                var saved = localStorage.getItem(key);
+
+                if (saved === "closed" && !hasActive) {
+                    section.classList.add("is-collapsed");
+                }
+
+                if (hasActive) {
+                    section.classList.remove("is-collapsed");
+                    localStorage.setItem(key, "open");
+                }
+
+                if (button) {
+                    button.addEventListener("click", function () {
+                        section.classList.toggle("is-collapsed");
+                        localStorage.setItem(key, section.classList.contains("is-collapsed") ? "closed" : "open");
+                    });
+                }
+            });
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="/js/security-ui.js" defer></script>
+</body>
+</html>

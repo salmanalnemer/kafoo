@@ -1,0 +1,406 @@
+﻿@model OrganizationDashboardViewModel
+@{
+    ViewData["Title"] = "لوحة الجهة";
+
+    var requestTotal = Math.Max(Model.RequestsCount, 1);
+    var jobsPercent = Model.RequestsCount == 0
+        ? 0
+        : (int)Math.Round(Model.JobsCount * 100d / Model.RequestsCount);
+    var trainingPercent = Model.RequestsCount == 0
+        ? 0
+        : (int)Math.Round(Model.TrainingCount * 100d / Model.RequestsCount);
+    var volunteerPercent = Model.RequestsCount == 0
+        ? 0
+        : (int)Math.Round(Model.VolunteerCount * 100d / Model.RequestsCount);
+
+    var successValue = Model.SuccessRate.ToString(
+        "0.##",
+        System.Globalization.CultureInfo.InvariantCulture);
+
+    var stages = new[]
+    {
+        "جديد",
+        "قيد المراجعة",
+        "قيد الترشيح",
+        "تم ترشيح المرشحين",
+        "تم إجراء المقابلات",
+        "تم التوظيف",
+        "تم إغلاق الطلب"
+    };
+}
+
+<link rel="stylesheet"
+      href="~/css/organization-dashboard.css"
+      asp-append-version="true" />
+
+<div class="od-page">
+    <section class="od-hero">
+        <div class="od-hero-copy">
+            <span class="od-eyebrow">لوحة مؤشرات الجهة</span>
+            <h2>مرحبًا، @Model.OrganizationName</h2>
+            <p>
+                نظرة شاملة على طلبات الاستقطاب والمرشحين ونسب الإنجاز
+                @if (!string.IsNullOrWhiteSpace(Model.OrganizationCity))
+                {
+                    <span>في @Model.OrganizationCity</span>
+                }
+            </p>
+        </div>
+
+        <div class="od-hero-actions">
+            <a class="od-btn od-btn-primary"
+               href="/Organizations/OpportunityRequests/Create">
+                <span>＋</span>
+                طلب استقطاب جديد
+            </a>
+
+            <a class="od-btn od-btn-light"
+               href="/Organizations/Reports">
+                التقارير
+            </a>
+        </div>
+    </section>
+
+    <section class="od-kpis">
+        <article class="od-kpi od-kpi-purple">
+            <div class="od-kpi-top">
+                <span class="od-kpi-icon">▤</span>
+                <small>هذا الشهر +@Model.RequestsThisMonth</small>
+            </div>
+            <strong>@Model.RequestsCount</strong>
+            <span>إجمالي الطلبات</span>
+            <p>@Model.ActiveRequestsCount طلب نشط حاليًا</p>
+        </article>
+
+        <article class="od-kpi od-kpi-blue">
+            <div class="od-kpi-top">
+                <span class="od-kpi-icon">◫</span>
+                <small>@Model.PendingReviewRequestsCount قيد المراجعة</small>
+            </div>
+            <strong>@Model.ActiveRequestsCount</strong>
+            <span>الطلبات النشطة</span>
+            <p>@Model.CompletedRequestsCount طلب مكتمل بالتوظيف</p>
+        </article>
+
+        <article class="od-kpi od-kpi-green">
+            <div class="od-kpi-top">
+                <span class="od-kpi-icon">◎</span>
+                <small>الاحتياج المعلن</small>
+            </div>
+            <strong>@Model.TotalAvailableOpportunities</strong>
+            <span>إجمالي الفرص المتاحة</span>
+            <p>وظائف وتدريب وتطوع</p>
+        </article>
+
+        <article class="od-kpi od-kpi-orange">
+            <div class="od-kpi-top">
+                <span class="od-kpi-icon">◉</span>
+                <small>هذا الشهر +@Model.CandidatesThisMonth</small>
+            </div>
+            <strong>@Model.CandidatesCount</strong>
+            <span>إجمالي المرشحين</span>
+            <p>بمتوسط @Model.AverageCandidatesPerRequest.ToString("N1") لكل طلب</p>
+        </article>
+
+        <article class="od-kpi od-kpi-teal">
+            <div class="od-kpi-top">
+                <span class="od-kpi-icon">✓</span>
+                <small>@Model.InterviewCandidatesCount تمت مقابلتهم</small>
+            </div>
+            <strong>@Model.AcceptedCandidatesCount</strong>
+            <span>المرشحون المقبولون</span>
+            <p>@Model.RejectedCandidatesCount لم يتم قبولهم</p>
+        </article>
+
+        <article class="od-kpi od-kpi-red">
+            <div class="od-kpi-top">
+                <span class="od-kpi-icon">●</span>
+                <small>تحتاج متابعة</small>
+            </div>
+            <strong>@Model.UnreadNotificationsCount</strong>
+            <span>إشعارات غير مقروءة</span>
+            <p>@Model.NewCandidatesCount مرشح جديد</p>
+        </article>
+    </section>
+
+    <section class="od-insights-grid">
+        <article class="od-card od-performance-card">
+            <div class="od-card-head">
+                <div>
+                    <span class="od-card-kicker">مؤشرات الأداء</span>
+                    <h3>كفاءة الاستقطاب</h3>
+                    <p>قياس القبول وتغطية الاحتياج واكتمال ملف الجهة.</p>
+                </div>
+            </div>
+
+            <div class="od-performance-body">
+                <div class="od-donut-wrap">
+                    <div class="od-donut"
+                         style="--value:@successValue">
+                        <div>
+                            <strong>@Model.SuccessRate.ToString("N1")%</strong>
+                            <span>معدل القبول</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="od-performance-list">
+                    <div>
+                        <span>تغطية الاحتياج الوظيفي</span>
+                        <strong>@Model.FulfillmentRate.ToString("N1")%</strong>
+                        <div class="od-meter">
+                            <i style="width:@Model.FulfillmentRate.ToString("0", System.Globalization.CultureInfo.InvariantCulture)%"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span>اكتمال الملف التعريفي</span>
+                        <strong>@Model.ProfileCompletion%</strong>
+                        <div class="od-meter od-meter-blue">
+                            <i style="width:@Model.ProfileCompletion%"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span>الطلبات المكتملة</span>
+                        <strong>@Model.CompletedRequestsCount من @Model.RequestsCount</strong>
+                        <div class="od-meter od-meter-orange">
+                            <i style="width:@(Model.RequestsCount == 0 ? 0 : Math.Round(Model.CompletedRequestsCount * 100d / Model.RequestsCount))%"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="od-card">
+            <div class="od-card-head">
+                <div>
+                    <span class="od-card-kicker">توزيع الطلبات</span>
+                    <h3>أنواع الفرص</h3>
+                    <p>مقارنة الطلبات حسب نوع الفرصة.</p>
+                </div>
+
+                <strong class="od-total-badge">@Model.RequestsCount طلب</strong>
+            </div>
+
+            <div class="od-type-bars">
+                <div class="od-type-row">
+                    <div>
+                        <span class="od-type-dot is-job"></span>
+                        <strong>التوظيف</strong>
+                        <small>@Model.JobsCount طلب</small>
+                    </div>
+                    <div class="od-type-track">
+                        <i class="is-job" style="width:@jobsPercent%"></i>
+                    </div>
+                    <b>@jobsPercent%</b>
+                </div>
+
+                <div class="od-type-row">
+                    <div>
+                        <span class="od-type-dot is-training"></span>
+                        <strong>التدريب التعاوني</strong>
+                        <small>@Model.TrainingCount طلب</small>
+                    </div>
+                    <div class="od-type-track">
+                        <i class="is-training" style="width:@trainingPercent%"></i>
+                    </div>
+                    <b>@trainingPercent%</b>
+                </div>
+
+                <div class="od-type-row">
+                    <div>
+                        <span class="od-type-dot is-volunteer"></span>
+                        <strong>التطوع</strong>
+                        <small>@Model.VolunteerCount طلب</small>
+                    </div>
+                    <div class="od-type-track">
+                        <i class="is-volunteer" style="width:@volunteerPercent%"></i>
+                    </div>
+                    <b>@volunteerPercent%</b>
+                </div>
+            </div>
+
+            <div class="od-stage-summary">
+                @foreach (var stage in stages)
+                {
+                    Model.RequestStatusCounts.TryGetValue(stage, out var count);
+
+                    <div>
+                        <strong>@count</strong>
+                        <span>@stage</span>
+                    </div>
+                }
+            </div>
+        </article>
+    </section>
+
+    <section class="od-main-grid">
+        <article class="od-card od-requests-card">
+            <div class="od-card-head">
+                <div>
+                    <span class="od-card-kicker">آخر النشاط</span>
+                    <h3>طلبات الاستقطاب الأخيرة</h3>
+                    <p>الحالة ونسبة تقدم كل طلب وأعداد المرشحين.</p>
+                </div>
+
+                <a class="od-link" href="/Organizations/OpportunityRequests">
+                    عرض جميع الطلبات
+                </a>
+            </div>
+
+            @if (!Model.LatestRequests.Any())
+            {
+                <div class="od-empty">
+                    <strong>لا توجد طلبات حتى الآن</strong>
+                    <p>ابدأ بإضافة أول طلب استقطاب للجهة.</p>
+                    <a class="od-btn od-btn-primary"
+                       href="/Organizations/OpportunityRequests/Create">
+                        إضافة طلب جديد
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="od-table-wrap">
+                    <table class="od-table">
+                        <thead>
+                            <tr>
+                                <th>الفرصة</th>
+                                <th>النوع</th>
+                                <th>المرشحون</th>
+                                <th>التقدم</th>
+                                <th>الحالة</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var request in Model.LatestRequests)
+                            {
+                                var stageIndex = Array.IndexOf(stages, request.Status);
+                                var progress = stageIndex < 0
+                                    ? 8
+                                    : (int)Math.Round((stageIndex + 1) * 100d / stages.Length);
+
+                                <tr>
+                                    <td>
+                                        <div class="od-request-title">
+                                            <strong>@request.Title</strong>
+                                            <small>
+                                                @(request.City ?? "مدينة غير محددة")
+                                                •
+                                                @request.AvailableCount فرصة
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="od-type-chip">@request.OpportunityType</span>
+                                    </td>
+                                    <td>
+                                        <strong>@request.Candidates.Count</strong>
+                                    </td>
+                                    <td>
+                                        <div class="od-progress-cell">
+                                            <div><i style="width:@progress%"></i></div>
+                                            <span>@progress%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="od-status-chip">@request.Status</span>
+                                    </td>
+                                    <td>
+                                        <a class="od-row-action"
+                                           href="/Organizations/OpportunityRequests/Details/@request.Id">
+                                            التفاصيل
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </article>
+
+        <aside class="od-side-column">
+            <article class="od-card od-notifications-card">
+                <div class="od-card-head">
+                    <div>
+                        <span class="od-card-kicker">آخر التحديثات</span>
+                        <h3>الإشعارات</h3>
+                    </div>
+
+                    <a class="od-link" href="/Organizations/Notifications">
+                        عرض الكل
+                    </a>
+                </div>
+
+                @if (!Model.LatestNotifications.Any())
+                {
+                    <div class="od-mini-empty">لا توجد إشعارات حالية.</div>
+                }
+                else
+                {
+                    <div class="od-notifications-list">
+                        @foreach (var notification in Model.LatestNotifications)
+                        {
+                            <article class="@(!notification.IsRead ? "is-unread" : "")">
+                                <span class="od-notification-mark"></span>
+                                <div>
+                                    <strong>@notification.Title</strong>
+                                    <p>@notification.Message</p>
+                                    <small>
+                                        @notification.CreatedAt.ToString("yyyy/MM/dd - hh:mm tt")
+                                    </small>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </article>
+
+            <article class="od-card od-actions-card">
+                <div class="od-card-head">
+                    <div>
+                        <span class="od-card-kicker">اختصارات</span>
+                        <h3>إجراءات سريعة</h3>
+                    </div>
+                </div>
+
+                <div class="od-quick-actions">
+                    <a href="/Organizations/OpportunityRequests/Create">
+                        <span>＋</span>
+                        <div>
+                            <strong>طلب استقطاب جديد</strong>
+                            <small>إضافة وظيفة أو تدريب أو تطوع</small>
+                        </div>
+                    </a>
+
+                    <a href="/Organizations/Candidates">
+                        <span>◎</span>
+                        <div>
+                            <strong>إدارة المرشحين</strong>
+                            <small>متابعة المقابلات والقبول</small>
+                        </div>
+                    </a>
+
+                    <a href="/Organizations/Reports">
+                        <span>▣</span>
+                        <div>
+                            <strong>التقارير</strong>
+                            <small>عرض وطباعة مؤشرات الاستقطاب</small>
+                        </div>
+                    </a>
+
+                    <a href="/Organizations/Profile">
+                        <span>☉</span>
+                        <div>
+                            <strong>الملف التعريفي</strong>
+                            <small>اكتمال الملف @Model.ProfileCompletion%</small>
+                        </div>
+                    </a>
+                </div>
+            </article>
+        </aside>
+    </section>
+</div>

@@ -1,0 +1,197 @@
+﻿@model Kafo.Web.Models.NewBeneficiaryRegistrationPage
+@using Kafo.Web.Models
+
+@{
+    var currentPage = Model ?? new NewBeneficiaryRegistrationPage();
+
+    ViewData["Title"] = string.IsNullOrWhiteSpace(currentPage.Title)
+        ? "تسجيل مستفيد جديد"
+        : currentPage.Title;
+
+    var requirements = ViewBag.Requirements as IReadOnlyList<NewBeneficiaryRegistrationRequirement>
+        ?? new List<NewBeneficiaryRegistrationRequirement>();
+
+    string GetYoutubeEmbedUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return "";
+
+        var value = url.Trim();
+
+        if (value.Contains("youtube.com/embed/"))
+            return value;
+
+        if (value.Contains("youtu.be/"))
+        {
+            var id = value.Split("youtu.be/").Last().Split("?").First().Trim('/');
+            return $"https://www.youtube.com/embed/{id}";
+        }
+
+        if (value.Contains("watch?v="))
+        {
+            var id = value.Split("watch?v=").Last().Split("&").First();
+            return $"https://www.youtube.com/embed/{id}";
+        }
+
+        return value;
+    }
+
+    string CleanWhatsAppNumber(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "";
+
+        var digits = new string(value.Where(char.IsDigit).ToArray());
+
+        if (digits.StartsWith("05"))
+            digits = "966" + digits.Substring(1);
+
+        if (digits.StartsWith("5") && digits.Length == 9)
+            digits = "966" + digits;
+
+        return digits;
+    }
+
+    var title = string.IsNullOrWhiteSpace(currentPage.Title) ? "تسجيل مستفيد جديد" : currentPage.Title;
+    var subtitle = string.IsNullOrWhiteSpace(currentPage.Subtitle) ? "خدمة إلكترونية" : currentPage.Subtitle;
+    var description = string.IsNullOrWhiteSpace(currentPage.Description)
+        ? "يمكنك التسجيل كمستفيد جديد من خلال تعبئة البيانات وإرفاق المستندات المطلوبة."
+        : currentPage.Description;
+
+    var alertTitle = string.IsNullOrWhiteSpace(currentPage.AlertTitle) ? "تنبيه مهم" : currentPage.AlertTitle;
+    var alertText = string.IsNullOrWhiteSpace(currentPage.AlertText)
+        ? "يشترط للتسجيل كمستفيد جديد تعبئة البيانات بدقة وإرفاق المستندات المطلوبة كاملة."
+        : currentPage.AlertText;
+
+    var registerUrl = string.IsNullOrWhiteSpace(currentPage.RegisterButtonUrl)
+        ? "#"
+        : currentPage.RegisterButtonUrl.Trim();
+
+    var registerText = string.IsNullOrWhiteSpace(currentPage.RegisterButtonText)
+        ? "التسجيل كمستفيد جديد"
+        : currentPage.RegisterButtonText;
+
+    var registerTarget = currentPage.OpenRegisterInNewTab && !registerUrl.StartsWith("/")
+        ? "_blank"
+        : "_self";
+
+    var embedUrl = GetYoutubeEmbedUrl(currentPage.YoutubeUrl);
+    var whatsappNumber = CleanWhatsAppNumber(currentPage.WhatsAppNumber);
+
+    var whatsappUrl = !string.IsNullOrWhiteSpace(whatsappNumber)
+        ? $"https://wa.me/{whatsappNumber}?text={Uri.EscapeDataString(currentPage.WhatsAppMessage ?? "")}"
+        : "";
+
+    var whatsappText = string.IsNullOrWhiteSpace(currentPage.WhatsAppButtonText)
+        ? "طلب مساعدة عبر واتساب"
+        : currentPage.WhatsAppButtonText;
+
+    var hasWhatsapp = currentPage.ShowWhatsAppButton && !string.IsNullOrWhiteSpace(whatsappUrl);
+}
+
+<section class="nbr-fit-page">
+    <div class="home-container">
+
+        <div class="nbr-fit-header">
+            <span>@subtitle</span>
+            <h1>@title</h1>
+            <p>@description</p>
+        </div>
+
+        <div class="nbr-fit-layout">
+
+            <div class="nbr-fit-video-card">
+                <div class="nbr-fit-card-title">
+                    <span>فيديو توضيحي</span>
+                    <h2>شرح طريقة التسجيل</h2>
+                </div>
+
+                <div class="nbr-fit-video-frame">
+                    @if (currentPage.VideoSourceType == "Upload" && !string.IsNullOrWhiteSpace(currentPage.VideoPath))
+                    {
+                        <video controls preload="metadata">
+                            <source src="@currentPage.VideoPath" />
+                            المتصفح لا يدعم تشغيل الفيديو.
+                        </video>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(embedUrl))
+                    {
+                        <iframe src="@embedUrl" title="@title" allowfullscreen></iframe>
+                    }
+                    else
+                    {
+                        <div class="nbr-fit-video-empty">
+                            <div>
+                                <strong>لم يتم إضافة فيديو بعد</strong>
+                                <span>يمكن إضافة رابط YouTube أو رفع فيديو من إعداد الصفحة.</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <aside class="nbr-fit-side">
+
+                <div class="nbr-fit-alert">
+                    <div class="nbr-fit-alert-icon">⚠</div>
+                    <div>
+                        <strong>@alertTitle</strong>
+                        <p>@alertText</p>
+                    </div>
+                </div>
+
+                <div class="nbr-fit-requirements">
+                    <div class="nbr-fit-card-title center">
+                        <span>المرفقات المطلوبة</span>
+                        <h2>الشروط والمستندات المطلوبة</h2>
+                    </div>
+
+                    <div class="nbr-fit-accordion">
+                        @for (int i = 0; i < requirements.Count; i++)
+                        {
+                            var item = requirements[i];
+
+                            <details class="nbr-fit-accordion-item" @(i == 0 ? "open" : "")>
+                                <summary>
+                                    <span>
+                                        <b>@item.Icon</b>
+                                        @item.Title
+                                    </span>
+                                    <em>⌄</em>
+                                </summary>
+
+                                @if (!string.IsNullOrWhiteSpace(item.Note))
+                                {
+                                    <div class="nbr-fit-accordion-content">
+                                        @item.Note
+                                    </div>
+                                }
+                            </details>
+                        }
+                    </div>
+                </div>
+
+                <div class="nbr-fit-action-box">
+                    <h3>هل أنت جاهز للتسجيل؟</h3>
+                    <p>بعد تجهيز المستندات المطلوبة يمكنك البدء بإرسال طلب التسجيل كمستفيد جديد.</p>
+
+                    <div class="nbr-fit-actions">
+                        <a class="nbr-fit-btn primary" href="@registerUrl" target="@registerTarget" rel="noopener">
+                            @registerText
+                        </a>
+
+                        @if (hasWhatsapp)
+                        {
+                            <a class="nbr-fit-btn whatsapp" href="@whatsappUrl" target="_blank" rel="noopener noreferrer">
+                                @whatsappText
+                            </a>
+                        }
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+
+    </div>
+</section>

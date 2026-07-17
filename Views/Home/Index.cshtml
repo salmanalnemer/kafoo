@@ -1,0 +1,12 @@
+﻿@model Kafo.Web.ViewModels.Home.HomeIndexViewModel
+
+@{
+    ViewData["Title"] = "الرئيسية";
+}
+
+@await Html.PartialAsync("_HeroSlider", Model.Sliders)
+@await Html.PartialAsync("_HomeStats", Model.Statistics)
+@await Html.PartialAsync("_StrategicGoals", Model.StrategicGoals)
+@await Html.PartialAsync("_ProgramsProjects", Model.Programs)
+@await Html.PartialAsync("_NewsSection", Model.News)
+@await Html.PartialAsync("_Partners", Model.Partners)

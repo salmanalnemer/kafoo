@@ -1,0 +1,292 @@
+@model Kafo.Web.ViewModels.Admin.AdminDonorDetailsViewModel
+
+@{
+    ViewData["Title"] = "تفاصيل الداعم";
+}
+
+<div class="donor-details-page">
+    <div class="admin-page-head donor-details-head">
+        <div>
+            <span>ملف الداعم</span>
+            <h1>@Model.Donor.FullName</h1>
+            <p>
+                @(string.IsNullOrWhiteSpace(Model.Donor.OrganizationName) ? Model.Donor.DonorType : Model.Donor.OrganizationName)
+                — البريد: @(string.IsNullOrWhiteSpace(Model.Donor.Email) ? "-" : Model.Donor.Email)
+                — الجوال: @(string.IsNullOrWhiteSpace(Model.Donor.Phone) ? "-" : Model.Donor.Phone)
+            </p>
+        </div>
+        <div class="donor-head-actions">
+            <a class="admin-back-link" href="/Admin/Donors">رجوع</a>
+            <a class="admin-main-action" href="/Admin/Donors/Edit/@Model.Donor.Id">تعديل الحساب</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert-error">@TempData["Error"]</div>
+    }
+
+    <div class="workflow-note">
+        <strong>آلية العمل المعتمدة</strong>
+        <p>المساهمة تبدأ من بوابة الداعم، ثم تظهر هنا بنفس تفاصيلها وقيمتها وبرنامجها. مدير النظام يعتمد الطلب أو يحدث التنفيذ فقط، والمتبقي والفائض يتم احتسابهم آلياً.</p>
+    </div>
+
+    <div class="donor-admin-stats details-stats">
+        <div><span>إجمالي الدعم</span><strong>@Model.TotalAmount.ToString("N2") ر.س</strong></div>
+        <div><span>المصروف</span><strong>@Model.SpentAmount.ToString("N2") ر.س</strong></div>
+        <div><span>المتبقي آلياً</span><strong>@Model.RemainingAmount.ToString("N2") ر.س</strong></div>
+        <div><span>عدد المستفيدين</span><strong>@Model.BeneficiariesCount</strong></div>
+        <div><span>متوسط الإنجاز</span><strong>@Model.AverageProgress.ToString("N1")%</strong></div>
+    </div>
+
+    <div class="donor-admin-grid two-cols">
+        <section class="admin-card donor-panel">
+            <div class="panel-title">
+                <div>
+                    <span>حساب الداعم</span>
+                    <h2>بيانات عامة</h2>
+                </div>
+                <form method="post" action="/Admin/Donors/Toggle/@Model.Donor.Id">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="@(Model.Donor.IsActive ? "danger" : "success")">
+                        @(Model.Donor.IsActive ? "تعطيل الحساب" : "تفعيل الحساب")
+                    </button>
+                </form>
+            </div>
+
+            <dl class="donor-info-list">
+                <dt>نوع الداعم</dt><dd>@Model.Donor.DonorType</dd>
+                <dt>اسم الجهة</dt><dd>@(string.IsNullOrWhiteSpace(Model.Donor.OrganizationName) ? "-" : Model.Donor.OrganizationName)</dd>
+                <dt>البريد</dt><dd dir="ltr">@(string.IsNullOrWhiteSpace(Model.Donor.Email) ? "-" : Model.Donor.Email)</dd>
+                <dt>الجوال</dt><dd dir="ltr">@(string.IsNullOrWhiteSpace(Model.Donor.Phone) ? "-" : Model.Donor.Phone)</dd>
+                <dt>آخر دخول</dt><dd>@(Model.Donor.LastLoginAt.HasValue ? Model.Donor.LastLoginAt.Value.ToString("yyyy/MM/dd HH:mm") : "-")</dd>
+                <dt>الحالة</dt><dd><span class="adm-status @(Model.Donor.IsActive ? "active" : "disabled")">@(Model.Donor.IsActive ? "مفعل" : "معطل")</span></dd>
+            </dl>
+        </section>
+
+        <section class="admin-card donor-panel">
+            <div class="panel-title">
+                <div>
+                    <span>إشعار مباشر</span>
+                    <h2>إرسال تنبيه للداعم</h2>
+                </div>
+            </div>
+
+            <form class="quick-form" method="post" action="/Admin/Donors/SendNotification/@Model.Donor.Id">
+                @Html.AntiForgeryToken()
+                <input name="title" placeholder="عنوان الإشعار" required />
+                <textarea name="message" placeholder="نص الإشعار الذي سيظهر في جرس الداعم" required></textarea>
+                <select name="contributionId">
+                    <option value="">بدون ربط بمساهمة</option>
+                    @foreach (var contribution in Model.Contributions)
+                    {
+                        <option value="@contribution.Id">@contribution.Title</option>
+                    }
+                </select>
+                <div class="donor-inline-checks compact">
+                    <label><input type="checkbox" name="sentBySms" value="true" /> <span>نسخة SMS</span></label>
+                    <span class="source-chip">يُرسل إلى البريد الإلكتروني تلقائيًا</span>
+                </div>
+                <button type="submit">إرسال الإشعار</button>
+            </form>
+        </section>
+    </div>
+
+    <section class="admin-card donor-panel donor-contributions-panel">
+        <div class="panel-title">
+            <div>
+                <span>طلبات ومساهمات الداعم</span>
+                <h2>المساهمات المرسلة من بوابة الداعم</h2>
+            </div>
+            <span class="source-chip">المصدر: بوابة الداعم</span>
+        </div>
+
+        @if (!Model.Contributions.Any())
+        {
+            <div class="adm-empty"><h3>لا توجد طلبات دعم مرسلة من هذا الداعم حتى الآن</h3></div>
+        }
+        else
+        {
+            <div class="donor-contribution-stack">
+                @foreach (var item in Model.Contributions)
+                {
+                    var isPending = string.Equals(item.Status, "بانتظار الاعتماد", StringComparison.OrdinalIgnoreCase);
+                    var isDone = string.Equals(item.Status, "مكتمل", StringComparison.OrdinalIgnoreCase) || string.Equals(item.Status, "مغلق", StringComparison.OrdinalIgnoreCase);
+                    var calculatedRemaining = Math.Max(0, item.TotalAmount - item.SpentAmount);
+
+                    <article id="contribution-@item.Id" class="donor-contribution-card @(isPending ? "pending-card" : "")">
+                        <div class="contribution-top">
+                            <div>
+                                <h3>@item.Title</h3>كود الدعم:                               <span class="status-chip" dir="ltr">@(string.IsNullOrWhiteSpace(item.ContributionCode) ? "بدون كود" : item.ContributionCode)</span>
+                                <p>@(item.ProgramProject?.Title ?? "بدون برنامج مرتبط")</p>
+                                <span class="request-date">تاريخ الإرسال: @item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span>
+                            </div>
+                            <div class="contribution-actions">
+                                <span class="status-chip">@item.Status</span>
+                                @if (isPending)
+                                {
+                                    <form method="post" action="/Admin/Donors/Contribution/Approve/@item.Id">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="mini-action approve">اعتماد</button>
+                                    </form>
+                                    <details class="reject-details">
+                                        <summary>إغلاق</summary>
+                                        <form method="post" action="/Admin/Donors/Contribution/Reject/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <textarea name="reason" placeholder="سبب الإغلاق"></textarea>
+                                            <button type="submit" class="mini-action danger">تأكيد الإغلاق</button>
+                                        </form>
+                                    </details>
+                                }
+                                else
+                                {
+                                    <a href="/Admin/Donors/Contribution/Edit/@item.Id">تحديث التنفيذ</a>
+
+                                    @if (item.Certificate != null)
+                                    {
+                                        <a class="certificate-action" href="/Admin/Donors/Contribution/Certificate/@item.Id" target="_blank" rel="noopener noreferrer">شهادة عطاء</a>
+                                    }
+                                    else if (!isPending)
+                                    {
+                                        <form method="post" action="/Admin/Donors/Contribution/Close/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="mini-action certificate">إغلاق وإصدار شهادة</button>
+                                        </form>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        <div class="request-box">
+                            <strong>تفاصيل أرسلها الداعم</strong>
+                            <p>قيمة الدعم: <b>@item.TotalAmount.ToString("N2") ر.س</b></p>
+                            <p>ملاحظات الداعم / التوجيه المطلوب: @(string.IsNullOrWhiteSpace(item.ImpactSummary) ? "لا توجد ملاحظات" : item.ImpactSummary)</p>
+                        </div>
+
+                        <div class="progress-row">
+                            <div class="progress-bar"><span style="width:@item.ProgressPercent%"></span></div>
+                            <strong>@item.ProgressPercent%</strong>
+                        </div>
+
+                        <div class="money-grid">
+                            <div><span>الإجمالي من الداعم</span><strong>@item.TotalAmount.ToString("N2") ر.س</strong></div>
+                            <div><span>المصروف</span><strong>@item.SpentAmount.ToString("N2") ر.س</strong></div>
+                            <div><span>المتبقي آلياً</span><strong>@calculatedRemaining.ToString("N2") ر.س</strong></div>
+                            <div><span>المستفيدون</span><strong>@item.BeneficiariesCount</strong></div>
+                            @if (item.Certificate != null)
+                            {
+                                <div><span>رقم شهادة العطاء</span><strong dir="ltr">@item.Certificate.CertificateNumber</strong></div>
+                            }
+                        </div>
+
+                        <div class="contribution-admin-forms">
+                            <form method="post" action="/Admin/Donors/Contribution/AddUpdate/@item.Id">
+                                @Html.AntiForgeryToken()
+                                <h4>إضافة تحديث مرحلة</h4>
+                                <input name="title" placeholder="مثال: بدء التنفيذ" required />
+                                <input name="progressPercent" type="number" min="0" max="100" placeholder="نسبة الإنجاز" />
+                                <textarea name="details" placeholder="تفاصيل التحديث"></textarea>
+                                <button type="submit">حفظ التحديث وإشعار الداعم</button>
+                            </form>
+
+                            <form method="post" action="/Admin/Donors/Contribution/AddReport/@item.Id" enctype="multipart/form-data">
+                                @Html.AntiForgeryToken()
+                                <h4>رفع تقرير</h4>
+                                <input name="title" placeholder="عنوان التقرير" required />
+                                <select name="reportType">
+                                    <option value="تقرير دوري">تقرير دوري</option>
+                                    <option value="تقرير أثر">تقرير أثر</option>
+                                    <option value="تقرير نهائي">تقرير نهائي</option>
+                                </select>
+                                <input name="reportDate" type="date" />
+                                <textarea name="summary" placeholder="ملخص التقرير"></textarea>
+                                <input name="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.mp4" />
+                                <button type="submit">رفع التقرير وإشعار الداعم</button>
+                            </form>
+
+                            <form method="post" action="/Admin/Donors/Contribution/SetSurplus/@item.Id">
+                                @Html.AntiForgeryToken()
+                                <h4>فائض الدعم</h4>
+                                <input value='@calculatedRemaining.ToString("N2") ر.س' readonly />
+                                <textarea name="reason" placeholder="سبب وجود الفائض. مثال: تم تنفيذ البرنامج بتكلفة أقل من المخطط"></textarea>
+                                <button type="submit" disabled="@(calculatedRemaining <= 0)">إشعار الداعم بالفائض</button>
+                                <small>الفائض يساوي المتبقي المحسوب آلياً، ولا يتم التصرف فيه إلا بموافقة الداعم.</small>
+                            </form>
+                        </div>
+
+                        <div class="timeline-mini">
+                            <div>
+                                <h4>آخر التحديثات</h4>
+                                @foreach (var update in item.Updates.Take(4))
+                                {
+                                    <p><strong>@update.Title</strong><span>@update.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span></p>
+                                }
+                            </div>
+                            <div>
+                                <h4>آخر التقارير</h4>
+                                @foreach (var report in item.Reports.Take(4))
+                                {
+                                    <p>
+                                        <strong>@report.Title</strong>
+                                        @if (!string.IsNullOrWhiteSpace(report.FilePath))
+                                        {
+                                            <a href="@report.FilePath" target="_blank" rel="noopener noreferrer">فتح</a>
+                                        }
+                                    </p>
+                                }
+                            </div>
+                            <div>
+                                <h4>قرارات الفائض</h4>
+                                @foreach (var surplus in item.SurplusDecisions.Take(4))
+                                {
+                                    <p><strong>@surplus.DecisionType</strong><span>@surplus.SurplusAmount.ToString("N2") ر.س</span></p>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <div class="donor-admin-grid two-cols">
+        <section class="admin-card donor-panel">
+            <div class="panel-title"><div><span>سجل الإشعارات</span><h2>آخر الإشعارات المرسلة</h2></div></div>
+            <div class="simple-list">
+                @foreach (var notification in Model.Notifications)
+                {
+                    <div>
+                        <strong>@notification.Title</strong>
+                        <p>@notification.Message</p>
+                        <span>@notification.CreatedAt.ToString("yyyy/MM/dd HH:mm") @(notification.IsRead ? "— مقروء" : "— غير مقروء")</span>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="admin-card donor-panel">
+            <div class="panel-title"><div><span>الحوكمة</span><h2>موافقات فائض الدعم</h2></div></div>
+            <div class="simple-list">
+                @foreach (var surplus in Model.SurplusDecisions)
+                {
+                    <div>
+                        <strong>@surplus.DecisionType — @surplus.SurplusAmount.ToString("N2") ر.س</strong>
+                        <p>@(string.IsNullOrWhiteSpace(surplus.Notes) ? "-" : surplus.Notes)</p>
+                        <span>@surplus.ApprovedAt.ToString("yyyy/MM/dd HH:mm") — @surplus.Status</span>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .donor-head-actions{display:flex;gap:10px;flex-wrap:wrap}.workflow-note{background:#f5fbf4;border:1px solid #d7f0d5;color:#243018;border-radius:20px;padding:16px 18px;margin-bottom:18px;font-weight:800}.workflow-note strong{display:block;color:#2f7f2d;margin-bottom:6px}.workflow-note p{margin:0;line-height:1.8}.donor-admin-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:18px}.donor-admin-stats>div{background:#fff;border:1px solid #e5e7eb;border-radius:22px;padding:18px;box-shadow:0 12px 28px rgba(15,23,42,.05)}.donor-admin-stats span{display:block;color:#667085;font-weight:900;font-size:13px}.donor-admin-stats strong{display:block;margin-top:8px;color:#4db748;font-size:22px;font-weight:900}.donor-admin-grid.two-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}.donor-panel{display:grid;gap:16px}.panel-title{display:flex;justify-content:space-between;align-items:center;gap:16px}.panel-title span{color:#4db748;font-weight:900}.panel-title h2{margin:4px 0 0;color:#6c5ca8;font-size:22px}.source-chip{background:#eef8ee;color:#2f7f2d;border-radius:999px;padding:8px 12px;font-weight:900}.panel-title button,.quick-form button,.contribution-admin-forms button,.mini-action{border:0;border-radius:14px;min-height:42px;padding:0 16px;font-weight:900;color:#fff;background:#4db748}.mini-action.danger,.panel-title button.danger{background:#dc2626}.mini-action.approve{background:#4db748}.panel-title button.success{background:#4db748}.contribution-admin-forms button:disabled{opacity:.45;cursor:not-allowed}.donor-info-list{display:grid;grid-template-columns:140px 1fr;gap:12px;margin:0}.donor-info-list dt{font-weight:900;color:#667085}.donor-info-list dd{margin:0;font-weight:900;color:#344054}.quick-form{display:grid;gap:10px}.quick-form input,.quick-form textarea,.quick-form select,.contribution-admin-forms input,.contribution-admin-forms textarea,.contribution-admin-forms select{width:100%;border:1px solid #e5e7eb;border-radius:14px;min-height:44px;padding:0 12px;font-weight:800;background:#fff}.contribution-admin-forms input[readonly]{background:#f8fafc;color:#667085}.quick-form textarea,.contribution-admin-forms textarea{min-height:86px;padding:12px;resize:vertical}.donor-inline-checks.compact{display:flex;gap:14px}.donor-inline-checks label{display:flex;align-items:center;gap:7px;font-weight:900;color:#344054}.donor-contribution-stack{display:grid;gap:18px}.donor-contribution-card{border:1px solid #e5e7eb;border-radius:24px;padding:18px;background:#fbfcfe}.donor-contribution-card.pending-card{border-color:#b7dfb5;background:#fbfffb}.contribution-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.contribution-top h3{margin:0;color:#243018;font-size:22px}.contribution-top p{margin:7px 0 0;color:#667085;font-weight:800}.request-date{display:block;margin-top:6px;color:#98a2b3;font-weight:900;font-size:12px}.contribution-actions{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.contribution-actions a,.status-chip{border-radius:999px;padding:8px 12px;background:#eef8ee;color:#2f7f2d;font-weight:900;text-decoration:none}.reject-details{position:relative}.reject-details summary{cursor:pointer;border-radius:999px;padding:8px 12px;background:#fef3f2;color:#b42318;font-weight:900;list-style:none}.reject-details form{position:absolute;z-index:5;left:0;top:40px;background:#fff;border:1px solid #fecdca;border-radius:16px;padding:12px;width:260px;box-shadow:0 20px 40px rgba(15,23,42,.12);display:grid;gap:8px}.request-box{margin-top:14px;background:#fff;border:1px dashed #b7dfb5;border-radius:16px;padding:14px;color:#344054;font-weight:800}.request-box strong{display:block;color:#2f7f2d;margin-bottom:6px}.request-box p{margin:5px 0;line-height:1.7}.progress-row{display:grid;grid-template-columns:1fr 60px;gap:12px;align-items:center;margin:16px 0}.progress-bar{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden}.progress-bar span{display:block;height:100%;background:#4db748;border-radius:999px}.money-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.money-grid div{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px}.money-grid span{display:block;color:#667085;font-weight:900;font-size:12px}.money-grid strong{display:block;margin-top:5px;color:#344054}.contribution-admin-forms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.contribution-admin-forms form{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:14px;display:grid;gap:10px}.contribution-admin-forms h4,.timeline-mini h4{margin:0;color:#6c5ca8}.contribution-admin-forms small{color:#667085;font-weight:800;line-height:1.6}.timeline-mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}.timeline-mini>div,.simple-list>div{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:12px}.timeline-mini p,.simple-list p{margin:8px 0;color:#667085;font-weight:800;line-height:1.7}.timeline-mini p span,.simple-list span{display:block;color:#98a2b3;font-size:12px;font-weight:900}.simple-list{display:grid;gap:10px;max-height:420px;overflow:auto}.simple-list strong{color:#243018}.admin-alert-error{background:#fef3f2;border:1px solid #fecdca;color:#b42318;padding:14px 18px;border-radius:16px;margin-bottom:18px;font-weight:900}.admin-alert-success{background:#ecfdf3;border:1px solid #abefc6;color:#067647;padding:14px 18px;border-radius:16px;margin-bottom:18px;font-weight:900}@@media(max-width:1200px){.donor-admin-stats,.money-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.donor-admin-grid.two-cols,.contribution-admin-forms,.timeline-mini{grid-template-columns:1fr}}@@media(max-width:700px){.donor-admin-stats,.money-grid{grid-template-columns:1fr}.contribution-top,.panel-title{display:grid}.donor-info-list{grid-template-columns:1fr}.reject-details form{position:static;width:100%;margin-top:8px}}
+.mini-action.certificate,.certificate-action{background:#fdf3d0!important;color:#8a5a00!important;border:0;border-radius:999px;padding:8px 12px;font-weight:900;text-decoration:none}.mini-action.certificate{cursor:pointer}.money-grid:has(div:nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))}
+</style>
+
+

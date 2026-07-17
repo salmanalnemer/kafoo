@@ -1,0 +1,57 @@
+@model PortalLoginViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "دخول بوابة كفو";
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>دخول بوابة كفو | الداعمين والشركات والجهات</title>
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+</head>
+<body class="portal-login-body unified-portal">
+    <section class="portal-login-card">
+        <div class="portal-login-logo">
+            <img src="/images/logo1.png" alt="جمعية كفؤ" />
+        </div>
+        <h1>بوابة الدخول الموحد</h1>
+        <p>أدخل البريد الإلكتروني وكلمة المرور، ثم أدخل رمز التحقق المرسل إلى بريدك.</p>
+
+        @if (TempData["LoginError"] is string loginError)
+        {
+            <div class="portal-alert error">@loginError</div>
+        }
+
+        <form method="post" asp-action="Login" asp-controller="PortalAuth" asp-area="Portal" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="portal-validation"></div>
+
+            <label asp-for="Email"></label>
+            <input asp-for="Email" type="email" autocomplete="email" dir="ltr" placeholder="name@example.com" />
+            <span asp-validation-for="Email"></span>
+
+            <label asp-for="Password"></label>
+            <input asp-for="Password" autocomplete="current-password" placeholder="••••••••" />
+            <span asp-validation-for="Password"></span>
+
+            <label class="portal-check">
+                <input asp-for="RememberMe" />
+                <span>تذكرني</span>
+            </label>
+
+            <button type="submit">إرسال رمز التحقق</button>
+        </form>
+
+        <div class="portal-demo-box">
+            سيتم إرسال رمز التحقق من البريد <strong dir="ltr">support@kafoo.com.sa</strong>
+        </div>
+    </section>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

@@ -1,0 +1,53 @@
+@model DonorLoginViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "دخول الداعم";
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>دخول الداعم | جمعية كفؤ</title>
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+</head>
+<body class="portal-login-body donor-portal">
+    <section class="portal-login-card">
+        <div class="portal-login-logo">
+            <img src="/images/logo1.png" alt="جمعية كفؤ" />
+        </div>
+        <span class="portal-login-kicker">جمعية كفؤ</span>
+        <h1>بوابة الداعمين</h1>
+        <p>تابع مساهماتك، التقارير، أثر الدعم، وموافقات فائض الدعم من مكان واحد.</p>
+
+        <form method="post" asp-action="Login" asp-controller="DonorAuth" asp-area="Donor" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="portal-validation"></div>
+
+            <label asp-for="UserNameOrEmail"></label>
+            <input asp-for="UserNameOrEmail" autocomplete="username" placeholder="donor@kafo.local أو 0500000001" />
+            <span asp-validation-for="UserNameOrEmail"></span>
+
+            <label asp-for="Password"></label>
+            <input asp-for="Password" autocomplete="current-password" placeholder="••••••••" />
+            <span asp-validation-for="Password"></span>
+
+            <label class="portal-check">
+                <input asp-for="RememberMe" />
+                <span>تذكرني</span>
+            </label>
+
+            <button type="submit">دخول بوابة الداعمين</button>
+        </form>
+
+        <div class="portal-demo-box">
+            حساب تجريبي: <strong>donor@kafo.local</strong> / كلمة المرور: <strong>Donor@12345</strong>
+        </div>
+    </section>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

@@ -1,0 +1,70 @@
+@model IEnumerable<DonorContribution>
+@{
+    ViewData["Title"] = "فائض الدعم";
+}
+
+<section class="portal-panel highlight">
+    <div class="portal-panel-head">
+        <div>
+            <h2>إدارة فائض الدعم</h2>
+            <p>أي مبلغ فائض بعد انتهاء أو تحديث تنفيذ البرنامج لا يتم التصرف به إلا بعد موافقتك الإلكترونية.</p>
+        </div>
+    </div>
+</section>
+
+<section class="portal-panel">
+    @if (!Model.Any())
+    {
+        <div class="portal-empty">لا توجد مبالغ فائضة أو موافقات فائض مرتبطة بحسابك.</div>
+    }
+    else
+    {
+        <div class="portal-table-wrap">
+            <table class="portal-table">
+                <thead>
+                    <tr>
+                        <th>المساهمة</th>
+                        <th>البرنامج</th>
+                        <th>قيمة الفائض</th>
+                        <th>الحالة</th>
+                        <th>آخر موافقة</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var latestDecision = item.SurplusDecisions.OrderByDescending(x => x.ApprovedAt).FirstOrDefault();
+                        <tr>
+                            <td><strong>@item.Title</strong></td>
+                            <td>@(item.ProgramProject?.Title ?? "غير مرتبط")</td>
+                            <td>@item.RemainingAmount.ToString("N2") ر.س</td>
+                            <td>
+                                @if (item.HasSurplus && item.RemainingAmount > 0 && item.IsSurplusLocked)
+                                {
+                                    <span class="portal-badge">بانتظار موافقتك</span>
+                                }
+                                else
+                                {
+                                    <span class="portal-badge">تمت المعالجة</span>
+                                }
+                            </td>
+                            <td>
+                                @if (latestDecision != null)
+                                {
+                                    <strong>@latestDecision.DecisionType</strong>
+                                    <small>@latestDecision.ApprovedAt.ToString("yyyy/MM/dd HH:mm")</small>
+                                }
+                                else
+                                {
+                                    <small>لا توجد موافقة بعد</small>
+                                }
+                            </td>
+                            <td><a class="portal-link" href="/Portal/Donor/Contributions/Details/@item.Id">فتح</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

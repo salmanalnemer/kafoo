@@ -1,0 +1,37 @@
+@model Kafo.Web.Models.NewsPost
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<section class="details-page">
+    <div class="home-container">
+        <div class="details-hero">
+            <div>
+                <span>@Model.Category</span>
+                <h1>@Model.Title</h1>
+                <p>@Model.Summary</p>
+                <small>📅 @Model.PublishDate.ToString("yyyy-MM-dd")</small>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+            {
+                <img src="@Model.ImagePath" alt="@Model.Title" />
+            }
+        </div>
+
+        <div class="details-content">
+            <h2>تفاصيل الخبر</h2>
+            <div class="details-text">
+                @if (!string.IsNullOrWhiteSpace(Model.Details))
+                {
+                    <span style="white-space:pre-line">@Model.Details</span>
+                }
+                else
+                {
+                    <p>@Model.Summary</p>
+                }
+            </div>
+        </div>
+    </div>
+</section>

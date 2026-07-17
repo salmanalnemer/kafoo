@@ -1,0 +1,102 @@
+﻿@model Kafo.Web.Models.AidReport
+
+@{
+    ViewData["Title"] = "إضافة تقرير مساعدات";
+}
+
+<div class="aid-admin-page">
+
+    <div class="aid-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>إضافة تقرير مساعدات</h1>
+            <p>أدخل بيانات التقرير وارفع ملف التقرير أو الغلاف.</p>
+        </div>
+
+        <div class="aid-admin-actions">
+            <a href="/Admin/AidReports">رجوع للتقارير</a>
+        </div>
+    </div>
+
+    <div class="aid-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/AidReports/Create" class="aid-form">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="aid-form-grid">
+                <div class="form-group">
+                    <label>عنوان التقرير</label>
+                    <input asp-for="Title" placeholder="مثال: تقرير مساعدات شهر رمضان" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع التقرير</label>
+                    <input asp-for="ReportType" placeholder="سلال غذائية / مساعدات نقدية / أجهزة..." />
+                </div>
+
+                <div class="form-group">
+                    <label>الفترة</label>
+                    <input asp-for="PeriodLabel" placeholder="مثال: رمضان 1447هـ / الربع الأول 2026" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ النشر</label>
+                    <input asp-for="PublishedAt" type="datetime-local" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد المستفيدين</label>
+                    <input asp-for="BeneficiariesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد الأسر</label>
+                    <input asp-for="FamiliesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>إجمالي مبلغ المساعدات</label>
+                    <input asp-for="TotalAmount" type="number" step="0.01" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group">
+                    <label>ملف التقرير</label>
+                    <input type="file" name="reportFile" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                    <small>PDF أو صورة.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>صورة الغلاف</label>
+                    <input type="file" name="coverFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف مختصر</label>
+                    <textarea asp-for="Description" rows="4" placeholder="ملخص مختصر عن التقرير"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>تقرير مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار التقرير</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التقرير</button>
+            </div>
+        </form>
+    </div>
+
+</div>

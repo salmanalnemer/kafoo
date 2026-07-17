@@ -1,0 +1,16 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminDonorAccountFormViewModel
+@{
+    ViewData["Title"] = "إنشاء داعم جديد";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>حسابات الداعمين</span>
+        <h1>إنشاء داعم جديد</h1>
+        <p>أنشئ حساب دخول للداعم لمتابعة مساهماته وتقارير الأثر من البوابة الموحدة.</p>
+    </div>
+    <a class="admin-back-link" href="/Admin/Donors">رجوع</a>
+</div>
+
+<partial name="~/Areas/Admin/Views/Donors/_DonorAccountForm.cshtml" model="Model" />
+

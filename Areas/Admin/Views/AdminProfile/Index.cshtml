@@ -1,0 +1,154 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminProfileViewModel
+
+@{
+    ViewData["Title"] = "إعدادات حسابي";
+    var passwordModel = ViewBag.PasswordModel as Kafo.Web.ViewModels.Admin.AdminChangePasswordViewModel
+        ?? new Kafo.Web.ViewModels.Admin.AdminChangePasswordViewModel();
+
+    var profileImage = string.IsNullOrWhiteSpace(Model.ProfileImagePath)
+        ? "/images/logo1.png"
+        : Model.ProfileImagePath;
+}
+
+<div class="profile-page">
+
+    <div class="profile-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>إعدادات حسابي</h1>
+            <p>إدارة بيانات الحساب الشخصي وتحديث كلمة المرور وصورة المشرف.</p>
+        </div>
+
+        <div class="profile-hero-card">
+            <img src="@profileImage" alt="صورة الحساب" />
+            <div>
+                <strong>@Model.FullName</strong>
+                <small>@Model.RoleLabel</small>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="profile-grid">
+
+        <section class="profile-card profile-summary">
+            <div class="profile-avatar">
+                <img src="@profileImage" alt="صورة الحساب" />
+            </div>
+
+            <h2>@Model.FullName</h2>
+            <p>@(Model.RoleCode == Kafo.Web.Security.AdminRolePolicy.Supervisor ? "مشرف بصلاحيات صفحات محددة" : Model.RoleLabel + " بصلاحيات إدارية كاملة")</p>
+
+            <div class="profile-meta">
+                <div>
+                    <span>اسم المستخدم</span>
+                    <strong dir="ltr">@Model.UserName</strong>
+                </div>
+
+                <div>
+                    <span>البريد الإلكتروني</span>
+                    <strong dir="ltr">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</strong>
+                </div>
+
+                <div>
+                    <span>آخر دخول</span>
+                    <strong>@(Model.LastLoginAt.HasValue ? Model.LastLoginAt.Value.ToString("yyyy/MM/dd HH:mm") : "-")</strong>
+                </div>
+
+                <div>
+                    <span>تاريخ إنشاء الحساب</span>
+                    <strong>@Model.CreatedAt.ToString("yyyy/MM/dd")</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="profile-card">
+            <h2>البيانات الشخصية</h2>
+
+            <form method="post" action="/Admin/Profile/UpdateInfo" enctype="multipart/form-data" class="profile-form">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <input asp-for="Id" type="hidden" />
+
+                <div class="profile-form-grid">
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input asp-for="FullName" />
+                        <span asp-validation-for="FullName"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>اسم المستخدم</label>
+                        <input asp-for="UserName" dir="ltr" />
+                        <span asp-validation-for="UserName"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input asp-for="Email" dir="ltr" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>رقم الجوال</label>
+                        <input asp-for="Phone" dir="ltr" />
+                    </div>
+
+                    <div class="form-group full">
+                        <label>الصورة الشخصية</label>
+                        <input type="file" name="profileImage" accept=".jpg,.jpeg,.png,.webp" />
+                        <small>الصيغ المسموحة: JPG, PNG, WEBP</small>
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button type="submit">حفظ البيانات</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="profile-card password-card">
+            <h2>تغيير كلمة المرور</h2>
+
+            <form method="post" action="/Admin/Profile/ChangePassword" class="profile-form">
+                @Html.AntiForgeryToken()
+
+                <div class="profile-form-grid single">
+                    <div class="form-group">
+                        <label>كلمة المرور الحالية</label>
+                        <input name="CurrentPassword" type="password" autocomplete="current-password" />
+                        @Html.ValidationMessage("CurrentPassword")
+                    </div>
+
+                    <div class="form-group">
+                        <label>كلمة المرور الجديدة</label>
+                        <input name="NewPassword" type="password" autocomplete="new-password" />
+                        @Html.ValidationMessage("NewPassword")
+                    </div>
+
+                    <div class="form-group">
+                        <label>تأكيد كلمة المرور الجديدة</label>
+                        <input name="ConfirmPassword" type="password" autocomplete="new-password" />
+                        @Html.ValidationMessage("ConfirmPassword")
+                    </div>
+                </div>
+
+                <div class="password-note">
+                    استخدم كلمة مرور لا تقل عن 8 أحرف، ويفضل أن تحتوي على حروف كبيرة وصغيرة وأرقام ورموز.
+                </div>
+
+                <div class="profile-actions">
+                    <button type="submit">تغيير كلمة المرور</button>
+                </div>
+            </form>
+        </section>
+
+    </div>
+
+</div>

@@ -1,0 +1,76 @@
+﻿@model Kafo.Web.Models.SuccessPartner
+
+@{
+    ViewData["Title"] = "إضافة شريك نجاح";
+}
+
+<div class="partner-admin-page">
+
+    <div class="partner-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>إضافة شريك نجاح</h1>
+            <p>أدخل بيانات الشريك وارفع الشعار الخاص به.</p>
+        </div>
+
+        <div class="partner-admin-actions">
+            <a href="/Admin/SuccessPartners">رجوع للشركاء</a>
+        </div>
+    </div>
+
+    <div class="partner-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/SuccessPartners/Create" class="partner-form">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="partner-form-grid">
+                <div class="form-group">
+                    <label>اسم الشريك</label>
+                    <input asp-for="Name" placeholder="اسم الجهة أو الشريك" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع الشراكة</label>
+                    <input asp-for="PartnerType" placeholder="شريك نجاح / داعم / راعٍ..." />
+                </div>
+
+                <div class="form-group">
+                    <label>رابط الشريك</label>
+                    <input asp-for="WebsiteUrl" dir="ltr" placeholder="https://example.com" />
+                </div>
+
+                <div class="form-group">
+                    <label>شعار الشريك</label>
+                    <input type="file" name="logoFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف مختصر</label>
+                    <textarea asp-for="Description" rows="4" placeholder="وصف اختياري عن الشريك أو نوع التعاون"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>شريك مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار الشريك</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ الشريك</button>
+            </div>
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,123 @@
+﻿@model Kafo.Web.Models.AidReport
+
+@{
+    ViewData["Title"] = "تعديل تقرير مساعدات";
+}
+
+<div class="aid-admin-page">
+
+    <div class="aid-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>تعديل تقرير مساعدات</h1>
+            <p>تحديث بيانات التقرير والتحكم في ظهوره بالموقع.</p>
+        </div>
+
+        <div class="aid-admin-actions">
+            <a href="/AidReports" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/AidReports">رجوع للتقارير</a>
+        </div>
+    </div>
+
+    <div class="aid-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/AidReports/Edit/@Model.Id" class="aid-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="FilePath" type="hidden" />
+            <input asp-for="CoverImagePath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="aid-form-grid">
+                <div class="form-group">
+                    <label>عنوان التقرير</label>
+                    <input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع التقرير</label>
+                    <input asp-for="ReportType" />
+                </div>
+
+                <div class="form-group">
+                    <label>الفترة</label>
+                    <input asp-for="PeriodLabel" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ النشر</label>
+                    <input asp-for="PublishedAt" type="datetime-local" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد المستفيدين</label>
+                    <input asp-for="BeneficiariesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد الأسر</label>
+                    <input asp-for="FamiliesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>إجمالي مبلغ المساعدات</label>
+                    <input asp-for="TotalAmount" type="number" step="0.01" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير ملف التقرير</label>
+                    <input type="file" name="reportFile" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير صورة الغلاف</label>
+                    <input type="file" name="coverFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.CoverImagePath))
+                {
+                    <div class="form-group full">
+                        <label>الغلاف الحالي</label>
+                        <img class="aid-edit-preview" src="@Model.CoverImagePath" alt="@Model.Title" />
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                {
+                    <div class="form-group full">
+                        <label>ملف التقرير الحالي</label>
+                        <a class="aid-current-file" href="@Model.FilePath" target="_blank" rel="noopener noreferrer">فتح الملف الحالي</a>
+                    </div>
+                }
+
+                <div class="form-group full">
+                    <label>وصف مختصر</label>
+                    <textarea asp-for="Description" rows="4"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>تقرير مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار التقرير</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
+</div>

@@ -1,0 +1,122 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.GeneralAssemblyMember>
+
+@{
+    ViewData["Title"] = "أعضاء الجمعية العمومية";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="gam-admin-page">
+
+    <div class="gam-admin-hero">
+        <div>
+            <span>ملفات الحوكمة</span>
+            <h1>أعضاء الجمعية العمومية</h1>
+            <p>إدارة بيانات أعضاء الجمعية العمومية والتحكم في ظهورها بالموقع.</p>
+        </div>
+
+        <div class="gam-admin-actions">
+            <a href="/GeneralAssemblyMembers" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a class="primary" href="/Admin/GeneralAssemblyMembers/Create">إضافة عضو جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="gam-admin-filter">
+        <form method="get" action="/Admin/GeneralAssemblyMembers">
+            <input name="q" value="@search" placeholder="ابحث باسم العضو أو رقم العضوية أو الدورة..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/GeneralAssemblyMembers">مسح</a>
+        </form>
+    </div>
+
+    <div class="gam-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="gam-admin-empty">
+                <h3>لا يوجد أعضاء حالياً</h3>
+                <p>ابدأ بإضافة أول عضو من زر إضافة عضو جديد.</p>
+            </div>
+        }
+        else
+        {
+            <div class="gam-admin-table-wrap">
+                <table class="gam-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>اسم العضو</th>
+                            <th>نوع العضوية</th>
+                            <th>المنصب / الصفة</th>
+                            <th>رقم العضوية</th>
+                            <th>الدورة</th>
+                            <th>تاريخ الانضمام</th>
+                            <th>مميز</th>
+                            <th>الحالة</th>
+                            <th>الترتيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.PhotoPath))
+                                    {
+                                        <img class="gam-admin-photo" src="@item.PhotoPath" alt="@item.FullName" />
+                                    }
+                                    else
+                                    {
+                                        <div class="gam-admin-no-photo">عضو</div>
+                                    }
+                                </td>
+
+                                <td class="gam-title-cell">
+                                    <strong>@item.FullName</strong>
+                                    <span>@item.Bio</span>
+                                </td>
+
+                                <td>@item.MembershipType</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.PositionTitle) ? "-" : item.PositionTitle)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.MembershipNumber) ? "-" : item.MembershipNumber)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.TermLabel) ? "-" : item.TermLabel)</td>
+                                <td>@(item.JoinedAt.HasValue ? item.JoinedAt.Value.ToString("yyyy/MM/dd") : "-")</td>
+                                <td>@(item.IsFeatured ? "نعم" : "لا")</td>
+
+                                <td>
+                                    <span class="gam-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>@item.DisplayOrder</td>
+
+                                <td>
+                                    <div class="gam-admin-row-actions">
+                                        <a href="/Admin/GeneralAssemblyMembers/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/GeneralAssemblyMembers/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/GeneralAssemblyMembers/Delete/@item.Id" data-confirm="هل تريد حذف هذا العضو؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

@@ -1,0 +1,16 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminDonorContributionFormViewModel
+@{
+    ViewData["Title"] = "تحديث تنفيذ الدعم";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>مساهمات الداعمين</span>
+        <h1>تحديث تنفيذ الدعم</h1>
+        <p>القيمة والعنوان تأتي من طلب الداعم. حدّث الحالة والمصروف والإنجاز فقط، وسيحسب النظام المتبقي والفائض آلياً.</p>
+    </div>
+    <a class="admin-back-link" href="/Admin/Donors/Details/@Model.DonorAccountId">رجوع</a>
+</div>
+
+<partial name="~/Areas/Admin/Views/Donors/_ContributionForm.cshtml" model="Model" />
+

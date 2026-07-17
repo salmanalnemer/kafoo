@@ -1,0 +1,442 @@
+@model Kafo.Web.Models.OrganizationalStructurePage
+
+@{
+    ViewData["Title"] = "الهيكل التنظيمي";
+    var layoutJson = string.IsNullOrWhiteSpace(Model.LayoutJson) ? "[]" : Model.LayoutJson;
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>عن الجمعية</span>
+        <h1>الهيكل التنظيمي</h1>
+        <p>قم بإضافة المناصب، تحديد التبعية، سحب العناصر في مساحة الرسم، ثم حفظه ونشره كصورة.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/OrganizationalStructure" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="org-admin-layout">
+    <div class="admin-form-card">
+        <form method="post" id="orgPageForm" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+            <input asp-for="UpdatedAt" type="hidden" />
+            <input type="hidden" id="layoutJsonInput" name="layoutJson" value="@layoutJson" />
+            <input type="hidden" id="imageBase64Input" name="imageBase64" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Title">عنوان الصفحة</label>
+                    <input asp-for="Title" placeholder="الهيكل التنظيمي" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label asp-for="IsActive">مفعل</label>
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Description">الوصف</label>
+                    <textarea asp-for="Description" rows="3" placeholder="وصف مختصر للهيكل التنظيمي"></textarea>
+                </div>
+            </div>
+
+            <div class="org-builder-toolbar">
+                <button type="button" class="admin-small-btn purple" id="addNodeBtn">إضافة عنصر</button>
+                <button type="button" class="admin-small-btn green" id="duplicateNodeBtn">نسخ العنصر</button>
+                <button type="button" class="admin-small-btn danger" id="deleteNodeBtn">حذف العنصر</button>
+                <button type="button" class="admin-small-btn purple" id="exportPreviewBtn">تحديث صورة المعاينة</button>
+            </div>
+
+            <div class="org-editor-grid">
+                <div class="org-workspace-wrap">
+                    <div class="org-workspace-note">اسحب العناصر داخل المساحة، واختر العنصر لتعديل بياناته.</div>
+
+                    <div id="orgWorkspace" class="org-workspace">
+                        <svg id="orgLinesLayer" class="org-lines-layer"></svg>
+                        <div id="orgNodesLayer" class="org-nodes-layer"></div>
+                    </div>
+                </div>
+
+                <aside class="org-side-editor">
+                    <h3>خصائص العنصر المحدد</h3>
+
+                    <div class="form-group">
+                        <label>اسم المنصب</label>
+                        <input type="text" id="nodeTitleInput" placeholder="مثال: المدير التنفيذي" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>الجهة الأعلى / التبعية</label>
+                        <select id="nodeParentSelect">
+                            <option value="">بدون</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الموقع الأفقي X</label>
+                        <input type="number" id="nodeXInput" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>الموقع الرأسي Y</label>
+                        <input type="number" id="nodeYInput" />
+                    </div>
+
+                    <div class="org-side-actions">
+                        <button type="button" class="admin-small-btn green" id="applyNodeChangesBtn">تطبيق التعديل</button>
+                    </div>
+
+                    <div class="org-publish-box">
+                        <span>معاينة النشر</span>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                        {
+                            <img id="orgPublishedPreview" src="@Model.ImagePath" alt="@Model.Title" />
+                        }
+                        else
+                        {
+                            <img id="orgPublishedPreview" alt="@Model.Title" style="display:none;" />
+                            <div id="orgPreviewPlaceholder" class="org-preview-placeholder">لا توجد صورة منشورة بعد</div>
+                        }
+                    </div>
+                </aside>
+            </div>
+
+            <div class="form-actions" style="margin-top:22px;">
+                <button class="admin-submit-btn" type="submit">حفظ ونشر الهيكل التنظيمي</button>
+                <a href="/Admin/Dashboard">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script>
+        (function () {
+            const workspace = document.getElementById("orgWorkspace");
+            const linesLayer = document.getElementById("orgLinesLayer");
+            const nodesLayer = document.getElementById("orgNodesLayer");
+
+            const addNodeBtn = document.getElementById("addNodeBtn");
+            const duplicateNodeBtn = document.getElementById("duplicateNodeBtn");
+            const deleteNodeBtn = document.getElementById("deleteNodeBtn");
+            const exportPreviewBtn = document.getElementById("exportPreviewBtn");
+
+            const nodeTitleInput = document.getElementById("nodeTitleInput");
+            const nodeParentSelect = document.getElementById("nodeParentSelect");
+            const nodeXInput = document.getElementById("nodeXInput");
+            const nodeYInput = document.getElementById("nodeYInput");
+            const applyNodeChangesBtn = document.getElementById("applyNodeChangesBtn");
+
+            const layoutJsonInput = document.getElementById("layoutJsonInput");
+            const imageBase64Input = document.getElementById("imageBase64Input");
+            const pageForm = document.getElementById("orgPageForm");
+            const previewImg = document.getElementById("orgPublishedPreview");
+            const previewPlaceholder = document.getElementById("orgPreviewPlaceholder");
+
+            let nodes = [];
+            let selectedNodeId = null;
+            let dragData = null;
+            let isSubmitting = false;
+
+            try {
+                nodes = JSON.parse(layoutJsonInput.value || "[]");
+            } catch {
+                nodes = [];
+            }
+
+            if (!Array.isArray(nodes)) nodes = [];
+
+            if (nodes.length === 0) {
+                nodes = [
+                    { id: 1, title: "رئيس مجلس الإدارة", x: 470, y: 30, parentId: null },
+                    { id: 2, title: "المدير التنفيذي", x: 470, y: 180, parentId: 1 }
+                ];
+            }
+
+            function getNextId() {
+                return nodes.length ? Math.max(...nodes.map(x => x.id)) + 1 : 1;
+            }
+
+            function saveLayout() {
+                layoutJsonInput.value = JSON.stringify(nodes);
+            }
+
+            function getNodeById(id) {
+                return nodes.find(x => x.id === id) || null;
+            }
+
+            function updateParentOptions() {
+                const currentId = selectedNodeId;
+                nodeParentSelect.replaceChildren();
+                const emptyOption = document.createElement("option");
+                emptyOption.value = "";
+                emptyOption.textContent = "بدون";
+                nodeParentSelect.appendChild(emptyOption);
+
+                nodes.forEach(node => {
+                    if (node.id === currentId) return;
+
+                    const option = document.createElement("option");
+                    option.value = node.id;
+                    option.textContent = node.title;
+                    nodeParentSelect.appendChild(option);
+                });
+            }
+
+            function updateEditor() {
+                const node = getNodeById(selectedNodeId);
+
+                updateParentOptions();
+
+                if (!node) {
+                    nodeTitleInput.value = "";
+                    nodeParentSelect.value = "";
+                    nodeXInput.value = "";
+                    nodeYInput.value = "";
+                    return;
+                }
+
+                nodeTitleInput.value = node.title || "";
+                nodeParentSelect.value = node.parentId ?? "";
+                nodeXInput.value = Math.round(node.x || 0);
+                nodeYInput.value = Math.round(node.y || 0);
+            }
+
+            function renderLines() {
+                linesLayer.replaceChildren();
+
+                const workspaceRect = workspace.getBoundingClientRect();
+                linesLayer.setAttribute("width", workspace.clientWidth);
+                linesLayer.setAttribute("height", workspace.clientHeight);
+                linesLayer.setAttribute("viewBox", `0 0 ${workspace.clientWidth} ${workspace.clientHeight}`);
+
+                nodes.forEach(node => {
+                    if (!node.parentId) return;
+
+                    const childEl = document.querySelector(`.org-node-box[data-id="${node.id}"]`);
+                    const parentEl = document.querySelector(`.org-node-box[data-id="${node.parentId}"]`);
+
+                    if (!childEl || !parentEl) return;
+
+                    const childRect = childEl.getBoundingClientRect();
+                    const parentRect = parentEl.getBoundingClientRect();
+
+                    const startX = (parentRect.left - workspaceRect.left) + (parentRect.width / 2);
+                    const startY = (parentRect.top - workspaceRect.top) + parentRect.height;
+
+                    const endX = (childRect.left - workspaceRect.left) + (childRect.width / 2);
+                    const endY = (childRect.top - workspaceRect.top);
+
+                    const midY = startY + ((endY - startY) / 2);
+
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", `M ${startX} ${startY} L ${startX} ${midY} L ${endX} ${midY} L ${endX} ${endY}`);
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("stroke", "#794ee6");
+                    path.setAttribute("stroke-width", "3");
+                    path.setAttribute("stroke-linecap", "round");
+                    path.setAttribute("stroke-linejoin", "round");
+
+                    linesLayer.appendChild(path);
+                });
+            }
+
+            function renderNodes() {
+                nodesLayer.replaceChildren();
+
+                nodes.forEach(node => {
+                    const div = document.createElement("div");
+                    div.className = "org-node-box" + (selectedNodeId === node.id ? " selected" : "");
+                    div.dataset.id = node.id;
+                    div.style.left = `${node.x}px`;
+                    div.style.top = `${node.y}px`;
+
+                    const label = document.createElement("span");
+                    label.textContent = "منصب";
+                    const title = document.createElement("strong");
+                    title.textContent = node.title || "عنصر جديد";
+                    div.append(label, title);
+
+                    div.addEventListener("mousedown", function (event) {
+                        if (event.button !== 0) return;
+                        selectedNodeId = node.id;
+                        dragData = {
+                            id: node.id,
+                            startX: event.clientX,
+                            startY: event.clientY,
+                            originalX: node.x,
+                            originalY: node.y
+                        };
+                        render();
+                    });
+
+                    div.addEventListener("click", function () {
+                        selectedNodeId = node.id;
+                        render();
+                    });
+
+                    nodesLayer.appendChild(div);
+                });
+
+                renderLines();
+            }
+
+            function render() {
+                saveLayout();
+                renderNodes();
+                updateEditor();
+            }
+
+            function addNode() {
+                const newNode = {
+                    id: getNextId(),
+                    title: "عنصر جديد",
+                    x: 120 + (nodes.length * 20),
+                    y: 120 + (nodes.length * 20),
+                    parentId: selectedNodeId || null
+                };
+
+                nodes.push(newNode);
+                selectedNodeId = newNode.id;
+                render();
+            }
+
+            function duplicateNode() {
+                const node = getNodeById(selectedNodeId);
+                if (!node) return;
+
+                const newNode = {
+                    id: getNextId(),
+                    title: node.title + " - نسخة",
+                    x: node.x + 40,
+                    y: node.y + 40,
+                    parentId: node.parentId || null
+                };
+
+                nodes.push(newNode);
+                selectedNodeId = newNode.id;
+                render();
+            }
+
+            function deleteNode() {
+                if (!selectedNodeId) return;
+
+                const deletingId = selectedNodeId;
+
+                nodes = nodes
+                    .filter(x => x.id !== deletingId)
+                    .map(x => {
+                        if (x.parentId === deletingId) {
+                            x.parentId = null;
+                        }
+                        return x;
+                    });
+
+                selectedNodeId = null;
+                render();
+            }
+
+            function applyNodeChanges() {
+                const node = getNodeById(selectedNodeId);
+                if (!node) return;
+
+                node.title = (nodeTitleInput.value || "").trim() || "عنصر جديد";
+                node.parentId = nodeParentSelect.value ? parseInt(nodeParentSelect.value) : null;
+                node.x = parseInt(nodeXInput.value || "0");
+                node.y = parseInt(nodeYInput.value || "0");
+
+                render();
+            }
+
+            function exportWorkspaceImage() {
+                return html2canvas(workspace, {
+                    backgroundColor: "#ffffff",
+                    scale: 2,
+                    useCORS: true
+                }).then(function (canvas) {
+                    const dataUrl = canvas.toDataURL("image/png");
+                    imageBase64Input.value = dataUrl;
+
+                    if (previewImg) {
+                        previewImg.src = dataUrl;
+                        previewImg.style.display = "block";
+                    }
+
+                    if (previewPlaceholder) {
+                        previewPlaceholder.style.display = "none";
+                    }
+
+                    return dataUrl;
+                });
+            }
+
+            addNodeBtn.addEventListener("click", addNode);
+            duplicateNodeBtn.addEventListener("click", duplicateNode);
+            deleteNodeBtn.addEventListener("click", deleteNode);
+            applyNodeChangesBtn.addEventListener("click", applyNodeChanges);
+
+            exportPreviewBtn.addEventListener("click", function () {
+                exportWorkspaceImage();
+            });
+
+            document.addEventListener("mousemove", function (event) {
+                if (!dragData) return;
+
+                const node = getNodeById(dragData.id);
+                if (!node) return;
+
+                const deltaX = event.clientX - dragData.startX;
+                const deltaY = event.clientY - dragData.startY;
+
+                node.x = Math.max(10, dragData.originalX + deltaX);
+                node.y = Math.max(10, dragData.originalY + deltaY);
+
+                render();
+            });
+
+            document.addEventListener("mouseup", function () {
+                if (dragData) {
+                    dragData = null;
+                    saveLayout();
+                }
+            });
+
+            pageForm.addEventListener("submit", function (event) {
+                if (isSubmitting) return;
+
+                event.preventDefault();
+
+                if (!nodes.length) {
+                    alert("يجب إضافة عنصر واحد على الأقل داخل الهيكل التنظيمي.");
+                    return;
+                }
+
+                applyNodeChanges();
+
+                exportWorkspaceImage().then(function () {
+                    isSubmitting = true;
+                    pageForm.submit();
+                });
+            });
+
+            selectedNodeId = nodes.length ? nodes[0].id : null;
+            render();
+        })();
+    </script>
+}

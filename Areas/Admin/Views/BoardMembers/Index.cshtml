@@ -1,0 +1,126 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.BoardMember>
+
+@{
+    ViewData["Title"] = "أعضاء مجلس الإدارة";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="bm-admin-page">
+
+    <div class="bm-admin-hero">
+        <div>
+            <span>ملفات الحوكمة</span>
+            <h1>أعضاء مجلس الإدارة</h1>
+            <p>إدارة بيانات أعضاء مجلس الإدارة والتحكم في ظهورها بالموقع.</p>
+        </div>
+
+        <div class="bm-admin-actions">
+            <a href="/BoardMembers" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a class="primary" href="/Admin/BoardMembers/Create">إضافة عضو جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="bm-admin-filter">
+        <form method="get" action="/Admin/BoardMembers">
+            <input name="q" value="@search" placeholder="ابحث باسم العضو أو المنصب أو الدورة..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/BoardMembers">مسح</a>
+        </form>
+    </div>
+
+    <div class="bm-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="bm-admin-empty">
+                <h3>لا يوجد أعضاء حالياً</h3>
+                <p>ابدأ بإضافة أول عضو من زر إضافة عضو جديد.</p>
+            </div>
+        }
+        else
+        {
+            <div class="bm-admin-table-wrap">
+                <table class="bm-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>اسم العضو</th>
+                            <th>المنصب</th>
+                            <th>الصفة</th>
+                            <th>الدورة</th>
+                            <th>بداية الدورة</th>
+                            <th>نهاية الدورة</th>
+                            <th>الجوال</th>
+                            <th>البريد</th>
+                            <th>رئيس المجلس</th>
+                            <th>الحالة</th>
+                            <th>الترتيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.PhotoPath))
+                                    {
+                                        <img class="bm-admin-photo" src="@item.PhotoPath" alt="@item.FullName" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bm-admin-no-photo">عضو</div>
+                                    }
+                                </td>
+
+                                <td class="bm-title-cell">
+                                    <strong>@item.FullName</strong>
+                                    <span>@item.Bio</span>
+                                </td>
+
+                                <td>@item.PositionTitle</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.MembershipRole) ? "-" : item.MembershipRole)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.BoardTerm) ? "-" : item.BoardTerm)</td>
+                                <td>@(item.TermStartDate.HasValue ? item.TermStartDate.Value.ToString("yyyy/MM/dd") : "-")</td>
+                                <td>@(item.TermEndDate.HasValue ? item.TermEndDate.Value.ToString("yyyy/MM/dd") : "-")</td>
+                                <td dir="ltr">@(string.IsNullOrWhiteSpace(item.Phone) ? "-" : item.Phone)</td>
+                                <td dir="ltr">@(string.IsNullOrWhiteSpace(item.Email) ? "-" : item.Email)</td>
+                                <td>@(item.IsChairman ? "نعم" : "لا")</td>
+
+                                <td>
+                                    <span class="bm-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>@item.DisplayOrder</td>
+
+                                <td>
+                                    <div class="bm-admin-row-actions">
+                                        <a href="/Admin/BoardMembers/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/BoardMembers/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/BoardMembers/Delete/@item.Id" data-confirm="هل تريد حذف هذا العضو؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

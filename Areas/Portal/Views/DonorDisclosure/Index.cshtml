@@ -1,0 +1,80 @@
+@model DonorDisclosureViewModel
+@{
+    ViewData["Title"] = "الإفصاح والشفافية";
+}
+
+<section class="portal-panel highlight">
+    <div class="portal-panel-head">
+        <div>
+            <h2>مركز الإفصاح والشفافية</h2>
+            <p>صفحة مخصصة للتقارير المالية والإدارية المصرح بنشرها ومؤشرات الأداء والإنجاز.</p>
+        </div>
+    </div>
+
+    <div class="portal-grid compact">
+        <article class="portal-mini-stat"><span>التقارير السنوية</span><strong>@Model.AnnualReports.Count</strong></article>
+        <article class="portal-mini-stat"><span>القوائم المالية</span><strong>@Model.FinancialStatements.Count</strong></article>
+        <article class="portal-mini-stat"><span>التقارير الربعية</span><strong>@Model.QuarterReports.Count</strong></article>
+        <article class="portal-mini-stat"><span>تقارير المساعدات</span><strong>@Model.AidReports.Count</strong></article>
+    </div>
+</section>
+
+<section class="portal-grid two disclosure-grid">
+    <div class="portal-panel">
+        <h2>القوائم المالية</h2>
+        @await Html.PartialAsync("~/Areas/Portal/Views/DonorDisclosure/_DisclosureDocuments.cshtml", Model.FinancialStatements.Select(x => new DisclosureDocumentItem(x.Title, x.Year, x.Description, x.FilePath)))
+    </div>
+
+    <div class="portal-panel">
+        <h2>التقارير السنوية</h2>
+        @await Html.PartialAsync("~/Areas/Portal/Views/DonorDisclosure/_DisclosureDocuments.cshtml", Model.AnnualReports.Select(x => new DisclosureDocumentItem(x.Title, x.Year, x.Description, x.FilePath)))
+    </div>
+
+    <div class="portal-panel">
+        <h2>التقارير الربعية</h2>
+        @await Html.PartialAsync("~/Areas/Portal/Views/DonorDisclosure/_DisclosureDocuments.cshtml", Model.QuarterReports.Select(x => new DisclosureDocumentItem(x.Title, x.Year, x.Description, x.FilePath)))
+    </div>
+
+    <div class="portal-panel">
+        <h2>الخطط التشغيلية والسياسات</h2>
+        @{
+            var planDocs = Model.OperationalPlans.Select(x => new DisclosureDocumentItem(x.Title, x.Year, x.Description, x.FilePath))
+                .Concat(Model.Policies.Select(x => new DisclosureDocumentItem(x.Title, x.Category, x.Description, x.FilePath)));
+        }
+        @await Html.PartialAsync("~/Areas/Portal/Views/DonorDisclosure/_DisclosureDocuments.cshtml", planDocs)
+    </div>
+</section>
+
+<section class="portal-panel">
+    <h2>تقارير المساعدات والأثر العام</h2>
+    @if (!Model.AidReports.Any())
+    {
+        <div class="portal-empty">لا توجد تقارير مساعدات منشورة حاليًا.</div>
+    }
+    else
+    {
+        <div class="portal-list reports-list">
+            @foreach (var report in Model.AidReports)
+            {
+                <article>
+                    <div>
+                        <span class="portal-badge">@report.ReportType</span>
+                        <strong>@report.Title</strong>
+                        <small>@report.PeriodLabel - @report.PublishedAt.ToString("yyyy/MM/dd")</small>
+                        <p>@report.Description</p>
+                        <div class="portal-meta-row">
+                            <small>المستفيدون: @report.BeneficiariesCount</small>
+                            <small>الأسر: @report.FamiliesCount</small>
+                            <small>الإجمالي: @report.TotalAmount.ToString("N2") ر.س</small>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(report.FilePath))
+                    {
+                        <a class="portal-btn" href="@report.FilePath" target="_blank" rel="noopener noreferrer">تحميل التقرير</a>
+                    }
+                </article>
+            }
+        </div>
+    }
+</section>
+

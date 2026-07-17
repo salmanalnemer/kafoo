@@ -1,0 +1,45 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.SuccessPartner>
+
+@{
+    ViewData["Title"] = "شركاء النجاح";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>إدارة المحتوى</span>
+        <h1>شركاء النجاح</h1>
+        <p>إضافة شعارات الشركاء التي تظهر بشكل دائري في الواجهة الرئيسية.</p>
+    </div>
+    <a class="admin-main-action" href="/Admin/Partners/Create">إضافة شريك</a>
+</div>
+
+<div class="admin-card">
+    <div class="admin-partners-list">
+        @foreach (var item in Model)
+        {
+            <article class="admin-partner-row">
+                <div class="admin-partner-logo">
+                    @if (!string.IsNullOrWhiteSpace(item.LogoPath))
+                    {
+                        <img src="@item.LogoPath" alt="@item.Name" />
+                    }
+                    else
+                    {
+                        <span>@item.Name.Substring(0, 1)</span>
+                    }
+                </div>
+                <div>
+                    <h2>@item.Name</h2>
+                    <p>@(item.IsActive ? "مفعل" : "غير مفعل") - الترتيب: @item.DisplayOrder</p>
+                    <div class="slider-admin-actions">
+                        <a class="admin-small-btn purple" href="/Admin/Partners/Edit/@item.Id">تعديل</a>
+                        <form method="post" action="/Admin/Partners/Delete/@item.Id" data-confirm="حذف الشريك؟">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-small-btn danger" type="submit">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</div>

@@ -1,0 +1,303 @@
+@using Kafo.Web.Data
+@using Kafo.Web.Security
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext AdminDb
+
+@{
+    var title = ViewData["Title"]?.ToString() ?? "لوحة التحكم";
+    var currentPath = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
+
+    var adminUserIdValue = User.Claims.FirstOrDefault(x => x.Type == "KafoAdminUserId")?.Value;
+    var currentAdminUser = int.TryParse(adminUserIdValue, out var currentAdminUserId)
+        ? await AdminDb.AdminUsers.AsNoTracking().FirstOrDefaultAsync(x => x.Id == currentAdminUserId && x.IsActive)
+        : null;
+
+    var currentAdminRole = currentAdminUser == null
+        ? AdminRolePolicy.Supervisor
+        : await AdminRolePolicy.ResolveRoleAsync(AdminDb, currentAdminUser);
+
+    var hasFullAdminAccess = AdminRolePolicy.HasFullPageAccess(currentAdminRole);
+    var allowedPagePaths = hasFullAdminAccess || currentAdminUser == null
+        ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        : (await AdminDb.AdminPagePermissions
+            .AsNoTracking()
+            .Where(x => x.AdminUserId == currentAdminUser.Id && x.CanAccess)
+            .Select(x => x.PagePath)
+            .ToListAsync())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    Func<string, string> active = url =>
+    {
+        var value = url.ToLowerInvariant();
+
+        if (value == "/admin" || value == "/admin/")
+            return currentPath == "/admin" || currentPath == "/admin/" ? "is-active" : "";
+
+        return currentPath.StartsWith(value) ? "is-active" : "";
+    };
+
+    Func<string, bool> canAccess = url =>
+    {
+        if (hasFullAdminAccess || AdminRolePolicy.AlwaysAllowedPagePaths.Contains(AdminPagesCatalog.Normalize(url)))
+            return true;
+
+        var page = AdminPagesCatalog.Match(url);
+        return page != null && allowedPagePaths.Contains(page.PagePath);
+    };
+
+    Func<string, string> navClass = url =>
+        $"{active(url)} {(canAccess(url) ? "" : "kafo-permission-hidden")}".Trim();
+}
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title | لوحة التحكم</title>
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-notifications.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-notifications-clean.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="kafo-admin-body">
+    <div class="kafo-admin-shell">
+
+        <aside class="kafo-admin-sidebar">
+            <div class="kafo-admin-brand">
+                <img src="/images/logo1.png" alt="جمعية كفؤ" />
+                <div>
+                    <strong>لوحة التحكم</strong>
+                    <span>جمعية كفؤ</span>
+                </div>
+            </div>
+
+            <nav class="kafo-admin-nav">
+
+                <div class="kafo-menu-section" data-section="main">
+                    <button type="button" class="kafo-menu-title">
+                        <span>الرئيسية</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin")" href="/Admin"><span class="kafo-menu-icon">◉</span><span>لوحة المعلومات</span></a>
+                        <a class="@navClass("/Admin/Sliders")" href="/Admin/Sliders"><span class="kafo-menu-icon">▣</span><span>إدارة الصفحة الرئيسية</span></a>
+                        <a class="@navClass("/Admin/HomeStatistics")" href="/Admin/HomeStatistics"><span class="kafo-menu-icon">▤</span><span>الأرقام والإحصائيات</span></a>
+                        <a class="@navClass("/Admin/StrategicGoals")" href="/Admin/StrategicGoals"><span class="kafo-menu-icon">◎</span><span>أهداف الجمعية</span></a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="about">
+                    <button type="button" class="kafo-menu-title">
+                        <span>عن الجمعية</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin/Pages/About")" href="/Admin/Pages/About"><span class="kafo-menu-icon">i</span><span>من نحن</span></a>
+                        <a class="@navClass("/Admin/Pages/Vision")" href="/Admin/Pages/Vision"><span class="kafo-menu-icon">◉</span><span>الرؤية والرسالة</span></a>
+                        <a class="@navClass("/Admin/Pages/President")" href="/Admin/Pages/President"><span class="kafo-menu-icon">♟</span><span>كلمة الرئيس</span></a>
+                        <a class="@navClass("/Admin/Pages/ExecutiveManager")" href="/Admin/Pages/ExecutiveManager"><span class="kafo-menu-icon">✓</span><span>المدير التنفيذي</span></a>
+                        <a class="@navClass("/Admin/TeamMembers")" href="/Admin/TeamMembers"><span class="kafo-menu-icon">●●</span><span>فريق العمل</span></a>
+                        <a class="@navClass("/Admin/Licenses")" href="/Admin/Licenses"><span class="kafo-menu-icon">▧</span><span>تراخيص الجمعية</span></a>
+                        <a class="@navClass("/Admin/Pages/OrganizationalStructure")" href="/Admin/Pages/OrganizationalStructure"><span class="kafo-menu-icon">▦</span><span>الهيكل التنظيمي</span></a>
+                        <a class="@navClass("/Admin/BankAccounts")" href="/Admin/BankAccounts"><span class="kafo-menu-icon">▤</span><span>الحسابات البنكية</span></a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="services">
+                    <button type="button" class="kafo-menu-title">
+                        <span>البرامج والخدمات</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin/Programs")" href="/Admin/Programs"><span class="kafo-menu-icon">▰</span><span>البرامج والمشاريع</span></a>
+                        <a class="@navClass("/Admin/ServiceLinks")" href="/Admin/ServiceLinks"><span class="kafo-menu-icon">∞</span><span>روابط الخدمات</span></a>
+                        <a class="@navClass("/Admin/InKindDonationRequests")" href="/Admin/InKindDonationRequests"><span class="kafo-menu-icon">▱</span><span>طلبات التبرع العيني</span></a>
+                        <a class="@navClass("/Admin/Pages/NewBeneficiaryRegistration")" href="/Admin/Pages/NewBeneficiaryRegistration"><span class="kafo-menu-icon">☷</span><span>تسجيل مستفيد جديد</span></a>
+                        <a class="@navClass("/Admin/Pages/BeneficiaryDataUpdate")" href="/Admin/Pages/BeneficiaryDataUpdate"><span class="kafo-menu-icon">↻</span><span>تحديث بيانات المستفيدين</span></a>
+                    </div>
+                </div>
+
+
+
+                <div class="kafo-menu-section" data-section="donors">
+                    <button type="button" class="kafo-menu-title">
+                        <span>الداعمون والأثر</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin/Donors")" href="/Admin/Donors"><span class="kafo-menu-icon">☘</span><span>إدارة الداعمين</span></a>
+                        <a class="@navClass("/Admin/Organizations")" href="/Admin/Organizations"><span class="kafo-menu-icon">▰</span><span>الشركات والجهات</span></a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="media">
+                    <button type="button" class="kafo-menu-title">
+                        <span>المركز الإعلامي</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin/News")" href="/Admin/News"><span class="kafo-menu-icon">▤</span><span>إدارة الأخبار</span></a>
+                        <a class="@navClass("/Admin/Videos")" href="/Admin/Videos"><span class="kafo-menu-icon">■</span><span>مكتبة الفيديو</span></a>
+                        <a class="@navClass("/Admin/SuccessPartners")" href="/Admin/SuccessPartners"><span class="kafo-menu-icon">❖</span><span>شركاء النجاح</span></a>
+                        <a class="@navClass("/Admin/AssistanceReports")" href="/Admin/AssistanceReports"><span class="kafo-menu-icon">◆</span><span>تقارير المساعدات</span></a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="governance">
+                    <button type="button" class="kafo-menu-title">
+                        <span>ملفات الحوكمة</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin/GeneralAssemblyMembers")" href="/Admin/GeneralAssemblyMembers"><span class="kafo-menu-icon">●●</span><span>أعضاء الجمعية العمومية</span></a>
+                        <a class="@navClass("/Admin/GeneralAssemblyMinutes")" href="/Admin/GeneralAssemblyMinutes"><span class="kafo-menu-icon">▨</span><span>محاضر الجمعية العمومية</span></a>
+                        <a class="@navClass("/Admin/BoardMembers")" href="/Admin/BoardMembers"><span class="kafo-menu-icon">♟</span><span>أعضاء مجلس الإدارة</span></a>
+                        <a class="@navClass("/Admin/BoardMinutes")" href="/Admin/BoardMinutes"><span class="kafo-menu-icon">▧</span><span>محاضر مجلس الإدارة</span></a>
+                        <a class="@navClass("/Admin/Committees")" href="/Admin/Committees"><span class="kafo-menu-icon">●●</span><span>لجان الجمعية</span></a>
+                        <a class="@navClass("/Admin/Policies")" href="/Admin/Policies"><span class="kafo-menu-icon">♦</span><span>السياسات واللوائح</span></a>
+                        <a class="@navClass("/Admin/AnnualReports")" href="/Admin/AnnualReports"><span class="kafo-menu-icon">▣</span><span>التقارير السنوية</span></a>
+                        <a class="@navClass("/Admin/QuarterReports")" href="/Admin/QuarterReports"><span class="kafo-menu-icon">◔</span><span>التقارير الربعية</span></a>
+                        <a class="@navClass("/Admin/FinancialStatements")" href="/Admin/FinancialStatements"><span class="kafo-menu-icon">﷼</span><span>القوائم المالية</span></a>
+                        <a class="@navClass("/Admin/OperationalPlans")" href="/Admin/OperationalPlans"><span class="kafo-menu-icon">⌑</span><span>الخطط التشغيلية</span></a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="volunteer">
+                    <button type="button" class="kafo-menu-title">
+                        <span>التطوع والتوظيف</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin/VolunteerOpportunities")" href="/Admin/VolunteerOpportunities"><span class="kafo-menu-icon">◒</span><span>الفرص التطوعية</span></a>
+                        <a class="@navClass("/Admin/Jobs")" href="/Admin/Jobs"><span class="kafo-menu-icon">▰</span><span>الوظائف</span></a>
+                        <a class="@navClass("/Admin/Initiatives")" href="/Admin/Initiatives"><span class="kafo-menu-icon">◌</span><span>المبادرات</span></a>
+                        <a class="@navClass("/Admin/JobApplications")" href="/Admin/JobApplications"><span class="kafo-menu-icon">♟</span><span>طلبات التوظيف (CV)</span></a>
+                        <a class="@navClass("/Admin/VolunteerRequests")" href="/Admin/VolunteerRequests"><span class="kafo-menu-icon">♣</span><span>طلبات المتطوعين</span></a>
+                    </div>
+                </div>
+
+                <div class="kafo-menu-section" data-section="settings">
+                    <button type="button" class="kafo-menu-title">
+                        <span>التواصل والإعدادات</span>
+                        <b>⌄</b>
+                    </button>
+
+                    <div class="kafo-menu-links">
+                        <a class="@navClass("/Admin/Messages")" href="/Admin/Messages"><span class="kafo-menu-icon">▱</span><span>صندوق الرسائل</span></a>
+<a class="@navClass("/Admin/Satisfaction")" href="/Admin/Satisfaction">
+    <span class="kafo-menu-icon">⭐</span>
+    <span>قياس الرضا</span>
+</a>
+                        <a class="@navClass("/Admin/Feedback")" href="/Admin/Feedback"><span class="kafo-menu-icon">★</span><span>التغذية الراجعة</span></a>
+                        <a class="@navClass("/Admin/Surveys")" href="/Admin/Surveys"><span class="kafo-menu-icon">▣</span><span>إدارة الاستبيانات</span></a>
+                        <a class="@navClass("/Admin/Settings")" href="/Admin/Settings"><span class="kafo-menu-icon">⚙</span><span>الإعدادات العامة</span></a>
+                        <a class="@navClass("/Admin/Users")" href="/Admin/Users"><span class="kafo-menu-icon">♟</span><span>مستخدمي لوحة التحكم والصلاحيات</span></a>
+                        <a class="@navClass("/Admin/Profile")" href="/Admin/Profile"><span class="kafo-menu-icon">●</span><span>إعدادات حسابي</span></a>
+                    </div>
+                </div>
+
+            </nav>
+        <form method="post" action="/Admin/Logout" class="admin-logout-form">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="admin-logout-button">
+                <span class="kafo-menu-icon">🚪</span>
+                <span>تسجيل الخروج</span>
+            </button>
+        </form>
+</aside>
+
+        <main class="kafo-admin-main">
+            <header class="kafo-admin-topbar">
+                <div>
+                    <span>لوحة التحكم</span>
+                    <h1>@title</h1>
+                </div>
+
+                <div class="kafo-admin-top-actions">
+                    @if (canAccess("/Admin/Donors"))
+                    {
+                        <div class="admin-notifications" data-admin-notifications>
+                            <button type="button" class="admin-bell-button" data-admin-bell-button aria-label="إشعارات لوحة التحكم">
+                                <span class="bell-icon">🔔</span>
+                                <span class="admin-bell-count is-hidden" data-admin-bell-count>0</span>
+                            </button>
+
+                            <div class="admin-notifications-menu">
+                                <div class="admin-notifications-head">
+                                    <strong data-admin-notifications-title>الإشعارات</strong>
+                                    <a href="/Admin/Donors#pending-donor-requests">طلبات الداعمين</a>
+                                </div>
+                                <div class="admin-notifications-list" data-admin-notifications-list>
+                                    <div class="admin-notifications-empty">جاري تحميل الإشعارات...</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <a href="/" target="_blank" rel="noopener noreferrer">زيارة الموقع</a>
+                </div>
+            </header>
+
+            <section class="kafo-admin-content">
+                @RenderBody()
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        (function () {
+            var sections = document.querySelectorAll(".kafo-menu-section");
+
+            sections.forEach(function (section) {
+                var visibleLinks = section.querySelectorAll('.kafo-menu-links a:not(.kafo-permission-hidden)');
+                if (visibleLinks.length === 0) {
+                    section.classList.add('kafo-permission-hidden');
+                    return;
+                }
+
+                var key = "kafo-sidebar-" + section.getAttribute("data-section");
+                var button = section.querySelector(".kafo-menu-title");
+                var hasActive = section.querySelector("a.is-active") !== null;
+                var saved = localStorage.getItem(key);
+
+                if (saved === "closed" && !hasActive) {
+                    section.classList.add("is-collapsed");
+                }
+
+                if (hasActive) {
+                    section.classList.remove("is-collapsed");
+                    localStorage.setItem(key, "open");
+                }
+
+                if (button) {
+                    button.addEventListener("click", function () {
+                        section.classList.toggle("is-collapsed");
+
+                        localStorage.setItem(
+                            key,
+                            section.classList.contains("is-collapsed") ? "closed" : "open"
+                        );
+                    });
+                }
+            });
+        })();
+    </script>
+
+    <div class="admin-bell-toast" data-admin-bell-toast></div>
+    <script src="~/js/admin-notifications.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="/js/security-ui.js" defer></script>
+</body>
+</html>
+

@@ -1,0 +1,131 @@
+@model Kafo.Web.ViewModels.InKindDonationRequestFormViewModel
+
+@{
+    ViewData["Title"] = "طلب استلام تبرع عيني";
+
+    var donationTypes = Model?.DonationTypes ?? new List<Kafo.Web.Models.InKindDonationType>();
+    var selectedIds = Model?.SelectedDonationTypeIds ?? new List<int>();
+}
+
+<section class="inkind-page">
+    <div class="inkind-hero">
+        <span>خدمة إلكترونية</span>
+        <h1>طلب استلام تبرع عيني</h1>
+        <p>نسعد باستقبال تبرعاتكم العينية لدعم مستفيدي الجمعية.</p>
+    </div>
+
+    <div class="home-container">
+        <div class="inkind-card">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="inkind-success">@TempData["Success"]</div>
+            }
+
+            <form method="post" action="/InKindDonationRequest" class="inkind-form">
+                @Html.AntiForgeryToken()
+        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+            <label>اترك هذا الحقل فارغًا<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+
+                <div asp-validation-summary="ModelOnly" class="inkind-validation"></div>
+
+                <div class="inkind-section-title">
+                    <h2>بيانات المتبرع</h2>
+                </div>
+
+                <div class="inkind-grid">
+                    <div class="inkind-field">
+                        <label>الاسم الكريم <b>*</b></label>
+                        <input asp-for="DonorName" placeholder="الاسم الكريم" />
+                        <span asp-validation-for="DonorName"></span>
+                    </div>
+
+                    <div class="inkind-field">
+                        <label>رقم الجوال <b>*</b></label>
+                        <input asp-for="Mobile" dir="ltr" inputmode="numeric" placeholder="05xxxxxxxx" />
+                        <span asp-validation-for="Mobile"></span>
+                    </div>
+
+                    <div class="inkind-field">
+                        <label>المدينة <b>*</b></label>
+                        <input asp-for="City" placeholder="المدينة" />
+                        <span asp-validation-for="City"></span>
+                    </div>
+
+                    <div class="inkind-field">
+                        <label>الحي</label>
+                        <input asp-for="District" placeholder="الحي" />
+                    </div>
+                </div>
+
+                <div class="inkind-section-title green">
+                    <h2>تفاصيل التبرع</h2>
+                </div>
+
+                <div class="inkind-types-head">
+                    نوع التبرع <span>يمكنك اختيار أكثر من صنف</span> <b>*</b>
+                </div>
+
+                <div class="inkind-types-box">
+                    @foreach (var item in donationTypes)
+                    {
+                        var isChecked = selectedIds.Contains(item.Id);
+
+                        <label class="inkind-type-item">
+                            @if (isChecked)
+                            {
+                                <input type="checkbox" name="SelectedDonationTypeIds" value="@item.Id" checked="checked" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="SelectedDonationTypeIds" value="@item.Id" />
+                            }
+
+                            <span>@item.Name</span>
+                        </label>
+                    }
+                </div>
+
+                <div class="inkind-error">
+                    @Html.ValidationMessageFor(x => x.SelectedDonationTypeIds)
+                </div>
+
+                <div class="inkind-pickup">
+                    <strong>وقت الزيارة المفضل للاستلام</strong>
+
+                    <label>
+                        <input type="radio" asp-for="PreferredPickupTime" value="morning" />
+                        صباحي
+                    </label>
+
+                    <label>
+                        <input type="radio" asp-for="PreferredPickupTime" value="evening" />
+                        مسائي
+                    </label>
+                </div>
+
+                <div class="inkind-field full">
+                    <label>ملاحظات إضافية</label>
+                    <textarea asp-for="Notes" rows="4" placeholder="اكتب أي تفاصيل إضافية عن التبرع أو موقع الاستلام"></textarea>
+                </div>
+
+                <label class="inkind-confirm">
+                    <input asp-for="AcceptTerms" />
+                    <span>
+                        أتعهد أن تحديد موعد استلام الطلب يكون حسب عدد الطلبات المقدمة، وسيتم التواصل معي لتأكيد الموعد المناسب للاستلام.
+                    </span>
+                </label>
+
+                <div class="inkind-error">
+                    @Html.ValidationMessageFor(x => x.AcceptTerms)
+                </div>
+
+                <button type="submit" class="inkind-submit">
+                    إرسال طلب التبرع
+                </button>
+            </form>
+        </div>
+    </div>
+</section>

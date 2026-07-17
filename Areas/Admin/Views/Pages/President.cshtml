@@ -1,0 +1,97 @@
+﻿@model Kafo.Web.Models.PresidentMessage
+
+@{
+    ViewData["Title"] = "كلمة رئيس الجمعية";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>عن الجمعية</span>
+        <h1>كلمة رئيس الجمعية</h1>
+        <p>إدارة صورة الرئيس/المدير، الاسم، المنصب، ونص الكلمة الظاهرة في الموقع.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/President" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="president-admin-layout">
+    <div class="admin-form-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+            <input asp-for="UpdatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Title">عنوان الصفحة</label>
+                    <input asp-for="Title" placeholder="كلمة رئيس الجمعية" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="LeaderName">اسم الرئيس / المدير</label>
+                    <input asp-for="LeaderName" placeholder="اكتب الاسم هنا" />
+                    <span asp-validation-for="LeaderName"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PositionTitle">المنصب</label>
+                    <input asp-for="PositionTitle" placeholder="رئيس مجلس الإدارة" />
+                    <span asp-validation-for="PositionTitle"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>صورة الرئيس / المدير</label>
+                    <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp" />
+                    <small>المقاس المقترح 700×900 أو صورة طولية واضحة.</small>
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="MessageText">نص الكلمة</label>
+                    <textarea asp-for="MessageText" rows="12"></textarea>
+                    <span asp-validation-for="MessageText"></span>
+                </div>
+
+                <div class="form-check full">
+                    <input asp-for="IsActive" />
+                    <label asp-for="IsActive">إظهار الصفحة في الموقع</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="admin-submit-btn" type="submit">حفظ الكلمة</button>
+                <a href="/Admin/Dashboard">إلغاء</a>
+            </div>
+        </form>
+    </div>
+
+    <aside class="president-admin-preview">
+        <span>معاينة مختصرة</span>
+
+        <div class="president-admin-photo">
+            @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+            {
+                <img src="@Model.ImagePath" alt="@Model.LeaderName" />
+            }
+            else
+            {
+                <strong>لا توجد صورة</strong>
+            }
+        </div>
+
+        <h2>@Model.LeaderName</h2>
+        <h3>@Model.PositionTitle</h3>
+        <p>@Model.MessageText</p>
+    </aside>
+</div>

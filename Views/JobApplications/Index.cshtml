@@ -1,0 +1,107 @@
+@model Kafo.Web.Models.JobApplication
+
+@{
+    ViewData["Title"] = "طلبات التوظيف";
+}
+
+<section class="ja-public-page">
+    <div class="home-container">
+
+        <div class="ja-public-head">
+            <span>التطوع والتوظيف</span>
+            <h1>طلبات التوظيف</h1>
+            <p>يمكنك إرسال طلب التوظيف وإرفاق السيرة الذاتية، وسيتم مراجعة الطلب من قبل الفريق المختص.</p>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="ja-public-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        <div class="ja-public-card">
+            <form method="post" enctype="multipart/form-data" action="/JobApplications" class="ja-public-form">
+                @Html.AntiForgeryToken()
+        <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+            <label>اترك هذا الحقل فارغًا<input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="ja-public-grid">
+                    <div class="form-group">
+                        <label>الاسم الكامل <b>*</b></label>
+                        <input asp-for="FullName" placeholder="اكتب الاسم الكامل" />
+                        <span asp-validation-for="FullName"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>رقم الجوال <b>*</b></label>
+                        <input asp-for="Phone" dir="ltr" placeholder="05xxxxxxxx" />
+                        <span asp-validation-for="Phone"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>البريد الإلكتروني <b>*</b></label>
+                        <input asp-for="Email" dir="ltr" placeholder="example@email.com" />
+                        <span asp-validation-for="Email"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>رقم الهوية</label>
+                        <input asp-for="NationalId" dir="ltr" placeholder="اختياري" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>المدينة</label>
+                        <input asp-for="City" placeholder="مثال: حائل" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>الوظيفة المطلوبة</label>
+                        <input asp-for="DesiredJobTitle" placeholder="مثال: أخصائي اجتماعي" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>المؤهل العلمي</label>
+                        <input asp-for="Qualification" placeholder="مثال: بكالوريوس" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>التخصص</label>
+                        <input asp-for="Specialty" placeholder="مثال: إدارة أعمال" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>سنوات الخبرة</label>
+                        <input asp-for="ExperienceYears" type="number" min="0" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>السيرة الذاتية CV <b>*</b></label>
+                        <input type="file" name="cvFile" accept=".pdf,.doc,.docx" required />
+                        <small>الصيغ المسموحة: PDF, DOC, DOCX</small>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>مرفق إضافي</label>
+                        <input type="file" name="attachmentFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" />
+                        <small>اختياري: شهادات أو ملف داعم.</small>
+                    </div>
+
+                    <div class="form-group full">
+                        <label>نبذة مختصرة عنك</label>
+                        <textarea asp-for="CoverLetter" rows="5" placeholder="اكتب نبذة مختصرة عن خبراتك وسبب رغبتك في الانضمام"></textarea>
+                    </div>
+                </div>
+
+                <div class="ja-public-actions">
+                    <button type="submit">إرسال طلب التوظيف</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</section>

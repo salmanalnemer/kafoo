@@ -1,0 +1,77 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.GeneralAssemblyMember>
+
+@{
+    ViewData["Title"] = "أعضاء الجمعية العمومية";
+}
+
+<section class="gam-public-page">
+    <div class="home-container">
+
+        <div class="gam-public-head">
+            <span>ملفات الحوكمة</span>
+            <h1>أعضاء الجمعية العمومية</h1>
+            <p>استعراض أعضاء الجمعية العمومية وبيانات العضوية المعتمدة.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="gam-public-empty">
+                <h3>لا يوجد أعضاء حالياً</h3>
+                <p>سيتم عرض أعضاء الجمعية العمومية هنا عند إضافتهم من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="gam-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="gam-public-card">
+                        <div class="gam-member-photo">
+                            @if (!string.IsNullOrWhiteSpace(item.PhotoPath))
+                            {
+                                <img src="@item.PhotoPath" alt="@item.FullName" />
+                            }
+                            else
+                            {
+                                <strong>@item.FullName.Substring(0, 1)</strong>
+                            }
+
+                            @if (item.IsFeatured)
+                            {
+                                <b>مميز</b>
+                            }
+                        </div>
+
+                        <div class="gam-member-content">
+                            <span>@item.MembershipType</span>
+                            <h2>@item.FullName</h2>
+
+                            @if (!string.IsNullOrWhiteSpace(item.PositionTitle))
+                            {
+                                <h3>@item.PositionTitle</h3>
+                            }
+
+                            <div class="gam-member-meta">
+                                @if (!string.IsNullOrWhiteSpace(item.MembershipNumber))
+                                {
+                                    <small>رقم العضوية: @item.MembershipNumber</small>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(item.TermLabel))
+                                {
+                                    <small>الدورة: @item.TermLabel</small>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Bio))
+                            {
+                                <p>@item.Bio</p>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

@@ -1,0 +1,57 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.LicenseDocument>
+
+@{
+    ViewData["Title"] = "تراخيص الجمعية";
+}
+
+<section class="licenses-public-page">
+    <div class="home-container">
+        <div class="licenses-page-head">
+            <span>عن الجمعية</span>
+            <h1>تراخيص الجمعية</h1>
+            <p>عرض تراخيص ووثائق الجمعية الرسمية بشكل مباشر داخل الموقع.</p>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="licenses-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="license-public-card">
+                        <div class="license-public-preview">
+                            @if (item.FileType == "pdf")
+                            {
+                                <iframe src="@item.FilePath#toolbar=0&navpanes=0" title="@item.Title"></iframe>
+                            }
+                            else
+                            {
+                                <img src="@item.FilePath" alt="@item.Title" />
+                            }
+                        </div>
+
+                        <div class="license-public-body">
+                            <span>@(item.FileType == "pdf" ? "PDF" : "صورة")</span>
+                            <h2>@item.Title</h2>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p>@item.Description</p>
+                            }
+
+                            <div class="license-public-actions">
+                                <a href="/Licenses/Details/@item.Id">عرض مباشر</a>
+                                <a href="@item.FilePath" target="_blank" rel="noopener noreferrer">فتح الملف</a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="license-empty-public">
+                لا توجد تراخيص منشورة حالياً.
+            </div>
+        }
+    </div>
+</section>

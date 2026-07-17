@@ -1,0 +1,195 @@
+@model Kafo.Web.ViewModels.Admin.AdminAccountSettingsIndexViewModel
+
+@{
+    ViewData["Title"] = "الإعدادات العامة وحسابات الدخول";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-account-settings.css" asp-append-version="true" />
+}
+
+<div class="account-settings-page">
+    <section class="account-settings-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>حسابات الدخول الموحد</h1>
+            <p>إدارة بريد الدخول وحالة الحساب للداعمين والجهات، وإرسال رابط آمن وأحادي الاستخدام لإعداد كلمة المرور.</p>
+        </div>
+        <div class="account-settings-hero-actions">
+            <a href="/Admin/Donors/Create">إضافة داعم</a>
+            <a class="secondary" href="/Admin/Organizations/Create">إضافة جهة أو شركة</a>
+        </div>
+    </section>
+
+    @if (TempData["Success"] is string successMessage)
+    {
+        <div class="admin-alert-success">@successMessage</div>
+    }
+
+    @if (TempData["Error"] is string errorMessage)
+    {
+        <div class="admin-alert-error">@errorMessage</div>
+    }
+
+    <section class="account-settings-notice">
+        <div class="notice-icon">!</div>
+        <div>
+            <strong>كلمات المرور الحالية لا يمكن عرضها</strong>
+            <p>النظام يحفظ كلمات المرور بصيغة تجزئة آمنة ولا يمكن عرضها. عند نسيانها أرسل رابط إعداد جديدًا محدود الصلاحية إلى البريد المسجل.</p>
+        </div>
+    </section>
+
+    <section class="account-settings-stats">
+        <article><span>إجمالي الحسابات</span><strong>@Model.TotalAccounts</strong></article>
+        <article><span>حسابات الداعمين</span><strong>@Model.TotalDonors</strong></article>
+        <article><span>حسابات الجهات</span><strong>@Model.TotalOrganizations</strong></article>
+        <article><span>الحسابات المفعلة</span><strong>@Model.ActiveAccounts</strong></article>
+        <article class="@(Model.AccountsNeedingEmailUpdate > 0 ? "needs-attention" : "")">
+            <span>تحتاج تحديث البريد</span>
+            <strong>@Model.AccountsNeedingEmailUpdate</strong>
+        </article>
+    </section>
+
+    <section class="account-settings-filter">
+        <form method="get" action="/Admin/Settings">
+            <div class="filter-search">
+                <label for="account-search">البحث</label>
+                <input id="account-search" name="q" value="@Model.Search" placeholder="الاسم، البريد الإلكتروني، رقم الجوال..." />
+            </div>
+            <div>
+                <label for="account-type">نوع الحساب</label>
+                <select id="account-type" name="accountType">
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(Model.AccountTypeFilter))">كل الحسابات</option>
+                    <option value="Donor" selected="@(Model.AccountTypeFilter == "Donor")">الداعمون</option>
+                    <option value="Organization" selected="@(Model.AccountTypeFilter == "Organization")">الجهات والشركات</option>
+                </select>
+            </div>
+            <div>
+                <label for="account-status">الحالة</label>
+                <select id="account-status" name="status">
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(Model.StatusFilter))">الكل</option>
+                    <option value="active" selected="@(Model.StatusFilter == "active")">مفعل</option>
+                    <option value="disabled" selected="@(Model.StatusFilter == "disabled")">معطل</option>
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit">تطبيق</button>
+                <a href="/Admin/Settings">مسح</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="account-settings-list">
+        <div class="account-settings-list-head">
+            <div>
+                <h2>مستخدمو بوابة الدخول الموحد</h2>
+                <p>عدّل البريد الحقيقي أولًا، ثم أرسل رابط إعداد كلمة المرور للحساب.</p>
+            </div>
+            <span>@Model.Accounts.Count حساب ظاهر</span>
+        </div>
+
+        @if (!Model.Accounts.Any())
+        {
+            <div class="account-settings-empty">
+                <strong>لا توجد حسابات مطابقة</strong>
+                <p>غيّر خيارات البحث أو أضف حسابًا جديدًا.</p>
+            </div>
+        }
+        else
+        {
+            <div class="portal-accounts">
+                @foreach (var account in Model.Accounts)
+                {
+                    var panelId = $"account-panel-{account.AccountType}-{account.Id}";
+                    <article class="portal-account-card @(account.EmailNeedsAttention ? "email-warning" : "")">
+                        <div class="portal-account-summary">
+                            <div class="portal-account-avatar">@(account.AccountType == "Donor" ? "د" : "ج")</div>
+                            <div class="portal-account-identity">
+                                <div class="portal-account-title">
+                                    <h3>@account.DisplayName</h3>
+                                    <span class="account-kind">@account.AccountTypeLabel</span>
+                                    <span class="account-state @(account.IsActive ? "active" : "disabled")">@(account.IsActive ? "مفعل" : "معطل")</span>
+                                </div>
+                                <p>@(string.IsNullOrWhiteSpace(account.SecondaryName) ? "لا توجد بيانات إضافية" : account.SecondaryName)</p>
+                                <div class="portal-account-contact">
+                                    <span dir="ltr">@(string.IsNullOrWhiteSpace(account.Email) ? "لا يوجد بريد" : account.Email)</span>
+                                    <span dir="ltr">@(string.IsNullOrWhiteSpace(account.Phone) ? "لا يوجد جوال" : account.Phone)</span>
+                                    <span>آخر دخول: @(account.LastLoginAt?.ToString("yyyy/MM/dd HH:mm") ?? "لم يسجل الدخول")</span>
+                                </div>
+                                @if (account.EmailNeedsAttention)
+                                {
+                                    <div class="email-attention-message">البريد الحالي وهمي أو غير صالح لاستقبال OTP. يجب تعديله قبل إرسال بيانات الدخول.</div>
+                                }
+                            </div>
+                            <div class="portal-account-main-actions">
+                                <button type="button" class="manage-account-button" data-account-toggle="@panelId">إدارة الحساب</button>
+                                <a href="@account.DetailsUrl">التفاصيل الكاملة</a>
+                            </div>
+                        </div>
+
+                        <div class="portal-account-panel @(account.EmailNeedsAttention ? "is-open" : "")" id="@panelId">
+                            <div class="account-edit-column">
+                                <div class="account-block-title">
+                                    <strong>بيانات تسجيل الدخول</strong>
+                                    <span>تعديل الاسم والبريد والجوال وحالة الحساب</span>
+                                </div>
+
+                                <form method="post" action="/Admin/Settings/PortalAccounts/Update" class="account-edit-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="Id" value="@account.Id" />
+                                    <input type="hidden" name="AccountType" value="@account.AccountType" />
+
+                                    <div class="account-form-grid">
+                                        <div>
+                                            <label for="name-@account.AccountType-@account.Id">اسم الحساب</label>
+                                            <input id="name-@account.AccountType-@account.Id" name="DisplayName" value="@account.DisplayName" maxlength="220" required />
+                                        </div>
+                                        <div>
+                                            <label for="email-@account.AccountType-@account.Id">البريد الإلكتروني للدخول وOTP</label>
+                                            <input id="email-@account.AccountType-@account.Id" name="Email" value="@account.Email" type="email" maxlength="180" dir="ltr" required />
+                                        </div>
+                                        <div>
+                                            <label for="phone-@account.AccountType-@account.Id">رقم الجوال</label>
+                                            <input id="phone-@account.AccountType-@account.Id" name="Phone" value="@account.Phone" maxlength="40" inputmode="tel" dir="ltr" />
+                                        </div>
+                                        <label class="account-active-control">
+                                            <input type="checkbox" name="IsActive" value="true" checked="@account.IsActive" />
+                                            <input type="hidden" name="IsActive" value="false" />
+                                            <span>الحساب مفعل ويسمح له بالدخول</span>
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="save-account-button">حفظ بيانات الحساب</button>
+                                </form>
+                            </div>
+
+                            <div class="password-reset-column">
+                                <div class="password-reset-icon">✉</div>
+                                <strong>إعادة تعيين كلمة المرور</strong>
+                                <p>سيبطل النظام الجلسات السابقة ويرسل رابطًا آمنًا محدود الصلاحية ولمرة واحدة إلى البريد المسجل.</p>
+                                <form method="post" action="/Admin/Settings/PortalAccounts/SendPasswordSetupLink" data-password-reset-form>
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="Id" value="@account.Id" />
+                                    <input type="hidden" name="AccountType" value="@account.AccountType" />
+                                    <button type="submit" disabled="@account.EmailNeedsAttention">إرسال رابط إعداد كلمة المرور</button>
+                                </form>
+                                @if (account.EmailNeedsAttention)
+                                {
+                                    <small>احفظ بريدًا حقيقيًا أولًا لتفعيل زر الإرسال.</small>
+                                }
+                                else
+                                {
+                                    <small dir="ltr">سيتم الإرسال إلى: @account.Email</small>
+                                }
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/admin-account-settings.js" asp-append-version="true"></script>
+}

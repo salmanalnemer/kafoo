@@ -1,0 +1,86 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.BoardMember>
+
+@{
+    ViewData["Title"] = "أعضاء مجلس الإدارة";
+}
+
+<section class="bm-public-page">
+    <div class="home-container">
+
+        <div class="bm-public-head">
+            <span>ملفات الحوكمة</span>
+            <h1>أعضاء مجلس الإدارة</h1>
+            <p>استعراض أعضاء مجلس الإدارة وبيانات الدورة الحالية.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="bm-public-empty">
+                <h3>لا يوجد أعضاء حالياً</h3>
+                <p>سيتم عرض أعضاء مجلس الإدارة هنا عند إضافتهم من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="bm-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="bm-public-card @(item.IsChairman ? "chairman" : "")">
+                        <div class="bm-member-photo">
+                            @if (!string.IsNullOrWhiteSpace(item.PhotoPath))
+                            {
+                                <img src="@item.PhotoPath" alt="@item.FullName" />
+                            }
+                            else
+                            {
+                                <strong>@item.FullName.Substring(0, 1)</strong>
+                            }
+
+                            @if (item.IsChairman)
+                            {
+                                <b>رئيس المجلس</b>
+                            }
+                            else if (item.IsFeatured)
+                            {
+                                <b>مميز</b>
+                            }
+                        </div>
+
+                        <div class="bm-member-content">
+                            <span>@item.PositionTitle</span>
+                            <h2>@item.FullName</h2>
+
+                            @if (!string.IsNullOrWhiteSpace(item.MembershipRole))
+                            {
+                                <h3>@item.MembershipRole</h3>
+                            }
+
+                            <div class="bm-member-meta">
+                                @if (!string.IsNullOrWhiteSpace(item.BoardTerm))
+                                {
+                                    <small>الدورة: @item.BoardTerm</small>
+                                }
+
+                                @if (item.TermStartDate.HasValue || item.TermEndDate.HasValue)
+                                {
+                                    <small>
+                                        الفترة:
+                                        @(item.TermStartDate.HasValue ? item.TermStartDate.Value.ToString("yyyy/MM/dd") : "-")
+                                        -
+                                        @(item.TermEndDate.HasValue ? item.TermEndDate.Value.ToString("yyyy/MM/dd") : "-")
+                                    </small>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Bio))
+                            {
+                                <p>@item.Bio</p>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

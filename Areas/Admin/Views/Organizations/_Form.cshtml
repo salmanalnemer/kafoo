@@ -1,0 +1,16 @@
+@model Kafo.Web.ViewModels.Admin.AdminOrganizationFormViewModel
+<div asp-validation-summary="ModelOnly" class="admin-alert-error"></div>
+<input asp-for="Id" type="hidden" />
+<div class="org-form-grid">
+  <label><span>اسم الجهة *</span><input asp-for="Name" /><small asp-validation-for="Name"></small></label>
+  <label><span>النشاط</span><input asp-for="Activity" /></label>
+  <label><span>المدينة</span><input asp-for="City" /></label>
+  <label><span>مسؤول التواصل</span><input asp-for="ContactName" /></label>
+  <label><span>البريد الإلكتروني</span><input asp-for="Email" dir="ltr" /></label>
+  <label><span>رقم الجوال</span><input asp-for="Phone" dir="ltr" /></label>
+  <label class="wide"><span>مسار الشعار</span><input asp-for="LogoPath" dir="ltr" placeholder="/uploads/organizations/logo.png" /></label>
+  <label class="wide"><span>@(Model.Id == 0 ? "كلمة المرور *" : "كلمة مرور جديدة (اختياري)")</span><input asp-for="Password" type="password" autocomplete="new-password" /><small asp-validation-for="Password"></small></label>
+  <label class="check"><input asp-for="IsActive" type="checkbox" /><span>الحساب مفعل</span></label>
+</div>
+<style>.org-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.org-form-grid label{display:flex;flex-direction:column;gap:8px;font-weight:900;color:#344054}.org-form-grid input{min-height:48px;border:1px solid #d0d5dd;border-radius:14px;padding:0 14px;font:inherit;background:#fff}.org-form-grid .wide{grid-column:1/-1}.org-form-grid .check{flex-direction:row;align-items:center}.org-form-grid .check input{min-height:auto;width:20px;height:20px}.org-form-grid small{color:#b42318}@@media(max-width:700px){.org-form-grid{grid-template-columns:1fr}.org-form-grid .wide{grid-column:auto}}</style>
+

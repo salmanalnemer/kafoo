@@ -1,0 +1,141 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.StrategicGoal>
+
+@{
+    ViewData["Title"] = "أهداف الجمعية";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>الصفحة الرئيسية</span>
+        <h1>أهداف الجمعية الاستراتيجية</h1>
+        <p>إدارة الأهداف التي تظهر في قسم أهدافنا الاستراتيجية في الواجهة الرئيسية.</p>
+    </div>
+
+    <a class="admin-main-action" href="/Admin/StrategicGoals/Create">إضافة هدف جديد</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="goals-admin-preview">
+    @if (Model.Any())
+    {
+        foreach (var item in Model.OrderBy(x => x.DisplayOrder))
+        {
+            <article class="goal-admin-card @(item.IsActive ? "" : "disabled")">
+                <div class="goal-admin-icon">
+                    @if (!string.IsNullOrWhiteSpace(item.Icon) && item.Icon.StartsWith("fa-"))
+                    {
+                        <i class="@item.Icon"></i>
+                    }
+                    else
+                    {
+                        <span>@(string.IsNullOrWhiteSpace(item.Icon) ? "✓" : item.Icon)</span>
+                    }
+                </div>
+
+                <h2>@item.Title</h2>
+                <p>@item.Description</p>
+            </article>
+        }
+    }
+    else
+    {
+        <article class="goal-admin-card">
+            <div class="goal-admin-icon"><span>✓</span></div>
+            <h2>التمكين</h2>
+            <p>تمكين المستفيدين من الوصول للفرص المناسبة.</p>
+        </article>
+
+        <article class="goal-admin-card">
+            <div class="goal-admin-icon"><span>✓</span></div>
+            <h2>الاستدامة</h2>
+            <p>بناء برامج مستدامة ذات أثر مجتمعي واضح.</p>
+        </article>
+
+        <article class="goal-admin-card">
+            <div class="goal-admin-icon"><span>✓</span></div>
+            <h2>الشراكات</h2>
+            <p>تعزيز الشراكات مع القطاعات المختلفة.</p>
+        </article>
+    }
+</div>
+
+<div class="admin-card">
+    <div class="admin-table-wrap">
+        <table class="admin-modern-table">
+            <thead>
+                <tr>
+                    <th>الترتيب</th>
+                    <th>الأيقونة</th>
+                    <th>العنوان</th>
+                    <th>الوصف</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="dash-empty">لا توجد أهداف حتى الآن.</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.DisplayOrder</td>
+                            <td>
+                                <div class="table-icon-box">
+                                    @if (!string.IsNullOrWhiteSpace(item.Icon) && item.Icon.StartsWith("fa-"))
+                                    {
+                                        <i class="@item.Icon"></i>
+                                    }
+                                    else
+                                    {
+                                        <span>@(string.IsNullOrWhiteSpace(item.Icon) ? "✓" : item.Icon)</span>
+                                    }
+                                </div>
+                            </td>
+                            <td><strong>@item.Title</strong></td>
+                            <td class="goal-desc-cell">@item.Description</td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="dash-status active">مفعل</span>
+                                }
+                                else
+                                {
+                                    <span class="dash-status inactive">غير مفعل</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <a class="admin-small-btn purple" href="/Admin/StrategicGoals/Edit/@item.Id">تعديل</a>
+
+                                    <form method="post" action="/Admin/StrategicGoals/ToggleStatus/@item.Id">
+                                        @Html.AntiForgeryToken()
+                                        <button class="admin-small-btn green" type="submit">
+                                            @(item.IsActive ? "إلغاء التفعيل" : "تفعيل")
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="/Admin/StrategicGoals/Delete/@item.Id" data-confirm="هل أنت متأكد من حذف الهدف؟">
+                                        @Html.AntiForgeryToken()
+                                        <button class="admin-small-btn danger" type="submit">حذف</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.NewsPost>
+
+@{
+    ViewData["Title"] = "الأخبار";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>المركز الإعلامي</span>
+        <h1>إدارة الأخبار</h1>
+        <p>إضافة وتعديل الأخبار الظاهرة في الواجهة الرئيسية.</p>
+    </div>
+    <a class="admin-main-action" href="/Admin/News/Create">إضافة خبر</a>
+</div>
+
+<div class="admin-card">
+    <div class="admin-table-grid">
+        @foreach (var item in Model)
+        {
+            <article class="admin-list-card">
+                <div class="admin-list-image">
+                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                    {
+                        <img src="@item.ImagePath" alt="@item.Title" />
+                    }
+                    else
+                    {
+                        <span>لا توجد صورة</span>
+                    }
+                </div>
+                <div>
+                    <h2>@item.Title</h2>
+                    <p>@item.Summary</p>
+                    <span>@(item.IsActive ? "مفعل" : "غير مفعل") - @item.PublishDate.ToString("yyyy-MM-dd")</span>
+                    <div class="slider-admin-actions">
+                        <a class="admin-small-btn purple" href="/Admin/News/Edit/@item.Id">تعديل</a>
+                        <a class="admin-small-btn green" href="/News/Details/@item.Id" target="_blank" rel="noopener noreferrer">معاينة</a>
+                        <form method="post" action="/Admin/News/Delete/@item.Id" data-confirm="حذف الخبر؟">
+                            @Html.AntiForgeryToken()
+                            <button class="admin-small-btn danger" type="submit">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</div>

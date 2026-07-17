@@ -1,0 +1,119 @@
+﻿@model Kafo.Web.Models.VideoLibraryItem
+
+@{
+    ViewData["Title"] = "إضافة فيديو جديد";
+    var isYoutube = Model.VideoSourceType != "Upload";
+    var isUpload = Model.VideoSourceType == "Upload";
+}
+
+<div class="video-admin-page">
+
+    <div class="video-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>إضافة فيديو جديد</h1>
+            <p>أضف رابط YouTube أو ارفع ملف فيديو من جهازك.</p>
+        </div>
+
+        <div class="video-admin-actions">
+            <a href="/Admin/Videos">رجوع للمكتبة</a>
+        </div>
+    </div>
+
+    <div class="video-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/Videos/Create" class="video-form">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="video-form-grid">
+                <div class="form-group">
+                    <label>عنوان الفيديو</label>
+                    <input asp-for="Title" placeholder="اكتب عنوان الفيديو" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>التصنيف</label>
+                    <input asp-for="Category" placeholder="مكتبة الفيديو" />
+                </div>
+
+                <div class="form-group">
+                    <label>مصدر الفيديو</label>
+                    <select asp-for="VideoSourceType" id="videoSourceType">
+                        <option value="Youtube" selected="@isYoutube">رابط YouTube</option>
+                        <option value="Upload" selected="@isUpload">رفع فيديو</option>
+                    </select>
+                </div>
+
+                <div class="form-group video-youtube-field">
+                    <label>رابط YouTube</label>
+                    <input asp-for="YoutubeUrl" dir="ltr" placeholder="https://www.youtube.com/watch?v=..." />
+                    <span asp-validation-for="YoutubeUrl"></span>
+                </div>
+
+                <div class="form-group video-upload-field">
+                    <label>رفع ملف الفيديو</label>
+                    <input type="file" name="videoFile" accept=".mp4,.webm,.mov" />
+                    <small>المسموح MP4 / WEBM / MOV.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>صورة مصغرة اختيارية</label>
+                    <input type="file" name="thumbnailFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ النشر</label>
+                    <input asp-for="PublishedAt" type="datetime-local" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف الفيديو</label>
+                    <textarea asp-for="Description" rows="4" placeholder="وصف مختصر للفيديو"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>فيديو مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار الفيديو</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ الفيديو</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const select = document.getElementById("videoSourceType");
+            const youtube = document.querySelector(".video-youtube-field");
+            const upload = document.querySelector(".video-upload-field");
+
+            function refreshVideoFields() {
+                const isUpload = select.value === "Upload";
+                youtube.style.display = isUpload ? "none" : "";
+                upload.style.display = isUpload ? "" : "none";
+            }
+
+            if (select) {
+                select.addEventListener("change", refreshVideoFields);
+                refreshVideoFields();
+            }
+        })();
+    </script>
+}

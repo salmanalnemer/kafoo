@@ -1,0 +1,97 @@
+﻿@model Kafo.Web.Models.GeneralAssemblyMinute
+
+@{
+    ViewData["Title"] = "إضافة محضر جمعية عمومية";
+}
+
+<div class="gamn-admin-page">
+
+    <div class="gamn-admin-hero">
+        <div>
+            <span>ملفات الحوكمة</span>
+            <h1>إضافة محضر جمعية عمومية</h1>
+            <p>أدخل بيانات المحضر وارفع ملف المحضر الرسمي.</p>
+        </div>
+
+        <div class="gamn-admin-actions">
+            <a href="/Admin/GeneralAssemblyMinutes">رجوع للمحاضر</a>
+        </div>
+    </div>
+
+    <div class="gamn-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/GeneralAssemblyMinutes/Create" class="gamn-form">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="gamn-form-grid">
+                <div class="form-group">
+                    <label>عنوان المحضر</label>
+                    <input asp-for="Title" placeholder="مثال: محضر اجتماع الجمعية العمومية العادي" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع الاجتماع</label>
+                    <input asp-for="MeetingType" placeholder="عادي / غير عادي" />
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الاجتماع</label>
+                    <input asp-for="MeetingNumber" placeholder="اختياري" />
+                </div>
+
+                <div class="form-group">
+                    <label>السنة المالية</label>
+                    <input asp-for="FiscalYear" placeholder="مثال: 2026" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ الاجتماع</label>
+                    <input asp-for="MeetingDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد الحضور</label>
+                    <input asp-for="AttendeesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>ملف المحضر</label>
+                    <input type="file" name="minuteFile" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                    <small>PDF أو صورة.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>صورة الغلاف</label>
+                    <input type="file" name="coverFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group full">
+                    <label>ملخص المحضر</label>
+                    <textarea asp-for="Summary" rows="4" placeholder="ملخص اختياري عن الاجتماع والمحضر"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>محضر مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار المحضر</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ المحضر</button>
+            </div>
+        </form>
+    </div>
+
+</div>

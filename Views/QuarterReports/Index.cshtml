@@ -1,0 +1,82 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.QuarterReportDocument>
+
+@{
+    ViewData["Title"] = "التقارير الربعية";
+}
+
+<section class="quarter-public-page">
+    <div class="home-container">
+
+        <div class="quarter-public-head">
+            <span>ملفات الحوكمة</span>
+            <h1>التقارير الربعية</h1>
+            <p>استعراض وتحميل التقارير الربعية المعتمدة للجمعية.</p>
+        </div>
+
+        <div class="quarter-table-card">
+            <div class="quarter-table-wrap">
+                <table class="quarter-public-table">
+                    <thead>
+                        <tr>
+                            <th>العنوان</th>
+                            <th>السنة</th>
+                            <th>الربع</th>
+                            <th>التصنيف</th>
+                            <th>تحميل</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="quarter-empty-row">
+                                    لا توجد ملفات حالياً.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="quarter-title-cell">
+                                        <span class="pdf-mark">PDF</span>
+                                        <div>
+                                            <strong>@item.Title</strong>
+                                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                                            {
+                                                <small>@item.Description</small>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td>@item.Year</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.QuarterLabel) ? "-" : item.QuarterLabel)</td>
+
+                                    <td>
+                                        <span class="quarter-category">@item.Category</span>
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                        {
+                                            <a class="quarter-download" href="@item.FilePath" target="_blank" rel="noopener noreferrer" download>
+                                                تحميل
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>

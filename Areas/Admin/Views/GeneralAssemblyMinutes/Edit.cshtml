@@ -1,0 +1,118 @@
+﻿@model Kafo.Web.Models.GeneralAssemblyMinute
+
+@{
+    ViewData["Title"] = "تعديل محضر جمعية عمومية";
+}
+
+<div class="gamn-admin-page">
+
+    <div class="gamn-admin-hero">
+        <div>
+            <span>ملفات الحوكمة</span>
+            <h1>تعديل محضر جمعية عمومية</h1>
+            <p>تحديث بيانات المحضر والتحكم في ظهوره بالموقع.</p>
+        </div>
+
+        <div class="gamn-admin-actions">
+            <a href="/GeneralAssemblyMinutes" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/GeneralAssemblyMinutes">رجوع للمحاضر</a>
+        </div>
+    </div>
+
+    <div class="gamn-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/GeneralAssemblyMinutes/Edit/@Model.Id" class="gamn-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="FilePath" type="hidden" />
+            <input asp-for="CoverImagePath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="gamn-form-grid">
+                <div class="form-group">
+                    <label>عنوان المحضر</label>
+                    <input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع الاجتماع</label>
+                    <input asp-for="MeetingType" />
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الاجتماع</label>
+                    <input asp-for="MeetingNumber" />
+                </div>
+
+                <div class="form-group">
+                    <label>السنة المالية</label>
+                    <input asp-for="FiscalYear" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ الاجتماع</label>
+                    <input asp-for="MeetingDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد الحضور</label>
+                    <input asp-for="AttendeesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير ملف المحضر</label>
+                    <input type="file" name="minuteFile" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير صورة الغلاف</label>
+                    <input type="file" name="coverFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.CoverImagePath))
+                {
+                    <div class="form-group full">
+                        <label>الغلاف الحالي</label>
+                        <img class="gamn-edit-preview" src="@Model.CoverImagePath" alt="@Model.Title" />
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.FilePath))
+                {
+                    <div class="form-group full">
+                        <label>ملف المحضر الحالي</label>
+                        <a class="gamn-current-file" href="@Model.FilePath" target="_blank" rel="noopener noreferrer">فتح الملف الحالي</a>
+                    </div>
+                }
+
+                <div class="form-group full">
+                    <label>ملخص المحضر</label>
+                    <textarea asp-for="Summary" rows="4"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>محضر مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار المحضر</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
+</div>

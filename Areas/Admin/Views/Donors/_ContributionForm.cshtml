@@ -1,0 +1,132 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminDonorContributionFormViewModel
+@using Kafo.Web.Models
+@{
+    var programs = ViewBag.Programs as IReadOnlyList<ProgramProject> ?? new List<ProgramProject>();
+    var calculatedRemaining = Math.Max(0, Model.TotalAmount - Model.SpentAmount);
+}
+
+<div class="admin-form-card donor-form-card">
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="DonorAccountId" />
+        <input type="hidden" asp-for="Title" />
+        <input type="hidden" asp-for="TotalAmount" />
+
+        <div asp-validation-summary="ModelOnly" class="admin-validation"></div>
+
+        <div class="auto-note">
+            <strong>تنبيه مهم</strong>
+            <p>قيمة الدعم وعنوان الطلب تأتي من البيانات التي أرسلها الداعم. دور الإدارة هنا هو الاعتماد، تحديث التنفيذ، المصروف، عدد المستفيدين، ورفع التقارير. المتبقي والفائض يتم احتسابهم آلياً.</p>
+        </div>
+
+        <div class="donor-form-grid contribution-form-grid">
+            <label>
+                <span>البرنامج / المشروع</span>
+                <select asp-for="ProgramProjectId">
+                    <option value="">بدون ربط ببرنامج</option>
+                    @foreach (var program in programs)
+                    {
+                        <option value="@program.Id" selected="@(Model.ProgramProjectId == program.Id)">@program.Title</option>
+                    }
+                </select>
+            </label>
+
+            <label>
+                <span>عنوان طلب الدعم المرسل من الداعم</span>
+                <input value="@Model.Title" readonly />
+            </label>
+
+            <label>
+                <span>الحالة</span>
+                <select asp-for="Status">
+                    <option value="بانتظار الاعتماد">بانتظار الاعتماد</option>
+                    <option value="قيد التنفيذ">قيد التنفيذ</option>
+                    <option value="مستمر">مستمر</option>
+                    <option value="مكتمل">مكتمل</option>
+                    <option value="مغلق">مغلق</option>
+                </select>
+                <small asp-validation-for="Status"></small>
+            </label>
+
+            <label>
+                <span>نسبة الإنجاز %</span>
+                <input asp-for="ProgressPercent" type="number" min="0" max="100" />
+                <small asp-validation-for="ProgressPercent"></small>
+            </label>
+
+            <label>
+                <span>إجمالي قيمة الدعم من الداعم</span>
+                <input value='@Model.TotalAmount.ToString("N2")' readonly />
+                <small>هذا الحقل لا يحرر من الإدارة.</small>
+            </label>
+
+            <label>
+                <span>المبلغ المصروف</span>
+                <input asp-for="SpentAmount" id="SpentAmount" type="number" step="0.01" min="0" max="@Model.TotalAmount" data-total="@Model.TotalAmount" />
+                <small asp-validation-for="SpentAmount"></small>
+            </label>
+
+            <label>
+                <span>المبلغ المتبقي المحسوب آلياً</span>
+                <input id="RemainingPreview" value='@calculatedRemaining.ToString("N2")' readonly />
+                <small>المتبقي = إجمالي الدعم - المبلغ المصروف.</small>
+            </label>
+
+            <label>
+                <span>عدد المستفيدين</span>
+                <input asp-for="BeneficiariesCount" type="number" min="0" />
+                <small asp-validation-for="BeneficiariesCount"></small>
+            </label>
+
+            <label>
+                <span>تاريخ البداية</span>
+                <input asp-for="StartedAt" type="date" />
+            </label>
+
+            <label>
+                <span>تاريخ الإكمال</span>
+                <input asp-for="CompletedAt" type="date" />
+            </label>
+
+            <label class="wide">
+                <span>الأثر والإنجازات</span>
+                <textarea asp-for="ImpactSummary" placeholder="اكتب ملخص الأثر المتحقق، عدد المستفيدين، والإنجازات التي ظهرت للداعم..."></textarea>
+                <small asp-validation-for="ImpactSummary"></small>
+            </label>
+        </div>
+
+        <div class="auto-note surplus-note">
+            <strong>فائض الدعم</strong>
+            <p>عند تحويل الحالة إلى مكتمل أو مغلق وبقاء مبلغ متبقٍ، سيعتبر النظام هذا المبلغ فائضاً ويغلق التصرف فيه حتى يوافق الداعم إلكترونياً.</p>
+        </div>
+
+        <div class="donor-form-actions">
+            <button type="submit">حفظ تحديث التنفيذ</button>
+            <a href="/Admin/Donors/Details/@Model.DonorAccountId">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function () {
+        const spent = document.getElementById('SpentAmount');
+        const preview = document.getElementById('RemainingPreview');
+        if (!spent || !preview) return;
+
+        const total = Number(spent.dataset.total || 0);
+        function updateRemaining() {
+            const value = Math.max(0, Number(spent.value || 0));
+            const remaining = Math.max(0, total - value);
+            preview.value = remaining.toLocaleString('ar-SA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        spent.addEventListener('input', updateRemaining);
+        updateRemaining();
+    })();
+</script>
+
+<style>
+    .auto-note{background:#f5fbf4;border:1px solid #d7f0d5;color:#243018;border-radius:18px;padding:14px 16px;margin-bottom:18px;font-weight:800}.auto-note strong{display:block;color:#2f7f2d;margin-bottom:6px}.auto-note p{margin:0;line-height:1.8}.surplus-note{margin-top:18px;margin-bottom:0}.donor-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.donor-form-grid label{display:grid;gap:8px;font-weight:900;color:#344054}.donor-form-grid input,.donor-form-grid select,.donor-form-grid textarea{width:100%;min-height:48px;border:1px solid #e5e7eb;border-radius:15px;padding:0 14px;font-weight:800;background:#fff}.donor-form-grid input[readonly]{background:#f8fafc;color:#667085}.donor-form-grid textarea{min-height:120px;padding:14px;resize:vertical}.donor-form-grid .wide{grid-column:1/-1}.donor-form-grid small{color:#667085}.donor-form-grid small.field-validation-error{color:#dc2626}.donor-form-actions{display:flex;gap:12px;margin-top:24px}.donor-form-actions button,.donor-form-actions a{border:0;border-radius:15px;min-height:48px;padding:0 22px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center}.donor-form-actions button{background:#4db748;color:#fff}.donor-form-actions a{background:#f2f4f7;color:#344054}.admin-validation{color:#b42318;background:#fef3f2;border:1px solid #fecdca;border-radius:14px;padding:12px;margin-bottom:16px;font-weight:800}@@media(max-width:800px){.donor-form-grid{grid-template-columns:1fr}}
+</style>
+

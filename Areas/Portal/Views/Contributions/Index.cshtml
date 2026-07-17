@@ -1,0 +1,93 @@
+@model IEnumerable<DonorContribution>
+@{
+    ViewData["Title"] = "مساهماتي";
+    var selectedStatus = ViewBag.SelectedStatus as string;
+    decimal totalAmount = ViewBag.TotalAmount is decimal ta ? ta : 0m;
+    decimal totalSpent = ViewBag.TotalSpent is decimal ts ? ts : 0m;
+    decimal totalRemaining = ViewBag.TotalRemaining is decimal tr ? tr : 0m;
+    int beneficiariesCount = ViewBag.BeneficiariesCount is int bc ? bc : 0;
+}
+
+<section class="portal-panel highlight">
+    <div class="portal-panel-head">
+        <div>
+            <h2>سجل المساهمات</h2>
+            <p>سجل كامل لجميع مساهماتك ومراحل التنفيذ والصرف والأثر.</p>
+        </div>
+        <a class="portal-btn" href="/Portal/Donor/Programs">دعم برنامج جديد</a>
+    </div>
+
+    <div class="portal-grid compact">
+        <article class="portal-mini-stat"><span>إجمالي الدعم</span><strong>@totalAmount.ToString("N2") ر.س</strong></article>
+        <article class="portal-mini-stat"><span>المصروف</span><strong>@totalSpent.ToString("N2") ر.س</strong></article>
+        <article class="portal-mini-stat"><span>المتبقي</span><strong>@totalRemaining.ToString("N2") ر.س</strong></article>
+        <article class="portal-mini-stat"><span>المستفيدون</span><strong>@beneficiariesCount</strong></article>
+    </div>
+</section>
+
+<section class="portal-panel">
+    <div class="portal-filter-bar">
+        <a class="@(string.IsNullOrWhiteSpace(selectedStatus) ? "is-current" : "")" href="/Portal/Donor/Contributions">الكل</a>
+        <a class="@(selectedStatus == "بانتظار الاعتماد" ? "is-current" : "")" href="/Portal/Donor/Contributions?status=بانتظار الاعتماد">بانتظار الاعتماد</a>
+        <a class="@(selectedStatus == "قيد التنفيذ" ? "is-current" : "")" href="/Portal/Donor/Contributions?status=قيد التنفيذ">قيد التنفيذ</a>
+        <a class="@(selectedStatus == "مستمر" ? "is-current" : "")" href="/Portal/Donor/Contributions?status=مستمر">مستمر</a>
+        <a class="@(selectedStatus == "مكتمل" ? "is-current" : "")" href="/Portal/Donor/Contributions?status=مكتمل">مكتمل</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="portal-empty">لا توجد مساهمات مطابقة للفلتر الحالي.</div>
+    }
+    else
+    {
+        <div class="portal-table-wrap">
+            <table class="portal-table">
+                <thead>
+                    <tr>
+                        <th>المساهمة</th>
+                        <th>البرنامج</th>
+                        <th>الحالة</th>
+                        <th>نسبة الإنجاز</th>
+                        <th>إجمالي الدعم</th>
+                        <th>المصروف</th>
+                        <th>المتبقي</th>
+                        <th>الشهادة</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Title</strong>كود الدعم:<small dir="ltr">@(string.IsNullOrWhiteSpace(item.ContributionCode) ? "بانتظار التكويد" : item.ContributionCode)</small>
+                                <small>@item.CreatedAt.ToString("yyyy/MM/dd")</small>
+                            </td>
+                            <td>@(item.ProgramProject?.Title ?? "غير مرتبط")</td>
+                            <td><span class="portal-badge">@item.Status</span></td>
+                            <td>
+                                <div class="portal-progress"><span style="width:@item.ProgressPercent%"></span></div>
+                                <small>@item.ProgressPercent%</small>
+                            </td>
+                            <td>@item.TotalAmount.ToString("N2") ر.س</td>
+                            <td>@item.SpentAmount.ToString("N2") ر.س</td>
+                            <td>@item.RemainingAmount.ToString("N2") ر.س</td>
+                            <td>
+                                @if (item.Certificate != null)
+                                {
+                                    <a class="portal-link" href="/Portal/Donor/Contributions/Certificate/@item.Id" target="_blank" rel="noopener noreferrer">شهادة عطاء</a>
+                                }
+                                else
+                                {
+                                    <small>لم تصدر بعد</small>
+                                }
+                            </td>
+                            <td><a class="portal-link" href="/Portal/Donor/Contributions/Details/@item.Id">عرض</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+

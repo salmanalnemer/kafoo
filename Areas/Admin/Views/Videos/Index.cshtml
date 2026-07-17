@@ -1,0 +1,117 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.VideoLibraryItem>
+
+@{
+    ViewData["Title"] = "إدارة مكتبة الفيديو";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="video-admin-page">
+
+    <div class="video-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>إدارة مكتبة الفيديو</h1>
+            <p>إضافة وتعديل مقاطع الفيديو والتحكم في ظهورها بالموقع.</p>
+        </div>
+
+        <div class="video-admin-actions">
+            <a href="/Videos" target="_blank" rel="noopener noreferrer">معاينة المكتبة</a>
+            <a class="primary" href="/Admin/Videos/Create">إضافة فيديو جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="video-admin-filter">
+        <form method="get" action="/Admin/Videos">
+            <input name="q" value="@search" placeholder="ابحث بعنوان الفيديو أو التصنيف..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/Videos">مسح</a>
+        </form>
+    </div>
+
+    <div class="video-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="video-admin-empty">
+                <h3>لا توجد فيديوهات حالياً</h3>
+                <p>ابدأ بإضافة أول فيديو من زر إضافة فيديو جديد.</p>
+            </div>
+        }
+        else
+        {
+            <div class="video-admin-table-wrap">
+                <table class="video-admin-table">
+                    <thead>
+                        <tr>
+                            <th>المعاينة</th>
+                            <th>عنوان الفيديو</th>
+                            <th>المصدر</th>
+                            <th>التصنيف</th>
+                            <th>تاريخ النشر</th>
+                            <th>مميز</th>
+                            <th>الحالة</th>
+                            <th>الترتيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.ThumbnailPath))
+                                    {
+                                        <img class="video-admin-thumb" src="@item.ThumbnailPath" alt="@item.Title" />
+                                    }
+                                    else
+                                    {
+                                        <div class="video-admin-no-image">فيديو</div>
+                                    }
+                                </td>
+
+                                <td class="video-admin-title-cell">
+                                    <strong>@item.Title</strong>
+                                    <span>@item.Description</span>
+                                </td>
+
+                                <td>@(item.VideoSourceType == "Upload" ? "رفع ملف" : "YouTube")</td>
+                                <td>@item.Category</td>
+                                <td>@item.PublishedAt.ToString("yyyy/MM/dd")</td>
+                                <td>@(item.IsFeatured ? "نعم" : "لا")</td>
+                                <td>
+                                    <span class="video-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+                                <td>@item.DisplayOrder</td>
+
+                                <td>
+                                    <div class="video-admin-row-actions">
+                                        <a href="/Videos/Details/@item.Id" target="_blank" rel="noopener noreferrer">عرض</a>
+                                        <a href="/Admin/Videos/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/Videos/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/Videos/Delete/@item.Id" data-confirm="هل تريد حذف هذا الفيديو؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

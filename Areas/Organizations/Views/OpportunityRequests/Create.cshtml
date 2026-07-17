@@ -1,0 +1,278 @@
+﻿@model Kafo.Web.ViewModels.Organizations.OpportunityRequestFormViewModel
+@{
+    ViewData["Title"] = "طلب استقطاب جديد";
+}
+
+<link rel="stylesheet" href="~/css/organization-opportunity-request.css" asp-append-version="true" />
+
+<section class="portal-panel org-request-shell">
+    <div class="org-request-card">
+        <div class="org-request-head">
+            <div>
+                <h2>إضافة طلب استقطاب</h2>
+                <p>أدخل بيانات الفرصة وحدد المتطلبات والراتب ونوع الدوام والإجازة.</p>
+            </div>
+            <span class="org-request-head-badge">طلب جديد</span>
+        </div>
+
+        <div class="org-request-progress-wrap">
+            <div class="org-request-progress" aria-label="مراحل الطلب">
+                <button type="button" class="org-progress-step is-active" data-progress-step="0" tabindex="-1">
+                    <span class="org-progress-number">1</span>
+                    <span class="org-progress-label">بيانات الفرصة</span>
+                </button>
+                <button type="button" class="org-progress-step" data-progress-step="1" tabindex="-1">
+                    <span class="org-progress-number">2</span>
+                    <span class="org-progress-label">العمل والمزايا</span>
+                </button>
+                <button type="button" class="org-progress-step" data-progress-step="2" tabindex="-1">
+                    <span class="org-progress-number">3</span>
+                    <span class="org-progress-label">المؤهلات والملاءمة</span>
+                </button>
+                <button type="button" class="org-progress-step" data-progress-step="3" tabindex="-1">
+                    <span class="org-progress-number">4</span>
+                    <span class="org-progress-label">المراجعة والإرسال</span>
+                </button>
+            </div>
+        </div>
+
+        <form method="post" class="org-request-form" id="opportunityRequestForm">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="org-validation-summary"></div>
+
+            <div class="org-request-step is-active" data-step="0">
+                <div class="org-step-heading">
+                    <h3>بيانات الفرصة الأساسية</h3>
+                    <p>حدد نوع الفرصة والمسمى وعدد الاحتياج ثم أضف وصفًا واضحًا للمهام.</p>
+                </div>
+
+                <div class="org-form-grid">
+                    <div class="org-field">
+                        <label asp-for="OpportunityType">نوع الفرصة</label>
+                        <select asp-for="OpportunityType" required>
+                            <option value="">اختر نوع الفرصة</option>
+                            <option value="توظيف">توظيف</option>
+                            <option value="تدريب تعاوني">تدريب تعاوني</option>
+                            <option value="تطوع">تطوع</option>
+                        </select>
+                        <span asp-validation-for="OpportunityType"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label asp-for="Title">المسمى الوظيفي أو اسم الفرصة</label>
+                        <input asp-for="Title" maxlength="220" required placeholder="مثال: أخصائي خدمة عملاء" />
+                        <span asp-validation-for="Title"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label asp-for="AvailableCount">عدد الفرص المتاحة</label>
+                        <input asp-for="AvailableCount" type="number" min="1" max="10000" required />
+                        <span asp-validation-for="AvailableCount"></span>
+                    </div>
+
+                    <div class="org-field org-span-2">
+                        <label asp-for="Description">الوصف والمهام المطلوبة</label>
+                        <textarea asp-for="Description" rows="6" maxlength="2500" required
+                                  placeholder="اكتب وصف الفرصة والمهام والمسؤوليات المتوقعة..."></textarea>
+                        <span asp-validation-for="Description"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="org-request-step" data-step="1">
+                <div class="org-step-heading">
+                    <h3>مكان العمل والراتب ونوع الدوام</h3>
+                    <p>حدد مقر الفرصة وطبيعة العمل والراتب أو المكافأة والإجازة السنوية.</p>
+                </div>
+
+                <div class="org-form-grid">
+                    <div class="org-field">
+                        <label asp-for="City">المدينة</label>
+                        <input asp-for="City" maxlength="120" placeholder="مثال: الرياض" />
+                        <span asp-validation-for="City"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label asp-for="WorkNature">طبيعة العمل</label>
+                        <select asp-for="WorkNature" required>
+                            <option value="">اختر طبيعة العمل</option>
+                            <option value="حضوري">حضوري</option>
+                            <option value="عن بُعد">عن بُعد</option>
+                            <option value="هجين">هجين</option>
+                        </select>
+                        <span asp-validation-for="WorkNature"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label asp-for="EmploymentType">نوع الدوام</label>
+                        <select asp-for="EmploymentType">
+                            <option value="">اختر نوع الدوام</option>
+                            <option value="دوام كامل">دوام كامل</option>
+                            <option value="دوام جزئي">دوام جزئي</option>
+                            <option value="لا ينطبق">لا ينطبق</option>
+                        </select>
+                        <span asp-validation-for="EmploymentType"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label asp-for="WorkHours">ساعات العمل أو مدة الفرصة</label>
+                        <select asp-for="WorkHours">
+                            <option value="">اختر الساعات أو المدة</option>
+                            <option value="4 ساعات يوميًا">4 ساعات يوميًا</option>
+                            <option value="6 ساعات يوميًا">6 ساعات يوميًا</option>
+                            <option value="8 ساعات يوميًا">8 ساعات يوميًا</option>
+                            <option value="ساعات مرنة">ساعات مرنة</option>
+                            <option value="حسب سياسة الجهة">حسب سياسة الجهة</option>
+                        </select>
+                        <span asp-validation-for="WorkHours"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label asp-for="SalaryAmount">الراتب أو المكافأة الشهرية</label>
+                        <div class="org-input-with-suffix">
+                            <input asp-for="SalaryAmount" type="number" min="0" step="0.01"
+                                   inputmode="decimal" placeholder="مثال: 5000" />
+                            <span>ر.س</span>
+                        </div>
+                        <span asp-validation-for="SalaryAmount"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label asp-for="AnnualLeaveDays">عدد أيام الإجازة السنوية</label>
+                        <select asp-for="AnnualLeaveDays">
+                            <option value="">اختر عدد الأيام</option>
+                            <option value="0">لا ينطبق</option>
+                            <option value="21">21 يومًا</option>
+                            <option value="25">25 يومًا</option>
+                            <option value="30">30 يومًا</option>
+                            <option value="35">35 يومًا</option>
+                            <option value="45">45 يومًا</option>
+                        </select>
+                        <span asp-validation-for="AnnualLeaveDays"></span>
+                    </div>
+
+                    <div class="org-field org-span-2">
+                        <label asp-for="WorkLocation">مقر العمل</label>
+                        <input asp-for="WorkLocation" maxlength="220"
+                               placeholder="اسم المقر أو الحي أو وصف موقع العمل" />
+                        <span asp-validation-for="WorkLocation"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="org-request-step" data-step="2">
+                <div class="org-step-heading">
+                    <h3>المؤهلات والمهارات وأنواع الإعاقة المناسبة</h3>
+                    <p>اختر المتطلبات من القوائم بدلًا من كتابتها يدويًا.</p>
+                </div>
+
+                <div class="org-form-grid">
+                    <div class="org-field">
+                        <label asp-for="Qualifications">المؤهل المطلوب</label>
+                        <select asp-for="Qualifications">
+                            <option value="">اختر المؤهل</option>
+                            <option value="لا يشترط مؤهل">لا يشترط مؤهل</option>
+                            <option value="ابتدائي">ابتدائي</option>
+                            <option value="متوسط">متوسط</option>
+                            <option value="ثانوي">ثانوي</option>
+                            <option value="دبلوم">دبلوم</option>
+                            <option value="بكالوريوس">بكالوريوس</option>
+                            <option value="ماجستير">ماجستير</option>
+                            <option value="دكتوراه">دكتوراه</option>
+                        </select>
+                        <span asp-validation-for="Qualifications"></span>
+                    </div>
+
+                    <div class="org-field">
+                        <label>المهارات المطلوبة</label>
+                        <input asp-for="Skills" type="hidden" />
+                        <div class="org-multi-select" data-multi-select data-target="Skills">
+                            <button type="button" class="org-multi-select-toggle" aria-expanded="false">
+                                <span data-selection-label>اختر المهارات</span>
+                                <span class="org-chevron">⌄</span>
+                            </button>
+                            <div class="org-multi-select-menu">
+                                <label><input type="checkbox" value="استخدام الحاسب" /> استخدام الحاسب</label>
+                                <label><input type="checkbox" value="إدخال البيانات" /> إدخال البيانات</label>
+                                <label><input type="checkbox" value="التواصل الفعال" /> التواصل الفعال</label>
+                                <label><input type="checkbox" value="خدمة العملاء" /> خدمة العملاء</label>
+                                <label><input type="checkbox" value="العمل ضمن فريق" /> العمل ضمن فريق</label>
+                                <label><input type="checkbox" value="إدارة الوقت" /> إدارة الوقت</label>
+                                <label><input type="checkbox" value="اللغة الإنجليزية" /> اللغة الإنجليزية</label>
+                                <label><input type="checkbox" value="المبيعات" /> المبيعات</label>
+                                <label><input type="checkbox" value="التصميم" /> التصميم</label>
+                                <label><input type="checkbox" value="البرمجة" /> البرمجة</label>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Skills"></span>
+                    </div>
+
+                    <div class="org-field org-span-2">
+                        <label>أنواع الإعاقة المناسبة</label>
+                        <input asp-for="SuitableDisabilityTypes" type="hidden" />
+                        <div class="org-multi-select" data-multi-select data-target="SuitableDisabilityTypes">
+                            <button type="button" class="org-multi-select-toggle" aria-expanded="false">
+                                <span data-selection-label>اختر الفئات المناسبة</span>
+                                <span class="org-chevron">⌄</span>
+                            </button>
+                            <div class="org-multi-select-menu org-multi-select-menu-grid">
+                                <label><input type="checkbox" value="إعاقة حركية" /> إعاقة حركية</label>
+                                <label><input type="checkbox" value="إعاقة سمعية" /> إعاقة سمعية</label>
+                                <label><input type="checkbox" value="إعاقة بصرية" /> إعاقة بصرية</label>
+                                <label><input type="checkbox" value="إعاقة ذهنية بسيطة" /> إعاقة ذهنية بسيطة</label>
+                                <label><input type="checkbox" value="صعوبات تعلم" /> صعوبات تعلم</label>
+                                <label><input type="checkbox" value="اضطراب طيف التوحد" /> اضطراب طيف التوحد</label>
+                                <label><input type="checkbox" value="نطق وتخاطب" /> نطق وتخاطب</label>
+                                <label><input type="checkbox" value="أمراض مزمنة" /> أمراض مزمنة</label>
+                                <label class="org-select-all-option">
+                                    <input type="checkbox" value="جميع الفئات المناسبة" data-select-all />
+                                    جميع الفئات المناسبة
+                                </label>
+                            </div>
+                        </div>
+                        <span asp-validation-for="SuitableDisabilityTypes"></span>
+                        <small class="org-field-hint">يمكن اختيار أكثر من فئة من القائمة.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="org-request-step" data-step="3">
+                <div class="org-step-heading">
+                    <h3>مراجعة الطلب قبل الإرسال</h3>
+                    <p>راجع البيانات ثم اضغط إرسال الطلب.</p>
+                </div>
+
+                <div class="org-review-grid">
+                    <div class="org-review-item"><span>نوع الفرصة</span><strong id="reviewOpportunityType">—</strong></div>
+                    <div class="org-review-item"><span>المسمى</span><strong id="reviewTitle">—</strong></div>
+                    <div class="org-review-item"><span>عدد الفرص</span><strong id="reviewAvailableCount">—</strong></div>
+                    <div class="org-review-item"><span>المدينة</span><strong id="reviewCity">—</strong></div>
+                    <div class="org-review-item"><span>طبيعة العمل</span><strong id="reviewWorkNature">—</strong></div>
+                    <div class="org-review-item"><span>نوع الدوام</span><strong id="reviewEmploymentType">—</strong></div>
+                    <div class="org-review-item"><span>الراتب/المكافأة</span><strong id="reviewSalaryAmount">—</strong></div>
+                    <div class="org-review-item"><span>الإجازة السنوية</span><strong id="reviewAnnualLeaveDays">—</strong></div>
+                    <div class="org-review-item"><span>ساعات العمل</span><strong id="reviewWorkHours">—</strong></div>
+                    <div class="org-review-item"><span>المؤهل</span><strong id="reviewQualifications">—</strong></div>
+                    <div class="org-review-item org-span-2"><span>المهارات</span><strong id="reviewSkills">—</strong></div>
+                    <div class="org-review-item org-span-2"><span>أنواع الإعاقة المناسبة</span><strong id="reviewSuitableDisabilityTypes">—</strong></div>
+                    <div class="org-review-item org-span-2"><span>مقر العمل</span><strong id="reviewWorkLocation">—</strong></div>
+                    <div class="org-review-item org-span-2"><span>الوصف والمهام</span><strong id="reviewDescription">—</strong></div>
+                </div>
+            </div>
+
+            <div class="org-request-actions">
+                <a class="org-btn org-btn-light" href="/Organizations/OpportunityRequests">إلغاء والرجوع</a>
+                <div class="org-action-group">
+                    <button type="button" class="org-btn org-btn-light" id="previousStepButton" disabled>السابق</button>
+                    <button type="button" class="org-btn org-btn-primary" id="nextStepButton">التالي</button>
+                    <button type="submit" class="org-btn org-btn-submit" id="submitRequestButton" data-loading-text="جاري إرسال الطلب...">إرسال الطلب</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/organization-opportunity-request.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,87 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.Slider>
+
+@{
+    ViewData["Title"] = "إدارة السلايدر";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>قلب الواجهة الرئيسية</span>
+        <h1>إدارة السلايدر الرئيسي</h1>
+        <p>يمكنك إضافة صورة فقط، أو إضافة صورة مع عنوان ووصف وزر.</p>
+    </div>
+
+    <a class="admin-main-action" href="/Admin/Sliders/Create">إضافة سلايدر جديد</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="admin-card">
+    <div class="slider-admin-list">
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <h2>لا توجد سلايدات حتى الآن</h2>
+                <p>ابدأ بإضافة أول صورة للسلايدر الرئيسي.</p>
+                <a href="/Admin/Sliders/Create">إضافة سلايدر</a>
+            </div>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <article class="slider-admin-item">
+                    <img src="@item.ImagePath" alt="@(string.IsNullOrWhiteSpace(item.Title) ? "سلايدر جمعية كفو" : item.Title)" />
+
+                    <div class="slider-admin-info">
+                        <div class="slider-admin-title">
+                            <h2>@(string.IsNullOrWhiteSpace(item.Title) ? "سلايدر بدون عنوان" : item.Title)</h2>
+
+                            @if (item.IsActive)
+                            {
+                                <span class="status-badge active">مفعل</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge inactive">غير مفعل</span>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(item.Description))
+                        {
+                            <p>@item.Description</p>
+                        }
+                        else
+                        {
+                            <p>لا يوجد وصف.</p>
+                        }
+
+                        <div class="slider-meta">
+                            <span>الترتيب: @item.DisplayOrder</span>
+                            <span>تاريخ الإضافة: @item.CreatedAt.ToString("yyyy/MM/dd")</span>
+                        </div>
+
+                        <div class="slider-admin-actions">
+                            <a class="admin-small-btn purple" href="/Admin/Sliders/Edit/@item.Id">تعديل</a>
+
+                            <form method="post" action="/Admin/Sliders/ToggleStatus/@item.Id">
+                                @Html.AntiForgeryToken()
+                                <button class="admin-small-btn green" type="submit">
+                                    @(item.IsActive ? "إلغاء التفعيل" : "تفعيل")
+                                </button>
+                            </form>
+
+                            <form method="post" action="/Admin/Sliders/Delete/@item.Id" data-confirm="هل أنت متأكد من حذف السلايدر؟">
+                                @Html.AntiForgeryToken()
+                                <button class="admin-small-btn danger" type="submit">حذف</button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            }
+        }
+    </div>
+</div>

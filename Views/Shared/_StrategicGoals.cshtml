@@ -1,0 +1,41 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.StrategicGoal>
+
+<section class="strategic-section strategic-section-final">
+    <div class="home-container">
+        <div class="section-head">
+            <span>أهدافنا</span>
+            <h2>أهدافنا الاستراتيجية</h2>
+            <p>نعمل وفق أهداف واضحة لتعزيز الأثر وتمكين المستفيدين وتحقيق الاستدامة.</p>
+        </div>
+
+        <div class="goals-grid goals-grid-final">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <article class="goal-card goal-card-final">
+                        <div class="goal-icon goal-icon-final">
+                            @if (!string.IsNullOrWhiteSpace(item.Icon) && item.Icon.StartsWith("fa-"))
+                            {
+                                <i class="@item.Icon"></i>
+                            }
+                            else
+                            {
+                                <span>@(string.IsNullOrWhiteSpace(item.Icon) ? "✓" : item.Icon)</span>
+                            }
+                        </div>
+
+                        <h3>@item.Title</h3>
+                        <p>@item.Description</p>
+                    </article>
+                }
+            }
+            else
+            {
+                <article class="goal-card goal-card-final"><div class="goal-icon goal-icon-final"><span>✓</span></div><h3>التمكين</h3><p>تمكين المستفيدين من الوصول للفرص المناسبة.</p></article>
+                <article class="goal-card goal-card-final"><div class="goal-icon goal-icon-final"><span>✓</span></div><h3>الاستدامة</h3><p>بناء برامج مستدامة ذات أثر مجتمعي واضح.</p></article>
+                <article class="goal-card goal-card-final"><div class="goal-icon goal-icon-final"><span>✓</span></div><h3>الشراكات</h3><p>تعزيز الشراكات مع القطاعات المختلفة.</p></article>
+            }
+        </div>
+    </div>
+</section>

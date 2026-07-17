@@ -1,0 +1,60 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.SuccessPartner>
+
+@{
+    ViewData["Title"] = "شركاء النجاح";
+}
+
+<section class="partners-public-page">
+    <div class="home-container">
+
+        <div class="partners-public-head">
+            <span>المركز الإعلامي</span>
+            <h1>شركاء النجاح</h1>
+            <p>نفخر بشركائنا الذين ساهموا في تمكين أعمال الجمعية وخدمة المستفيدين.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="partners-public-empty">
+                <h3>لا يوجد شركاء حالياً</h3>
+                <p>سيتم عرض شركاء النجاح هنا عند إضافتهم من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="partners-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="partners-public-card">
+                        <div class="partners-logo-box">
+                            @if (!string.IsNullOrWhiteSpace(item.LogoPath))
+                            {
+                                <img src="@item.LogoPath" alt="@item.Name" />
+                            }
+                            else
+                            {
+                                <strong>@item.Name</strong>
+                            }
+                        </div>
+
+                        <div class="partners-public-content">
+                            <span>@item.PartnerType</span>
+                            <h2>@item.Name</h2>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p>@item.Description</p>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.WebsiteUrl))
+                            {
+                                <a href="@item.WebsiteUrl" target="_blank" rel="noopener noreferrer">زيارة موقع الشريك</a>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

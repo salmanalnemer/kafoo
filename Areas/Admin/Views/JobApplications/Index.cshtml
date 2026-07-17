@@ -1,0 +1,130 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.JobApplication>
+
+@{
+    ViewData["Title"] = "طلبات التوظيف";
+    var search = ViewBag.Search as string ?? "";
+    var status = ViewBag.Status as string ?? "";
+}
+
+<div class="ja-admin-page">
+
+    <div class="ja-admin-hero">
+        <div>
+            <span>التطوع والتوظيف</span>
+            <h1>طلبات التوظيف</h1>
+            <p>متابعة طلبات التوظيف والسير الذاتية المرسلة من زوار الموقع.</p>
+        </div>
+
+        <div class="ja-admin-actions">
+            <a href="/JobApplications" target="_blank" rel="noopener noreferrer">معاينة صفحة التقديم</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="ja-admin-filter">
+        <form method="get" action="/Admin/JobApplications">
+            <input name="q" value="@search" placeholder="ابحث بالاسم أو الجوال أو البريد أو المسمى الوظيفي..." />
+
+            <select name="status">
+                <option value="">كل الحالات</option>
+                @if (status == "جديد") { <option value="جديد" selected>جديد</option> } else { <option value="جديد">جديد</option> }
+                @if (status == "قيد المراجعة") { <option value="قيد المراجعة" selected>قيد المراجعة</option> } else { <option value="قيد المراجعة">قيد المراجعة</option> }
+                @if (status == "مقبول مبدئياً") { <option value="مقبول مبدئياً" selected>مقبول مبدئياً</option> } else { <option value="مقبول مبدئياً">مقبول مبدئياً</option> }
+                @if (status == "مرفوض") { <option value="مرفوض" selected>مرفوض</option> } else { <option value="مرفوض">مرفوض</option> }
+            </select>
+
+            <button type="submit">بحث</button>
+            <a href="/Admin/JobApplications">مسح</a>
+        </form>
+    </div>
+
+    <div class="ja-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="ja-admin-empty">
+                <h3>لا توجد طلبات توظيف حالياً</h3>
+                <p>ستظهر الطلبات هنا بعد إرسالها من صفحة التقديم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="ja-admin-table-wrap">
+                <table class="ja-admin-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>المتقدم</th>
+                            <th>الجوال</th>
+                            <th>البريد</th>
+                            <th>المدينة</th>
+                            <th>الوظيفة المطلوبة</th>
+                            <th>المؤهل</th>
+                            <th>الخبرة</th>
+                            <th>الحالة</th>
+                            <th>تاريخ التقديم</th>
+                            <th>السيرة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.IsRead ? "" : "ja-unread-row")">
+                                <td>#@item.Id</td>
+
+                                <td class="ja-title-cell">
+                                    <strong>@item.FullName</strong>
+                                    @if (!item.IsRead)
+                                    {
+                                        <span>طلب جديد</span>
+                                    }
+                                </td>
+
+                                <td dir="ltr">@item.Phone</td>
+                                <td dir="ltr">@item.Email</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.City) ? "-" : item.City)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.DesiredJobTitle) ? "-" : item.DesiredJobTitle)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Qualification) ? "-" : item.Qualification)</td>
+                                <td>@item.ExperienceYears سنة</td>
+
+                                <td>
+                                    <span class="ja-status">@item.Status</span>
+                                </td>
+
+                                <td>@item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.CvFilePath))
+                                    {
+                                        <a class="ja-file-link" href="@item.CvFilePath" target="_blank" rel="noopener noreferrer" download>تحميل</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="ja-admin-row-actions">
+                                        <a href="/Admin/JobApplications/Details/@item.Id">تفاصيل</a>
+
+                                        <form method="post" action="/Admin/JobApplications/Delete/@item.Id" data-confirm="هل تريد حذف طلب التوظيف؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

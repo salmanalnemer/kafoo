@@ -1,0 +1,96 @@
+@model IReadOnlyList<Kafo.Web.Security.AdminPageDefinition>
+
+@{
+    ViewData["Title"] = "صلاحيات صفحات المشرف";
+    var adminUser = ViewBag.AdminUser as Kafo.Web.Models.AdminUser;
+    var allowedPaths = ViewBag.AllowedPaths as List<string> ?? new List<string>();
+    var groups = Model.GroupBy(x => x.SectionName).ToList();
+}
+
+<div class="adm-users-page">
+    <div class="adm-users-hero">
+        <div>
+            <span>مستخدمي لوحة التحكم</span>
+            <h1>صلاحيات: @adminUser?.FullName</h1>
+            <p>حدد صفحات لوحة التحكم التي يستطيع المشرف الوصول إليها. إعدادات حسابه متاحة له دائمًا، أما لوحة المعلومات وبقية الصفحات فتُحدد من القائمة أدناه.</p>
+        </div>
+
+        <div class="adm-users-actions">
+            <a href="/Admin/Users">رجوع للمستخدمين</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <form method="post" action="/Admin/Users/Permissions/@adminUser?.Id" class="perm-form">
+        @Html.AntiForgeryToken()
+
+        <div class="perm-toolbar">
+            <button type="button" data-permissions-select-all>تحديد الكل</button>
+            <button type="button" data-permissions-clear-all>إلغاء الكل</button>
+            <button type="submit" class="primary">حفظ الصلاحيات</button>
+        </div>
+
+        <div class="perm-grid">
+            @foreach (var group in groups)
+            {
+                <section class="perm-card">
+                    <h2>@group.Key</h2>
+
+                    <div class="perm-list">
+                        @foreach (var permissionPage in group)
+                        {
+                            var isChecked = allowedPaths.Contains(permissionPage.PagePath, StringComparer.OrdinalIgnoreCase);
+
+                            <label>
+                                <input type="checkbox"
+                                       name="allowedPaths"
+                                       value="@permissionPage.PagePath"
+                                       checked="@(isChecked ? "checked" : null)" />
+                                <span>
+                                    <strong>@permissionPage.PageName</strong>
+                                    <small dir="ltr">@permissionPage.PagePath</small>
+                                </span>
+                            </label>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+
+        <div class="perm-save-bottom">
+            <button type="submit">حفظ صلاحيات الصفحات</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var form = document.querySelector('.perm-form');
+            if (!form) return;
+
+            var checkboxes = function () {
+                return form.querySelectorAll('input[type="checkbox"][name="allowedPaths"]');
+            };
+
+            var selectAll = form.querySelector('[data-permissions-select-all]');
+            var clearAll = form.querySelector('[data-permissions-clear-all]');
+
+            if (selectAll) {
+                selectAll.addEventListener('click', function () {
+                    checkboxes().forEach(function (item) { item.checked = true; });
+                });
+            }
+
+            if (clearAll) {
+                clearAll.addEventListener('click', function () {
+                    checkboxes().forEach(function (item) { item.checked = false; });
+                });
+            }
+        })();
+    </script>
+}

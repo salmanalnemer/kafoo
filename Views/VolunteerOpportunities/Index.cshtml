@@ -1,0 +1,89 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.VolunteerOpportunity>
+
+@{
+    ViewData["Title"] = "الفرص التطوعية";
+}
+
+<section class="vo-public-page">
+    <div class="home-container">
+
+        <div class="vo-public-head">
+            <span>التطوع والتوظيف</span>
+            <h1>الفرص التطوعية</h1>
+            <p>شارك بعطائك من خلال الفرص التطوعية المتاحة في الجمعية.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="vo-public-empty">
+                <h3>لا توجد فرص تطوعية حالياً</h3>
+                <p>سيتم عرض الفرص التطوعية هنا عند إضافتها من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="vo-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="vo-public-card">
+                        <div class="vo-card-image">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <strong>تطوع</strong>
+                            }
+
+                            @if (item.IsFeatured)
+                            {
+                                <b>مميزة</b>
+                            }
+                        </div>
+
+                        <div class="vo-card-content">
+                            <span>@item.OpportunityType</span>
+                            <h2>@item.Title</h2>
+
+                            <div class="vo-card-meta">
+                                <small>الموقع: @(item.IsRemote ? "عن بعد" : (string.IsNullOrWhiteSpace(item.Location) ? "-" : item.Location))</small>
+                                <small>الساعات: @item.VolunteerHours ساعة</small>
+                                <small>المقاعد: @item.SeatsCount</small>
+
+                                @if (item.StartDate.HasValue)
+                                {
+                                    <small>تبدأ: @item.StartDate.Value.ToString("yyyy/MM/dd")</small>
+                                }
+
+                                @if (item.EndDate.HasValue)
+                                {
+                                    <small>تنتهي: @item.EndDate.Value.ToString("yyyy/MM/dd")</small>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p>@item.Description</p>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.Requirements))
+                            {
+                                <div class="vo-requirements">
+                                    <strong>المتطلبات:</strong>
+                                    <span>@item.Requirements</span>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.RegistrationUrl))
+                            {
+                                <a href="@item.RegistrationUrl" target="_blank" rel="noopener noreferrer" class="vo-register-btn">التسجيل في الفرصة</a>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

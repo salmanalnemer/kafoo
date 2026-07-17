@@ -1,0 +1,98 @@
+﻿@model Kafo.Web.Models.FeedbackEntry
+
+@{
+    ViewData["Title"] = "تفاصيل التغذية الراجعة";
+}
+
+<div class="fb-admin-page">
+
+    <div class="fb-admin-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>تفاصيل التغذية الراجعة #@Model.Id</h1>
+            <p>مراجعة الملاحظة أو المقترح وتحديث حالته.</p>
+        </div>
+
+        <div class="fb-admin-actions">
+            <a href="/Admin/Feedback">رجوع للتغذية الراجعة</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="fb-details-grid">
+        <div class="fb-details-card">
+            <h2>بيانات المرسل</h2>
+
+            <dl>
+                <dt>الاسم</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.FullName) ? "غير محدد" : Model.FullName)</dd>
+
+                <dt>الجوال</dt>
+                <dd dir="ltr">@(string.IsNullOrWhiteSpace(Model.Phone) ? "-" : Model.Phone)</dd>
+
+                <dt>البريد</dt>
+                <dd dir="ltr">@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
+
+                <dt>النوع</dt>
+                <dd>@Model.FeedbackType</dd>
+
+                <dt>الخدمة المرتبطة</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.RelatedService) ? "-" : Model.RelatedService)</dd>
+
+                <dt>العنوان</dt>
+                <dd>@Model.Subject</dd>
+
+                <dt>التقييم</dt>
+                <dd>@Model.Rating / 5</dd>
+
+                <dt>الحالة</dt>
+                <dd>@Model.Status</dd>
+
+                <dt>تاريخ الإرسال</dt>
+                <dd>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</dd>
+            </dl>
+        </div>
+
+        <div class="fb-details-card">
+            <h2>إدارة الرد</h2>
+
+            <div class="fb-files-box">
+                @if (!string.IsNullOrWhiteSpace(Model.AttachmentPath))
+                {
+                    <a href="@Model.AttachmentPath" target="_blank" rel="noopener noreferrer" download>تحميل المرفق</a>
+                }
+                else
+                {
+                    <span>لا يوجد مرفق</span>
+                }
+            </div>
+
+            <form method="post" action="/Admin/Feedback/UpdateStatus/@Model.Id" class="fb-status-form">
+                @Html.AntiForgeryToken()
+
+                <label>حالة التغذية الراجعة</label>
+                <select name="status">
+                    @if (Model.Status == "جديدة") { <option value="جديدة" selected>جديدة</option> } else { <option value="جديدة">جديدة</option> }
+                    @if (Model.Status == "قيد المعالجة") { <option value="قيد المعالجة" selected>قيد المعالجة</option> } else { <option value="قيد المعالجة">قيد المعالجة</option> }
+                    @if (Model.Status == "تمت المراجعة") { <option value="تمت المراجعة" selected>تمت المراجعة</option> } else { <option value="تمت المراجعة">تمت المراجعة</option> }
+                    @if (Model.Status == "مغلقة") { <option value="مغلقة" selected>مغلقة</option> } else { <option value="مغلقة">مغلقة</option> }
+                </select>
+
+                <label>ملاحظات الإدارة</label>
+                <textarea name="adminNotes" rows="6">@Model.AdminNotes</textarea>
+
+                <button type="submit">حفظ الحالة</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="fb-details-card">
+        <h2>نص التغذية الراجعة</h2>
+        <p>@Model.FeedbackBody</p>
+    </div>
+
+</div>

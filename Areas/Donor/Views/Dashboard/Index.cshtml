@@ -1,0 +1,91 @@
+@model DonorDashboardViewModel
+@{
+    ViewData["Title"] = "لوحة الداعم";
+}
+
+<section class="portal-grid stats">
+    <article class="portal-stat"><span>إجمالي الدعم</span><strong>@Model.TotalAmount.ToString("N2") ر.س</strong></article>
+    <article class="portal-stat"><span>المصروف</span><strong>@Model.TotalSpent.ToString("N2") ر.س</strong></article>
+    <article class="portal-stat"><span>المتبقي</span><strong>@Model.TotalRemaining.ToString("N2") ر.س</strong></article>
+    <article class="portal-stat"><span>عدد المستفيدين</span><strong>@Model.BeneficiariesCount</strong></article>
+    <article class="portal-stat"><span>البرامج المدعومة</span><strong>@Model.ProgramsCount</strong></article>
+    <article class="portal-stat"><span>متوسط الإنجاز</span><strong>@Model.AverageProgress.ToString("N0")%</strong></article>
+</section>
+
+<section class="portal-panel">
+    <div class="portal-panel-head">
+        <div>
+            <h2>آخر المساهمات</h2>
+            <p>متابعة حالة المشروع والصرف والأثر المتحقق.</p>
+        </div>
+        <a class="portal-btn" href="/Donor/Contributions">عرض الكل</a>
+    </div>
+
+    @if (!Model.LatestContributions.Any())
+    {
+        <div class="portal-empty">لا توجد مساهمات مرتبطة بحسابك حتى الآن.</div>
+    }
+    else
+    {
+        <div class="portal-table-wrap">
+            <table class="portal-table">
+                <thead>
+                    <tr>
+                        <th>المشروع</th>
+                        <th>الحالة</th>
+                        <th>الإنجاز</th>
+                        <th>المبلغ</th>
+                        <th>المتبقي</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.LatestContributions)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Title</strong>
+                                <small>@item.ProgramProject?.Title</small>
+                            </td>
+                            <td><span class="portal-badge">@item.Status</span></td>
+                            <td>
+                                <div class="portal-progress"><span style="width:@item.ProgressPercent%"></span></div>
+                                <small>@item.ProgressPercent%</small>
+                            </td>
+                            <td>@item.TotalAmount.ToString("N2") ر.س</td>
+                            <td>@item.RemainingAmount.ToString("N2") ر.س</td>
+                            <td><a class="portal-link" href="/Donor/Contributions/Details/@item.Id">التفاصيل</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="portal-panel">
+    <div class="portal-panel-head">
+        <div>
+            <h2>الإشعارات والتحديثات</h2>
+            <p>عدد الإشعارات غير المقروءة: @Model.UnreadNotificationsCount</p>
+        </div>
+    </div>
+
+    @if (!Model.LatestNotifications.Any())
+    {
+        <div class="portal-empty">لا توجد إشعارات حالية.</div>
+    }
+    else
+    {
+        <div class="portal-timeline">
+            @foreach (var notification in Model.LatestNotifications)
+            {
+                <article>
+                    <strong>@notification.Title</strong>
+                    <p>@notification.Message</p>
+                    <small>@notification.CreatedAt.ToString("yyyy/MM/dd HH:mm")</small>
+                </article>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,170 @@
+﻿@model Kafo.Web.Models.BeneficiaryDataUpdatePage
+@using Kafo.Web.Models
+
+@{
+    ViewData["Title"] = "تحديث بيانات المستفيدين";
+    var requirements = ViewBag.Requirements as IReadOnlyList<BeneficiaryDataUpdateRequirement> ?? new List<BeneficiaryDataUpdateRequirement>();
+
+    string GetYoutubeEmbedUrl(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return "";
+
+        var value = url.Trim();
+
+        if (value.Contains("youtube.com/embed/"))
+            return value;
+
+        if (value.Contains("youtu.be/"))
+        {
+            var id = value.Split("youtu.be/").Last().Split("?").First().Trim('/');
+            return $"https://www.youtube.com/embed/{id}";
+        }
+
+        if (value.Contains("watch?v="))
+        {
+            var id = value.Split("watch?v=").Last().Split("&").First();
+            return $"https://www.youtube.com/embed/{id}";
+        }
+
+        return value;
+    }
+
+    string CleanWhatsAppNumber(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "";
+
+        var digits = new string(value.Where(char.IsDigit).ToArray());
+
+        if (digits.StartsWith("05"))
+            digits = "966" + digits.Substring(1);
+
+        if (digits.StartsWith("5") && digits.Length == 9)
+            digits = "966" + digits;
+
+        return digits;
+    }
+
+    string SafeUrl(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
+    }
+
+    var embedUrl = GetYoutubeEmbedUrl(Model.YoutubeUrl);
+
+    var primaryUrl = SafeUrl(Model.PrimaryButtonUrl, "/ServiceLinks");
+    var secondaryUrl = SafeUrl(Model.SecondaryButtonUrl, "/ServiceLinks");
+
+    var primaryTarget = Model.OpenPrimaryInNewTab && !primaryUrl.StartsWith("/") ? "_blank" : "_self";
+
+    var whatsappNumber = CleanWhatsAppNumber(Model.WhatsAppNumber);
+    var whatsappUrl = !string.IsNullOrWhiteSpace(whatsappNumber)
+        ? $"https://wa.me/{whatsappNumber}?text={Uri.EscapeDataString(Model.WhatsAppMessage ?? "")}"
+        : "";
+
+    var hasWhatsapp = Model.ShowWhatsAppButton && !string.IsNullOrWhiteSpace(whatsappUrl);
+}
+
+<section class="bdu-ref-page bdu-ref-page-inline">
+    <div class="home-container">
+
+        <div class="bdu-ref-head">
+            <span>@Model.Subtitle</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+        </div>
+
+        <div class="bdu-ref-inline-grid">
+
+            <main class="bdu-ref-docs-panel">
+                <div class="bdu-ref-docs-title">
+                    <h2>المستندات المطلوب إرفاقها</h2>
+                    <span></span>
+                </div>
+
+                <div class="bdu-ref-docs-list">
+                    @foreach (var item in requirements)
+                    {
+                        <article class="bdu-ref-doc-item">
+                            <div class="bdu-ref-doc-icon">@item.Icon</div>
+                            <strong>@item.Title</strong>
+                        </article>
+                    }
+                </div>
+            </main>
+
+            <section class="bdu-ref-video-side">
+                <div class="bdu-ref-video-title">
+                    <span>فيديو إرشادي</span>
+                    <h2>شرح طريقة تحديث البيانات</h2>
+                </div>
+
+                <div class="bdu-ref-video-frame">
+                    @if (Model.VideoSourceType == "Upload" && !string.IsNullOrWhiteSpace(Model.VideoPath))
+                    {
+                        <video controls preload="metadata">
+                            <source src="@Model.VideoPath" />
+                            المتصفح لا يدعم تشغيل الفيديو.
+                        </video>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(embedUrl))
+                    {
+                        <iframe src="@embedUrl" title="شرح تحديث بيانات المستفيدين" allowfullscreen></iframe>
+                    }
+                    else
+                    {
+                        <div class="bdu-ref-video-empty">
+                            <strong>لم يتم إضافة فيديو بعد</strong>
+                            <span>يمكن إضافة رابط YouTube أو رفع فيديو من لوحة التحكم.</span>
+                        </div>
+                    }
+                </div>
+            </section>
+
+            <aside class="bdu-ref-actions-panel">
+
+                <div class="bdu-ref-alert">
+                    <div class="bdu-ref-alert-icon">⚠</div>
+                    <div>
+                        <strong>@Model.AlertTitle</strong>
+                        <p>@Model.AlertText</p>
+                    </div>
+                </div>
+
+                <a class="bdu-ref-action-card primary" href="@primaryUrl" target="@primaryTarget" rel="noopener">
+                    <div class="bdu-ref-action-icon">👤✓</div>
+                    <div>
+                        <strong>لدي ملف بالجمعية</strong>
+                        <span>@Model.PrimaryButtonText</span>
+                    </div>
+                    <b>←</b>
+                </a>
+
+                <a class="bdu-ref-action-card secondary" href="@secondaryUrl">
+                    <div class="bdu-ref-action-icon">👤＋</div>
+                    <div>
+                        <strong>ليس لدي ملف</strong>
+                        <span>@Model.SecondaryButtonText</span>
+                    </div>
+                    <b>←</b>
+                </a>
+
+                @if (hasWhatsapp)
+                {
+                    <a class="bdu-ref-action-card whatsapp" href="@whatsappUrl" target="_blank" rel="noopener noreferrer">
+                        <div class="bdu-ref-action-icon">☎</div>
+                        <div>
+                            <strong>تحتاج مساعدة؟</strong>
+                            <span>@Model.WhatsAppButtonText</span>
+                        </div>
+                        <b>←</b>
+                    </a>
+                }
+
+            </aside>
+
+        </div>
+
+    </div>
+</section>

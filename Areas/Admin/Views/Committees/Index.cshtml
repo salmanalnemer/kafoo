@@ -1,0 +1,162 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.CommitteeDocument>
+
+@{
+    ViewData["Title"] = "لجان الجمعية";
+    var search = ViewBag.Search as string ?? "";
+    var count = Model?.Count ?? 0;
+}
+
+<div class="gov-file-page">
+
+    <div class="gov-file-form-card">
+        <div class="gov-file-head">
+            <div>
+                <span>ملفات الحوكمة</span>
+                <h1>لجان الجمعية</h1>
+                <p>إضافة وإدارة ملفات لجان الجمعية بصيغة PDF.</p>
+            </div>
+
+            <a href="/Committees" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="admin-alert-success">@TempData["Success"]</div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="admin-alert-error">@TempData["Error"]</div>
+        }
+
+        <form method="post" enctype="multipart/form-data" action="/Admin/Committees/Create" class="gov-file-form">
+            @Html.AntiForgeryToken()
+
+            <div class="gov-file-grid">
+                <div class="form-group full">
+                    <label>عنوان الملف</label>
+                    <input name="Title" required placeholder="مثال: قرار تشكيل لجنة المراجعة الداخلية" />
+                </div>
+
+                <div class="form-group">
+                    <label>السنة</label>
+                    <input name="Year" value="@DateTime.Now.Year" required />
+                </div>
+
+                <div class="form-group">
+                    <label>التصنيف</label>
+                    <select name="Category" required>
+                        <option value="لجان الجمعية">لجان الجمعية</option>
+                        <option value="لجنة المراجعة الداخلية">لجنة المراجعة الداخلية</option>
+                        <option value="لجنة الحوكمة">لجنة الحوكمة</option>
+                        <option value="لجنة الترشيحات والمكافآت">لجنة الترشيحات والمكافآت</option>
+                        <option value="لجنة البرامج والمشاريع">لجنة البرامج والمشاريع</option>
+                        <option value="لجنة الاستثمار">لجنة الاستثمار</option>
+                        <option value="لجنة التطوع">لجنة التطوع</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف مختصر</label>
+                    <textarea name="Description" rows="3" placeholder="وصف اختياري للملف"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>الملف (PDF)</label>
+                    <input type="file" name="documentFile" accept=".pdf" required />
+                </div>
+            </div>
+
+            <div class="gov-file-actions">
+                <button type="submit">رفع الملف</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="gov-file-table-card">
+        <div class="gov-table-head">
+            <h2>الملفات الحالية (@count)</h2>
+
+            <form method="get" action="/Admin/Committees">
+                <input name="q" value="@search" placeholder="بحث..." />
+                <button type="submit">بحث</button>
+                <a href="/Admin/Committees">مسح</a>
+            </form>
+        </div>
+
+        <div class="gov-file-table-wrap">
+            <table class="gov-file-table">
+                <thead>
+                    <tr>
+                        <th>العنوان</th>
+                        <th>السنة</th>
+                        <th>التصنيف</th>
+                        <th>الحالة</th>
+                        <th>عرض</th>
+                        <th>إخفاء/إظهار</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="gov-empty-row">لا توجد ملفات في هذا القسم.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="gov-file-title">
+                                    <strong>@item.Title</strong>
+                                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                                    {
+                                        <span>@item.Description</span>
+                                    }
+                                </td>
+
+                                <td>@item.Year</td>
+                                <td>@item.Category</td>
+                                <td>
+                                    <span class="gov-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                    {
+                                        <a class="gov-open-file" href="@item.FilePath" target="_blank" rel="noopener noreferrer">عرض</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <form method="post" action="/Admin/Committees/Toggle/@item.Id">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="gov-mini-btn">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                    </form>
+                                </td>
+
+                                <td>
+                                    <form method="post" action="/Admin/Committees/Delete/@item.Id" data-confirm="هل تريد حذف هذا الملف؟">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="gov-delete-btn">حذف</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

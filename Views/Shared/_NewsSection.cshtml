@@ -1,0 +1,57 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.NewsPost>
+
+<section class="news-section official-news-section">
+    <div class="home-container">
+        <div class="official-section-head">
+            <div>
+                <h2>آخر المستجدات</h2>
+                <p>تعرف على آخر الأخبار والفعاليات والإعلانات الخاصة بجمعية كفو.</p>
+            </div>
+            <a class="browse-all-btn" href="/News">تصفح الجميع ←</a>
+        </div>
+
+        <div class="official-news-grid">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <article class="official-news-card">
+                        <div class="official-news-image">
+                            @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            {
+                                <img src="@item.ImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <div class="news-placeholder">كفو</div>
+                            }
+                        </div>
+
+                        <h3>@item.Title</h3>
+
+                        <div class="news-date">📅 @item.PublishDate.ToString("yyyy-MM-dd")</div>
+
+                        <div class="official-tags">
+                            @if (!string.IsNullOrWhiteSpace(item.Category))
+                            {
+                                <span>@item.Category</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Audience))
+                            {
+                                <span>@item.Audience</span>
+                            }
+                        </div>
+
+                        <a class="news-arrow" href="/News/Details/@item.Id">←</a>
+                    </article>
+                }
+            }
+            else
+            {
+                <article class="official-news-card"><div class="official-news-image"><div class="news-placeholder">كفو</div></div><h3>عنوان خبر تجريبي يظهر هنا</h3><div class="news-date">📅 @DateTime.Now.ToString("yyyy-MM-dd")</div><div class="official-tags"><span>أخبار</span><span>الجمعية</span></div><a class="news-arrow" href="/Admin/News">←</a></article>
+                <article class="official-news-card"><div class="official-news-image"><div class="news-placeholder">كفو</div></div><h3>إعلان أو مستجد جديد للجمعية</h3><div class="news-date">📅 @DateTime.Now.ToString("yyyy-MM-dd")</div><div class="official-tags"><span>إعلان</span><span>مستجدات</span></div><a class="news-arrow" href="/Admin/News">←</a></article>
+                <article class="official-news-card"><div class="official-news-image"><div class="news-placeholder">كفو</div></div><h3>فعالية جديدة ضمن برامج الجمعية</h3><div class="news-date">📅 @DateTime.Now.ToString("yyyy-MM-dd")</div><div class="official-tags"><span>فعالية</span><span>برامج</span></div><a class="news-arrow" href="/Admin/News">←</a></article>
+            }
+        </div>
+    </div>
+</section>

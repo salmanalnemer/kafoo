@@ -1,0 +1,127 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.SuccessPartner>
+
+@{
+    ViewData["Title"] = "شركاء النجاح";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="partner-admin-page">
+
+    <div class="partner-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>شركاء النجاح</h1>
+            <p>إدارة شعارات وبيانات الجهات الشريكة والداعمة للجمعية.</p>
+        </div>
+
+        <div class="partner-admin-actions">
+            <a href="/SuccessPartners" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a class="primary" href="/Admin/SuccessPartners/Create">إضافة شريك جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="partner-admin-filter">
+        <form method="get" action="/Admin/SuccessPartners">
+            <input name="q" value="@search" placeholder="ابحث باسم الشريك أو النوع..." />
+            <button type="submit">بحث</button>
+            <a href="/Admin/SuccessPartners">مسح</a>
+        </form>
+    </div>
+
+    <div class="partner-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="partner-admin-empty">
+                <h3>لا يوجد شركاء حالياً</h3>
+                <p>ابدأ بإضافة أول شريك من زر إضافة شريك جديد.</p>
+            </div>
+        }
+        else
+        {
+            <div class="partner-admin-table-wrap">
+                <table class="partner-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الشعار</th>
+                            <th>اسم الشريك</th>
+                            <th>النوع</th>
+                            <th>الرابط</th>
+                            <th>مميز</th>
+                            <th>الحالة</th>
+                            <th>الترتيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.LogoPath))
+                                    {
+                                        <img class="partner-admin-logo" src="@item.LogoPath" alt="@item.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="partner-admin-no-logo">شعار</div>
+                                    }
+                                </td>
+
+                                <td class="partner-title-cell">
+                                    <strong>@item.Name</strong>
+                                    <span>@item.Description</span>
+                                </td>
+
+                                <td>@item.PartnerType</td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.WebsiteUrl))
+                                    {
+                                        <a class="partner-url" href="@item.WebsiteUrl" target="_blank" rel="noopener noreferrer">فتح الرابط</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>@(item.IsFeatured ? "نعم" : "لا")</td>
+
+                                <td>
+                                    <span class="partner-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>@item.DisplayOrder</td>
+
+                                <td>
+                                    <div class="partner-admin-row-actions">
+                                        <a href="/Admin/SuccessPartners/Edit/@item.Id">تعديل</a>
+
+                                        <form method="post" action="/Admin/SuccessPartners/Toggle/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/SuccessPartners/Delete/@item.Id" data-confirm="هل تريد حذف هذا الشريك؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>

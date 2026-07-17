@@ -1,0 +1,124 @@
+﻿@model Kafo.Web.Models.VolunteerOpportunity
+
+@{
+    ViewData["Title"] = "تعديل فرصة تطوعية";
+}
+
+<div class="vo-admin-page">
+
+    <div class="vo-admin-hero">
+        <div>
+            <span>التطوع والتوظيف</span>
+            <h1>تعديل فرصة تطوعية</h1>
+            <p>تحديث بيانات الفرصة والتحكم في ظهورها بالموقع.</p>
+        </div>
+
+        <div class="vo-admin-actions">
+            <a href="/VolunteerOpportunities" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/VolunteerOpportunities">رجوع للفرص</a>
+        </div>
+    </div>
+
+    <div class="vo-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/VolunteerOpportunities/Edit/@Model.Id" class="vo-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="ImagePath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="vo-form-grid">
+                <div class="form-group">
+                    <label>عنوان الفرصة</label>
+                    <input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع الفرصة</label>
+                    <input asp-for="OpportunityType" />
+                </div>
+
+                <div class="form-group">
+                    <label>الموقع</label>
+                    <input asp-for="Location" />
+                </div>
+
+                <div class="form-group">
+                    <label>رابط التسجيل</label>
+                    <input asp-for="RegistrationUrl" dir="ltr" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ البداية</label>
+                    <input asp-for="StartDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ النهاية</label>
+                    <input asp-for="EndDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد الساعات التطوعية</label>
+                    <input asp-for="VolunteerHours" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد المقاعد</label>
+                    <input asp-for="SeatsCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير صورة الفرصة</label>
+                    <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                {
+                    <div class="form-group full">
+                        <label>الصورة الحالية</label>
+                        <img class="vo-edit-preview" src="@Model.ImagePath" alt="@Model.Title" />
+                    </div>
+                }
+
+                <div class="form-group full">
+                    <label>وصف الفرصة</label>
+                    <textarea asp-for="Description" rows="4"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>المتطلبات</label>
+                    <textarea asp-for="Requirements" rows="4"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsRemote" />
+                    <label>فرصة عن بعد</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>فرصة مميزة</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار الفرصة</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
+</div>

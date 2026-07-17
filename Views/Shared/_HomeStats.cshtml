@@ -1,0 +1,42 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.HomeStatistic>
+
+<section class="home-stats-section" id="homeStats">
+    <div class="home-container">
+        <div class="section-head stats-head">
+            <h2>إحصائيات حول الجمعية</h2>
+            <p>آخر الأرقام والإحصائيات المتعلقة بخدمات وبرامج جمعية كفو.</p>
+        </div>
+
+        <div class="stats-grid official-stats-grid">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    var clean = new string(item.Value.Where(char.IsDigit).ToArray());
+                    var number = string.IsNullOrWhiteSpace(clean) ? "0" : clean;
+
+                    <article class="official-stat-box">
+                        <div class="official-stat-icon">
+                            @if (!string.IsNullOrWhiteSpace(item.Icon) && item.Icon.StartsWith("fa-"))
+                            {
+                                <i class="@item.Icon"></i>
+                            }
+                            else
+                            {
+                                <span>@(string.IsNullOrWhiteSpace(item.Icon) ? "♡" : item.Icon)</span>
+                            }
+                        </div>
+                        <strong class="counter-number" data-target="@number">@item.Value</strong>
+                        <span>@item.Title</span>
+                    </article>
+                }
+            }
+            else
+            {
+                <article class="official-stat-box"><div class="official-stat-icon"><span>♡</span></div><strong class="counter-number" data-target="855">0</strong><span>الخدمات المقدمة</span></article>
+                <article class="official-stat-box"><div class="official-stat-icon"><span>♙</span></div><strong class="counter-number" data-target="231818337">0</strong><span>زوار الموقع</span></article>
+                <article class="official-stat-box"><div class="official-stat-icon"><span>☑</span></div><strong class="counter-number" data-target="36687106">0</strong><span>المعاملات المنجزة</span></article>
+            }
+        </div>
+    </div>
+</section>

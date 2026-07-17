@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "غير مصرح بالدخول";
+    var requestedPath = ViewBag.RequestedPath as string;
+}
+
+<div class="adm-users-page">
+    <div class="adm-users-hero">
+        <div>
+            <span>صلاحيات لوحة التحكم</span>
+            <h1>لا تملك صلاحية الوصول</h1>
+            <p>هذه الصفحة غير مضافة إلى صلاحيات حسابك. تواصل مع مدير النظام أو مدير الإدارة.</p>
+        </div>
+        <div class="adm-users-actions">
+            <a class="primary" href="/Admin/Profile">العودة إلى إعدادات حسابي</a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(requestedPath))
+    {
+        <div class="adm-form-card">
+            <strong>المسار المطلوب:</strong>
+            <span dir="ltr">@requestedPath</span>
+        </div>
+    }
+</div>

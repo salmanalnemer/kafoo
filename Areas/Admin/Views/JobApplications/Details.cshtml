@@ -1,0 +1,110 @@
+﻿@model Kafo.Web.Models.JobApplication
+
+@{
+    ViewData["Title"] = "تفاصيل طلب التوظيف";
+}
+
+<div class="ja-admin-page">
+
+    <div class="ja-admin-hero">
+        <div>
+            <span>التطوع والتوظيف</span>
+            <h1>تفاصيل طلب التوظيف #@Model.Id</h1>
+            <p>مراجعة بيانات المتقدم وتحديث حالة الطلب.</p>
+        </div>
+
+        <div class="ja-admin-actions">
+            <a href="/Admin/JobApplications">رجوع للطلبات</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="ja-details-grid">
+        <div class="ja-details-card">
+            <h2>بيانات المتقدم</h2>
+
+            <dl>
+                <dt>الاسم الكامل</dt>
+                <dd>@Model.FullName</dd>
+
+                <dt>رقم الجوال</dt>
+                <dd dir="ltr">@Model.Phone</dd>
+
+                <dt>البريد الإلكتروني</dt>
+                <dd dir="ltr">@Model.Email</dd>
+
+                <dt>رقم الهوية</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.NationalId) ? "-" : Model.NationalId)</dd>
+
+                <dt>المدينة</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.City) ? "-" : Model.City)</dd>
+
+                <dt>الوظيفة المطلوبة</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.DesiredJobTitle) ? "-" : Model.DesiredJobTitle)</dd>
+
+                <dt>المؤهل</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Qualification) ? "-" : Model.Qualification)</dd>
+
+                <dt>التخصص</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Specialty) ? "-" : Model.Specialty)</dd>
+
+                <dt>سنوات الخبرة</dt>
+                <dd>@Model.ExperienceYears سنة</dd>
+
+                <dt>تاريخ التقديم</dt>
+                <dd>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</dd>
+            </dl>
+        </div>
+
+        <div class="ja-details-card">
+            <h2>الملفات والحالة</h2>
+
+            <div class="ja-files-box">
+                @if (!string.IsNullOrWhiteSpace(Model.CvFilePath))
+                {
+                    <a href="@Model.CvFilePath" target="_blank" rel="noopener noreferrer" download>تحميل السيرة الذاتية</a>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.AttachmentFilePath))
+                {
+                    <a href="@Model.AttachmentFilePath" target="_blank" rel="noopener noreferrer" download>تحميل المرفق الإضافي</a>
+                }
+            </div>
+
+            <form method="post" action="/Admin/JobApplications/UpdateStatus/@Model.Id" class="ja-status-form">
+                @Html.AntiForgeryToken()
+
+                <label>حالة الطلب</label>
+                <select name="status">
+                    @if (Model.Status == "جديد") { <option value="جديد" selected>جديد</option> } else { <option value="جديد">جديد</option> }
+                    @if (Model.Status == "قيد المراجعة") { <option value="قيد المراجعة" selected>قيد المراجعة</option> } else { <option value="قيد المراجعة">قيد المراجعة</option> }
+                    @if (Model.Status == "مقبول مبدئياً") { <option value="مقبول مبدئياً" selected>مقبول مبدئياً</option> } else { <option value="مقبول مبدئياً">مقبول مبدئياً</option> }
+                    @if (Model.Status == "مرفوض") { <option value="مرفوض" selected>مرفوض</option> } else { <option value="مرفوض">مرفوض</option> }
+                </select>
+
+                <label>ملاحظات الإدارة</label>
+                <textarea name="adminNotes" rows="5">@Model.AdminNotes</textarea>
+
+                <button type="submit">حفظ الحالة</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="ja-details-card">
+        <h2>نبذة المتقدم</h2>
+
+        @if (string.IsNullOrWhiteSpace(Model.CoverLetter))
+        {
+            <p class="muted">لا توجد نبذة مرفقة.</p>
+        }
+        else
+        {
+            <p>@Model.CoverLetter</p>
+        }
+    </div>
+
+</div>

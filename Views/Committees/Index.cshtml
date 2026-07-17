@@ -1,0 +1,53 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.CommitteeDocument>
+
+@{
+    ViewData["Title"] = "لجان الجمعية";
+}
+
+<section class="committees-public-page">
+    <div class="home-container">
+
+        <div class="committees-public-head">
+            <span>ملفات الحوكمة</span>
+            <h1>لجان الجمعية</h1>
+            <p>استعراض ملفات وقرارات لجان الجمعية المعتمدة.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="committees-empty">
+                <h3>لا توجد ملفات حالياً</h3>
+                <p>سيتم عرض ملفات لجان الجمعية هنا عند إضافتها من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="committees-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="committee-card">
+                        <div class="committee-icon">PDF</div>
+
+                        <div class="committee-content">
+                            <span>@item.Category</span>
+                            <h2>@item.Title</h2>
+
+                            <div class="committee-year">@item.Year</div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p>@item.Description</p>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                            {
+                                <a href="@item.FilePath" target="_blank" rel="noopener noreferrer">عرض الملف</a>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

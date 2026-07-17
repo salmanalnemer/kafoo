@@ -1,0 +1,588 @@
+@using System.Globalization
+@model Kafo.Web.Models.Donors.DonorContributionCertificate
+@{
+    Layout = null;
+    var contribution = Model.DonorContribution;
+    var donor = contribution?.DonorAccount;
+    var programTitle = string.IsNullOrWhiteSpace(Model.ProgramTitle)
+        ? (contribution?.ProgramProject?.Title ?? "برنامج غير محدد")
+        : Model.ProgramTitle;
+    var contributionCode = string.IsNullOrWhiteSpace(Model.ContributionCode)
+        ? (contribution?.ContributionCode ?? "-")
+        : Model.ContributionCode;
+    var statusText = string.IsNullOrWhiteSpace(contribution?.Status) ? "مكتمل" : contribution!.Status;
+    var executiveName = string.IsNullOrWhiteSpace(Model.ExecutiveManagerName) ? "المدير التنفيذي" : Model.ExecutiveManagerName;
+    var executiveTitle = string.IsNullOrWhiteSpace(Model.ExecutiveManagerTitle) ? "المدير التنفيذي" : Model.ExecutiveManagerTitle;
+    var arSa = new CultureInfo("ar-SA");
+    arSa.DateTimeFormat.Calendar = new UmAlQuraCalendar();
+    var issuedHijriDate = Model.IssuedAt.ToString("yyyy/MM/dd", arSa);
+    var issuedTime = Model.IssuedAt.ToString("HH:mm");
+    var backUrl = donor == null ? "/Admin/Donors" : $"/Admin/Donors/Details/{donor.Id}";
+    var backText = "رجوع لملف الداعم";
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>شهادة عطاء | @Model.CertificateNumber</title>
+    <style>
+        :root{
+            --green:#123f32;
+            --green-2:#1f6b4f;
+            --gold:#b78a3a;
+            --ink:#1f2933;
+            --muted:#667085;
+            --paper:#fffdf8;
+        }
+
+        *{box-sizing:border-box}
+
+        html,body{margin:0;min-height:100%;direction:rtl;}
+
+        body{
+            background:#eef3ee;
+            color:var(--ink);
+            font-family:"Tajawal","Segoe UI",Tahoma,Arial,sans-serif;
+            -webkit-print-color-adjust:exact;
+            print-color-adjust:exact;
+        }
+
+        .certificate-toolbar{
+            width:min(210mm, calc(100% - 28px));
+            margin:14px auto 0;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            direction:rtl;
+        }
+
+        .certificate-toolbar a,
+        .certificate-toolbar button{
+            border:0;
+            border-radius:999px;
+            padding:10px 16px;
+            font-weight:900;
+            font-size:13px;
+            text-decoration:none;
+            cursor:pointer;
+            box-shadow:0 10px 24px rgba(15,23,42,.08);
+        }
+
+        .certificate-toolbar a{
+            background:#fff;
+            color:var(--green);
+            border:1px solid #d9e2da;
+        }
+
+        .certificate-toolbar button{
+            background:var(--green);
+            color:#fff;
+        }
+
+        .certificate-sheet{
+            width:210mm;
+            height:297mm;
+            margin:14px auto 18px;
+            padding:11mm 13mm 8mm;
+            position:relative;
+            overflow:hidden;
+            direction:rtl;
+            text-align:right;
+            background:
+                radial-gradient(circle at 50% 7%, rgba(183,138,58,.09), transparent 25%),
+                radial-gradient(circle at 8% 92%, rgba(18,63,50,.05), transparent 26%),
+                radial-gradient(circle at 92% 90%, rgba(18,63,50,.045), transparent 26%),
+                linear-gradient(180deg,#fffefb 0%,var(--paper) 60%,#fffaf0 100%);
+            border:1.6mm solid var(--green);
+            box-shadow:0 24px 70px rgba(15,23,42,.14);
+        }
+
+        .certificate-sheet::before{
+            content:"";
+            position:absolute;
+            inset:6mm;
+            border:1px solid var(--gold);
+            pointer-events:none;
+            z-index:0;
+        }
+
+        .certificate-sheet::after{
+            content:"";
+            position:absolute;
+            inset:8.5mm;
+            border:.6px solid rgba(18,63,50,.20);
+            pointer-events:none;
+            z-index:0;
+        }
+
+        .corner{
+            position:absolute;
+            width:27mm;
+            height:27mm;
+            z-index:1;
+            opacity:.9;
+            pointer-events:none;
+        }
+
+        .corner::before,
+        .corner::after{
+            content:"";
+            position:absolute;
+            border-color:var(--gold);
+            border-style:solid;
+        }
+
+        .corner::before{
+            width:22mm;
+            height:22mm;
+            border-width:1.4px 0 0 1.4px;
+        }
+
+        .corner::after{
+            width:14mm;
+            height:14mm;
+            border-width:.9px 0 0 .9px;
+            border-radius:60% 0 0 0;
+            transform:translate(5mm,5mm) rotate(8deg);
+        }
+
+        .corner.top-right{top:7mm;right:7mm;transform:rotate(90deg)}
+        .corner.top-left{top:7mm;left:7mm;transform:rotate(180deg)}
+        .corner.bottom-left{bottom:7mm;left:7mm;transform:rotate(270deg)}
+        .corner.bottom-right{bottom:7mm;right:7mm;transform:rotate(0deg)}
+
+        .watermark{
+            position:absolute;
+            inset:auto -7mm 1mm -7mm;
+            color:rgba(18,63,50,.028);
+            font-size:34mm;
+            font-weight:900;
+            text-align:center;
+            letter-spacing:-3px;
+            z-index:0;
+            pointer-events:none;
+            line-height:1;
+        }
+
+        .certificate-content{
+            position:relative;
+            z-index:2;
+            height:100%;
+            min-height:0;
+            display:flex;
+            flex-direction:column;
+            align-items:stretch;
+            direction:rtl;
+        }
+
+        .brand{
+            text-align:center;
+            margin:0 auto 4mm;
+        }
+
+        .brand img{
+            display:block;
+            width:45mm;
+            max-height:18mm;
+            object-fit:contain;
+            margin:0 auto;
+        }
+
+        .title-block{
+            text-align:center;
+            margin-top:0;
+        }
+
+        .title-block h1{
+            margin:0;
+            color:var(--green);
+            font-size:21mm;
+            line-height:1.02;
+            font-weight:900;
+            letter-spacing:-1px;
+        }
+
+        .title-block .subtitle{
+            margin:1.2mm 0 0;
+            color:var(--gold);
+            font-size:4.4mm;
+            font-weight:900;
+        }
+
+        .ornament{
+            width:62mm;
+            height:6mm;
+            margin:2mm auto;
+            position:relative;
+        }
+
+        .ornament::before,
+        .ornament::after{
+            content:"";
+            position:absolute;
+            top:50%;
+            width:28mm;
+            border-top:1px solid rgba(183,138,58,.55);
+        }
+
+        .ornament::before{right:0}
+        .ornament::after{left:0}
+
+        .ornament span{
+            position:absolute;
+            left:50%;
+            top:50%;
+            width:3.8mm;
+            height:3.8mm;
+            border:1px solid var(--gold);
+            transform:translate(-50%,-50%) rotate(45deg);
+            background:var(--paper);
+        }
+
+        .recipient{
+            margin:4mm auto 0;
+            text-align:center;
+            width:100%;
+        }
+
+        .recipient-label{
+            color:var(--muted);
+            font-size:3.5mm;
+            font-weight:800;
+        }
+
+        .recipient-name{
+            margin:2.2mm 0 0;
+            color:var(--green);
+            font-size:13.5mm;
+            line-height:1.15;
+            font-weight:900;
+            letter-spacing:-.4px;
+        }
+
+        .recipient-organization{
+            margin:1.2mm 0 0;
+            color:var(--gold);
+            font-size:3.7mm;
+            font-weight:900;
+        }
+
+        .thanks-text{
+            width:145mm;
+            max-width:100%;
+            margin:3.5mm auto 0;
+            text-align:center;
+            color:#263126;
+            font-size:3.65mm;
+            line-height:1.78;
+            font-weight:700;
+            direction:rtl;
+        }
+
+        .support-title{
+            margin:3mm auto 0;
+            width:142mm;
+            max-width:100%;
+            text-align:center;
+            color:var(--green);
+            font-size:3.35mm;
+            line-height:1.65;
+            font-weight:900;
+            direction:rtl;
+        }
+
+        .support-title strong{color:var(--gold)}
+
+        .details-section{
+            margin:4.5mm auto 0;
+            width:148mm;
+            max-width:100%;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:1mm 10mm;
+            padding:0 2mm;
+            position:relative;
+            direction:rtl;
+        }
+
+        .details-section::before{
+            content:"";
+            position:absolute;
+            top:1mm;
+            bottom:1mm;
+            right:50%;
+            border-right:1px solid rgba(183,138,58,.38);
+        }
+
+        .detail-line{
+            display:flex;
+            flex-direction:row;
+            align-items:baseline;
+            justify-content:space-between;
+            gap:4mm;
+            padding:1.45mm 0;
+            border-bottom:1px solid rgba(18,63,50,.08);
+            direction:rtl;
+        }
+
+        .detail-line span{
+            color:var(--muted);
+            font-size:3.15mm;
+            font-weight:900;
+            white-space:nowrap;
+            text-align:right;
+        }
+
+        .detail-line strong{
+            color:var(--green);
+            font-size:3.45mm;
+            font-weight:900;
+            text-align:left;
+            direction:ltr;
+            unicode-bidi:isolate;
+            white-space:nowrap;
+        }
+
+        .detail-line strong.rtl-value{
+            direction:rtl;
+            text-align:left;
+            unicode-bidi:plaintext;
+        }
+
+        .signature-area{
+            margin:auto auto 0;
+            width:86mm;
+            text-align:center;
+            padding-top:4mm;
+        }
+
+        .signature-title{
+            color:var(--muted);
+            font-size:3.25mm;
+            font-weight:900;
+        }
+
+        .signature-box{
+            height:15mm;
+            margin:.5mm auto 0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .signature-box img{
+            max-width:43mm;
+            max-height:14mm;
+            object-fit:contain;
+            display:block;
+        }
+
+        .signature-placeholder{
+            width:48mm;
+            height:11mm;
+            border-bottom:1.2px solid var(--gold);
+            position:relative;
+        }
+
+        .signature-placeholder::after{
+            content:"";
+            position:absolute;
+            left:10mm;
+            right:10mm;
+            top:5mm;
+            border-top:1.7px solid #1d3b7a;
+            transform:skewX(-28deg) rotate(-8deg);
+            opacity:.65;
+        }
+
+        .manager-name{
+            margin-top:.4mm;
+            color:var(--green);
+            font-size:3.35mm;
+            font-weight:900;
+        }
+
+        .manager-role{
+            margin-top:.2mm;
+            color:var(--gold);
+            font-size:2.95mm;
+            font-weight:900;
+        }
+
+        .footer-note{
+            margin:2.5mm auto 0;
+            width:145mm;
+            max-width:100%;
+            text-align:center;
+            color:var(--muted);
+            font-size:2.65mm;
+            line-height:1.55;
+            font-weight:800;
+            direction:rtl;
+        }
+
+        .footer-note strong{
+            color:var(--green);
+            direction:ltr;
+            unicode-bidi:isolate;
+        }
+
+        @@media print{
+            html,body{
+                width:210mm;
+                height:297mm;
+                min-height:0;
+                background:#fff;
+                overflow:hidden!important;
+            }
+
+            .certificate-toolbar{display:none!important}
+
+            .certificate-sheet{
+                width:210mm!important;
+                height:297mm!important;
+                min-height:0!important;
+                margin:0!important;
+                padding:10.5mm 12.5mm 7.5mm!important;
+                box-shadow:none!important;
+                border:1.6mm solid var(--green)!important;
+                overflow:hidden!important;
+                page-break-before:avoid;
+                page-break-after:avoid;
+                page-break-inside:avoid;
+                break-inside:avoid;
+            }
+
+            .certificate-content{
+                height:100%!important;
+                min-height:0!important;
+                overflow:hidden!important;
+            }
+        }
+
+        @@page{
+            size:A4 portrait;
+            margin:0;
+        }
+
+        @@media screen and (max-width:900px){
+            .certificate-sheet{
+                width:min(210mm, calc(100% - 20px));
+                height:auto;
+                min-height:297mm;
+                padding:12mm 8mm;
+            }
+
+            .certificate-content{height:auto;min-height:0}
+            .title-block h1{font-size:14vw}
+            .recipient-name{font-size:8.5vw}
+            .thanks-text,.support-title,.details-section,.footer-note{width:100%}
+            .details-section{grid-template-columns:1fr;gap:0}
+            .details-section::before{display:none}
+            .signature-area{margin-top:7mm}
+        }
+
+    </style>
+</head>
+<body>
+    <div class="certificate-toolbar">
+        <a href="@backUrl">@backText</a>
+        <button type="button" data-browser-action="print">طباعة / حفظ PDF</button>
+    </div>
+
+    <main class="certificate-sheet" dir="rtl" aria-label="شهادة عطاء">
+        <span class="corner top-right"></span>
+        <span class="corner top-left"></span>
+        <span class="corner bottom-right"></span>
+        <span class="corner bottom-left"></span>
+        <div class="watermark">عطاء</div>
+
+        <section class="certificate-content">
+            <header class="brand">
+                <img src="/images/logo1.png" alt="جمعية كفو لتمكين ذوي الإعاقة" />
+            </header>
+
+            <section class="title-block">
+                <h1>شهادة عطاء</h1>
+                <p class="subtitle">تقديرًا لعطائكم ومساهمتكم الكريمة</p>
+                <div class="ornament"><span></span></div>
+            </section>
+
+            <section class="recipient">
+                <div class="recipient-label">تتشرف جمعية كفو بمنح هذه الشهادة إلى</div>
+                <h2 class="recipient-name">@Model.DonorName</h2>
+                @if (!string.IsNullOrWhiteSpace(Model.DonorOrganizationName))
+                {
+                    <div class="recipient-organization">@Model.DonorOrganizationName</div>
+                }
+            </section>
+
+            <div class="ornament"><span></span></div>
+
+            <p class="thanks-text">
+                تتقدم جمعية كفو بخالص الشكر والتقدير لكم على عطائكم ومساهمتكم الكريمة،
+                والتي كان لها أثر طيب في دعم مسيرة العطاء وتعزيز أثر المبادرات المجتمعية.
+                إن مساهمتكم محل اعتزاز وتقدير، ونسأل الله أن يجعل ما قدمتموه في موازين حسناتكم،
+                وأن يبارك لكم فيما أعطيتم.
+            </p>
+
+            <p class="support-title">
+                وذلك نظير مساهمتكم في  <strong>@Model.ContributionTitle</strong>
+                ضمن برنامج <strong>@programTitle</strong>.
+            </p>
+
+            <section class="details-section" aria-label="بيانات الشهادة والدعم">
+                <div class="detail-line">
+                    <span>رمز الدعم</span>
+                    <strong>@contributionCode</strong>
+                </div>
+                <div class="detail-line">
+                    <span>إجمالي الدعم</span>
+                    <strong class="rtl-value">@Model.TotalAmount.ToString("N2") ر.س</strong>
+                </div>
+                <div class="detail-line">
+                    <span>حالة الدعم</span>
+                    <strong class="rtl-value">@statusText</strong>
+                </div>
+                <div class="detail-line">
+                    <span>تاريخ الإصدار</span>
+                    <strong>@issuedHijriDate هـ</strong>
+                </div>
+                <div class="detail-line">
+                    <span>وقت الإصدار</span>
+                    <strong>@issuedTime</strong>
+                </div>
+                <div class="detail-line">
+                    <span>رقم الشهادة</span>
+                    <strong>@Model.CertificateNumber</strong>
+                </div>
+            </section>
+
+            <footer class="signature-area">
+                <div class="signature-title">@executiveTitle</div>
+                <div class="signature-box">
+                    @if (!string.IsNullOrWhiteSpace(Model.SignatureImagePath))
+                    {
+                        <img src="@Model.SignatureImagePath" alt="توقيع المدير التنفيذي" />
+                    }
+                    else
+                    {
+                        <div class="signature-placeholder" aria-hidden="true"></div>
+                    }
+                </div>
+                <div class="manager-name">@executiveName</div>
+                <div class="manager-role">@executiveTitle</div>
+            </footer>
+
+            <div class="footer-note">
+                أُصدرت هذه الشهادة إلكترونيًا من نظام جمعية كفو بتاريخ <strong>@issuedHijriDate هـ</strong>،
+                وتحمل رقمًا فريدًا للمراجعة الداخلية: <strong>@Model.CertificateNumber</strong>.
+            </div>
+        </section>
+    </main>
+    <script src="/js/security-ui.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+﻿@model Kafo.Web.Models.SuccessPartner
+
+@{
+    ViewData["Title"] = "تعديل شريك النجاح";
+}
+
+<div class="partner-admin-page">
+
+    <div class="partner-admin-hero">
+        <div>
+            <span>المركز الإعلامي</span>
+            <h1>تعديل شريك النجاح</h1>
+            <p>تحديث بيانات الشريك والتحكم في ظهوره بالموقع.</p>
+        </div>
+
+        <div class="partner-admin-actions">
+            <a href="/SuccessPartners" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/SuccessPartners">رجوع للشركاء</a>
+        </div>
+    </div>
+
+    <div class="partner-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/SuccessPartners/Edit/@Model.Id" class="partner-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="LogoPath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="partner-form-grid">
+                <div class="form-group">
+                    <label>اسم الشريك</label>
+                    <input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع الشراكة</label>
+                    <input asp-for="PartnerType" />
+                </div>
+
+                <div class="form-group">
+                    <label>رابط الشريك</label>
+                    <input asp-for="WebsiteUrl" dir="ltr" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير شعار الشريك</label>
+                    <input type="file" name="logoFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.LogoPath))
+                {
+                    <div class="form-group full">
+                        <label>الشعار الحالي</label>
+                        <img class="partner-edit-preview" src="@Model.LogoPath" alt="@Model.Name" />
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف مختصر</label>
+                    <textarea asp-for="Description" rows="4"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>شريك مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار الشريك</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
+</div>

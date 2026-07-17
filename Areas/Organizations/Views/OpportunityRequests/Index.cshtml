@@ -1,0 +1,67 @@
+﻿@model IEnumerable<OpportunityRequest>
+@{
+    ViewData["Title"] = "طلبات الاستقطاب";
+}
+
+<section class="portal-panel">
+    <div class="portal-panel-head">
+        <div>
+            <h2>طلبات الاستقطاب</h2>
+            <p>يمكن للجهة عرض الطلب وتعديل بياناته أو حذفه.</p>
+        </div>
+        <a class="portal-btn" href="/Organizations/OpportunityRequests/Create">إضافة طلب جديد</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="portal-empty">لا توجد طلبات حالية.</div>
+    }
+    else
+    {
+        <div class="portal-table-wrap">
+            <table class="portal-table">
+                <thead>
+                    <tr>
+                        <th>المسمى / الفرصة</th>
+                        <th>النوع</th>
+                        <th>المدينة</th>
+                        <th>طبيعة العمل</th>
+                        <th>العدد</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.Title</strong></td>
+                            <td>@item.OpportunityType</td>
+                            <td>@(item.City ?? "غير محدد")</td>
+                            <td>@item.WorkNature</td>
+                            <td>@item.AvailableCount</td>
+                            <td><span class="portal-badge">@item.Status</span></td>
+                            <td>
+                                <div class="org-request-row-actions">
+                                    <a class="org-request-action view"
+                                       href="/Organizations/OpportunityRequests/Details/@item.Id">عرض</a>
+
+                                    <a class="org-request-action edit"
+                                       href="/Organizations/OpportunityRequests/Edit/@item.Id">تعديل</a>
+
+                                    <form method="post"
+                                          action="/Organizations/OpportunityRequests/Delete/@item.Id"
+                                          class="org-request-delete-form"
+                                          data-confirm="هل أنت متأكد من حذف الطلب؟ سيتم حذف الطلب والمرشحين والبيانات المرتبطة به نهائيًا.">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="org-request-action delete">حذف</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

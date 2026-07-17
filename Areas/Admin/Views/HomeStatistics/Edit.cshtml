@@ -1,0 +1,61 @@
+﻿@model Kafo.Web.Models.HomeStatistic
+
+@{
+    ViewData["Title"] = "تعديل إحصائية";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>الأرقام والإحصائيات</span>
+        <h1>تعديل الإحصائية</h1>
+        <p>عدّل الرقم أو العنوان أو ترتيب الظهور.</p>
+    </div>
+
+    <a class="admin-back-link" href="/Admin/HomeStatistics">العودة للقائمة</a>
+</div>
+
+<div class="admin-form-card">
+    <form method="post" class="admin-form">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="CreatedAt" type="hidden" />
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Title">عنوان الإحصائية</label>
+                <input asp-for="Title" />
+                <span asp-validation-for="Title"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Value">الرقم</label>
+                <input asp-for="Value" />
+                <span asp-validation-for="Value"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Icon">الأيقونة</label>
+                <input asp-for="Icon" />
+                <small>مثال: ♡ أو fa-solid fa-heart</small>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DisplayOrder">ترتيب الظهور</label>
+                <input asp-for="DisplayOrder" type="number" />
+            </div>
+
+            <div class="form-check full">
+                <input asp-for="IsActive" />
+                <label asp-for="IsActive">مفعل</label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="admin-submit-btn" type="submit">حفظ التعديل</button>
+            <a href="/Admin/HomeStatistics">إلغاء</a>
+        </div>
+    </form>
+</div>

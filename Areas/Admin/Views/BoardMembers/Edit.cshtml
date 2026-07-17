@@ -1,0 +1,120 @@
+﻿@model Kafo.Web.Models.BoardMember
+
+@{
+    ViewData["Title"] = "تعديل عضو مجلس الإدارة";
+}
+
+<div class="bm-admin-page">
+
+    <div class="bm-admin-hero">
+        <div>
+            <span>ملفات الحوكمة</span>
+            <h1>تعديل عضو مجلس الإدارة</h1>
+            <p>تحديث بيانات العضو والتحكم في ظهوره بالموقع.</p>
+        </div>
+
+        <div class="bm-admin-actions">
+            <a href="/BoardMembers" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/BoardMembers">رجوع للأعضاء</a>
+        </div>
+    </div>
+
+    <div class="bm-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/BoardMembers/Edit/@Model.Id" class="bm-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="PhotoPath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="bm-form-grid">
+                <div class="form-group">
+                    <label>اسم العضو</label>
+                    <input asp-for="FullName" />
+                    <span asp-validation-for="FullName"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>المنصب</label>
+                    <input asp-for="PositionTitle" />
+                </div>
+
+                <div class="form-group">
+                    <label>الصفة</label>
+                    <input asp-for="MembershipRole" />
+                </div>
+
+                <div class="form-group">
+                    <label>الدورة</label>
+                    <input asp-for="BoardTerm" />
+                </div>
+
+                <div class="form-group">
+                    <label>بداية الدورة</label>
+                    <input asp-for="TermStartDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>نهاية الدورة</label>
+                    <input asp-for="TermEndDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الجوال</label>
+                    <input asp-for="Phone" dir="ltr" />
+                </div>
+
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input asp-for="Email" dir="ltr" />
+                    <span asp-validation-for="Email"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير صورة العضو</label>
+                    <input type="file" name="photoFile" accept=".jpg,.jpeg,.png,.webp,.gif,.jfif,.avif" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.PhotoPath))
+                {
+                    <div class="form-group full">
+                        <label>الصورة الحالية</label>
+                        <img class="bm-edit-preview" src="@Model.PhotoPath" alt="@Model.FullName" />
+                    </div>
+                }
+
+                <div class="form-group full">
+                    <label>نبذة مختصرة</label>
+                    <textarea asp-for="Bio" rows="4"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsChairman" />
+                    <label>رئيس مجلس الإدارة</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>عضو مميز</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار العضو</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
+</div>

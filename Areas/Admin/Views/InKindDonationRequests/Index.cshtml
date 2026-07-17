@@ -1,0 +1,109 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.InKindDonationRequest>
+
+@{
+    ViewData["Title"] = "طلبات التبرع العيني";
+    var total = Model?.Count ?? 0;
+}
+
+<div class="ikd-admin-page">
+
+    <div class="ikd-admin-hero no-print">
+        <div>
+            <span>الخدمات الإلكترونية</span>
+            <h1>طلبات التبرع العيني</h1>
+            <p>متابعة طلبات استلام التبرعات العينية المرسلة من الزوار.</p>
+        </div>
+
+        <div class="ikd-admin-actions">
+            <button type="button" data-browser-action="print">طباعة الجدول</button>
+            <a href="/InKindDonationRequest" target="_blank" rel="noopener noreferrer">معاينة صفحة الطلب</a>
+        </div>
+    </div>
+
+    <div class="ikd-print-area">
+
+        <div class="ikd-print-head">
+            <div>
+                <h2>طلبات التبرع العيني</h2>
+                <p>إجمالي الطلبات: @total</p>
+            </div>
+
+            <div>
+                <strong>تاريخ الطباعة</strong>
+                <span>@DateTime.Now.ToString("yyyy/MM/dd HH:mm")</span>
+            </div>
+        </div>
+
+        <div class="ikd-admin-table-card">
+            @if (Model == null || !Model.Any())
+            {
+                <div class="ikd-empty">
+                    <h3>لا توجد طلبات حالياً</h3>
+                    <p>عند إرسال طلب تبرع عيني من الزائر سيظهر هنا مباشرة.</p>
+                </div>
+            }
+            else
+            {
+                <div class="ikd-table-wrap">
+                    <table class="ikd-admin-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الطلب</th>
+                                <th>اسم المتبرع</th>
+                                <th>رقم الجوال</th>
+                                <th>المدينة</th>
+                                <th>الحي</th>
+                                <th>نوع التبرع</th>
+                                <th>وقت الاستلام</th>
+                                <th>الحالة</th>
+                                <th>ملاحظات</th>
+                                <th>تاريخ الطلب</th>
+                                <th class="no-print">تحديث الحالة</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ikd-order">#@item.Id</td>
+                                    <td>@item.DonorName</td>
+                                    <td dir="ltr">@item.Mobile</td>
+                                    <td>@item.City</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.District) ? "-" : item.District)</td>
+                                    <td class="ikd-types">@item.DonationTypeNames</td>
+                                    <td>@(item.PreferredPickupTime == "morning" ? "صباحي" : "مسائي")</td>
+                                    <td>
+                                        <span class="ikd-status">@item.Status</span>
+                                    </td>
+                                    <td class="ikd-notes">
+                                        @(string.IsNullOrWhiteSpace(item.Notes) ? "-" : item.Notes)
+                                    </td>
+                                    <td>@item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                                    <td class="no-print">
+                                        <form method="post" action="/Admin/InKindDonationRequests/UpdateStatus" class="ikd-status-form">
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="id" value="@item.Id" />
+
+                                            <select name="status">
+                                                <option value="جديد" selected="@(item.Status == "جديد")">جديد</option>
+                                                <option value="تم التواصل" selected="@(item.Status == "تم التواصل")">تم التواصل</option>
+                                                <option value="تم تحديد الموعد" selected="@(item.Status == "تم تحديد الموعد")">تم تحديد الموعد</option>
+                                                <option value="مكتمل" selected="@(item.Status == "مكتمل")">مكتمل</option>
+                                                <option value="ملغي" selected="@(item.Status == "ملغي")">ملغي</option>
+                                            </select>
+
+                                            <button type="submit">حفظ</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

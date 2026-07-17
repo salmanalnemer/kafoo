@@ -1,0 +1,167 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminDonorsIndexViewModel
+
+@{
+    ViewData["Title"] = "الداعمون ومتابعة الأثر";
+}
+
+<div class="adm-donors-page">
+    <div class="adm-users-hero donor-admin-hero">
+        <div>
+            <span>الإفصاح والشفافية</span>
+            <h1>الداعمون ومتابعة الأثر</h1>
+            <p>استعراض حسابات الداعمين، مساهماتهم، التقارير، الإشعارات، وفائض الدعم من لوحة الإدارة.</p>
+        </div>
+        <div class="adm-users-actions">
+            <a class="primary" href="/Admin/Donors/Create">إنشاء داعم جديد</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="admin-alert-error">@TempData["Error"]</div>
+    }
+
+    <div class="donor-admin-stats">
+        <div><span>إجمالي الداعمين</span><strong>@Model.TotalDonors</strong></div>
+        <div><span>الداعمون المفعلون</span><strong>@Model.ActiveDonors</strong></div>
+        <div><span>طلبات بانتظار الاعتماد</span><strong>@Model.PendingSupportRequests</strong></div>
+        <div><span>إجمالي الدعم</span><strong>@Model.TotalSupportAmount.ToString("N2") ر.س</strong></div>
+        <div><span>المبالغ المتبقية</span><strong>@Model.RemainingAmount.ToString("N2") ر.س</strong></div>
+    </div>
+
+    @if (Model.PendingContributions.Any())
+    {
+        <div class="admin-new-requests-alert">
+            <div>
+                <span class="pulse-dot"></span>
+                <strong>يوجد طلب داعم جديد</strong>
+                <p>هناك @Model.PendingContributions.Count دعم بانتظار الاعتماد. افتح الطلب، راجع تفاصيل الداعم، ثم اعتمد أو أغلق الطلب.</p>
+            </div>
+            <a href="#pending-donor-requests">عرض الطلبات</a>
+        </div>
+
+        <div class="adm-users-card pending-donor-requests" id="pending-donor-requests">
+            <div class="adm-card-headline">
+                <div>
+                    <h2>طلبات الداعمين بانتظار الاعتماد</h2>
+                    <p>هذه الطلبات مرسلة من بوابة الداعم، ولا تحتاج لإعادة إدخال بياناتها من مدير النظام.</p>
+                </div>
+            </div>
+
+            <div class="adm-table-wrap">
+                <table class="adm-users-table donor-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الداعم</th>
+                            <th>البرنامج / المبادرة</th>
+                            <th>قيمة الدعم</th>
+                            <th>تاريخ الطلب</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var req in Model.PendingContributions)
+                        {
+                            <tr class="pending-row">
+                                <td class="adm-user-title">
+                                    <strong>@(req.DonorAccount?.FullName ?? "داعم")</strong>
+                                    <span>@(req.DonorAccount?.Email ?? req.DonorAccount?.Phone ?? "-")</span>
+                                </td>
+                                <td>
+                                    <strong>@req.Title</strong>
+                                    <span class="muted-line">@(req.ProgramProject?.Title ?? "برنامج غير محدد")</span>
+                                </td>
+                                <td>@req.TotalAmount.ToString("N2") ر.س</td>
+                                <td>@req.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                                <td>
+                                    <div class="adm-row-actions">
+                                        <a class="primary-link" href="/Admin/Donors/Details/@req.DonorAccountId#contribution-@req.Id">مراجعة الطلب</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="adm-users-filter donor-admin-filter">
+        <form method="get" action="/Admin/Donors">
+            <input name="q" value="@Model.Search" placeholder="ابحث باسم الداعم، البريد، الجوال، أو الجهة..." />
+            <select name="status">
+                <option value="" selected="@(string.IsNullOrWhiteSpace(Model.StatusFilter))">كل الحالات</option>
+                <option value="active" selected="@(Model.StatusFilter == "active")">مفعل</option>
+                <option value="disabled" selected="@(Model.StatusFilter == "disabled")">معطل</option>
+            </select>
+            <button type="submit">بحث</button>
+            <a href="/Admin/Donors">مسح</a>
+        </form>
+    </div>
+
+    <div class="adm-users-card">
+        @if (!Model.Donors.Any())
+        {
+            <div class="adm-empty">
+                <h3>لا يوجد داعمون مطابقون للبحث</h3>
+            </div>
+        }
+        else
+        {
+            <div class="adm-table-wrap">
+                <table class="adm-users-table donor-admin-table">
+                    <thead>
+                        <tr>
+                            <th>الداعم</th>
+                            <th>نوع الحساب</th>
+                            <th>التواصل</th>
+                            <th>المساهمات</th>
+                            <th>إجمالي الدعم</th>
+                            <th>آخر دخول</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Donors)
+                        {
+                            var total = item.Contributions?.Sum(x => x.TotalAmount) ?? 0;
+                            <tr>
+                                <td class="adm-user-title">
+                                    <strong>@item.FullName</strong>
+                                    <span>#@item.Id @(string.IsNullOrWhiteSpace(item.OrganizationName) ? "" : " - " + item.OrganizationName)</span>
+                                </td>
+                                <td>@item.DonorType</td>
+                                <td>
+                                    <div dir="ltr">@(string.IsNullOrWhiteSpace(item.Email) ? "-" : item.Email)</div>
+                                    <div dir="ltr">@(string.IsNullOrWhiteSpace(item.Phone) ? "-" : item.Phone)</div>
+                                </td>
+                                <td>@(item.Contributions?.Count ?? 0)</td>
+                                <td>@total.ToString("N2") ر.س</td>
+                                <td>@(item.LastLoginAt.HasValue ? item.LastLoginAt.Value.ToString("yyyy/MM/dd HH:mm") : "-")</td>
+                                <td>
+                                    <span class="adm-status @(item.IsActive ? "active" : "disabled")">@(item.IsActive ? "مفعل" : "معطل")</span>
+                                </td>
+                                <td>
+                                    <div class="adm-row-actions">
+                                        <a href="/Admin/Donors/Details/@item.Id">التفاصيل</a>
+                                        <a href="/Admin/Donors/Edit/@item.Id">تعديل</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .donor-admin-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:18px}.donor-admin-stats>div{background:#fff;border:1px solid #e5e7eb;border-radius:22px;padding:18px;box-shadow:0 12px 28px rgba(15,23,42,.05)}.donor-admin-stats span{display:block;color:#667085;font-weight:900;font-size:13px}.donor-admin-stats strong{display:block;margin-top:8px;color:#4db748;font-size:22px;font-weight:900}.donor-admin-filter select{border:1px solid #e5e7eb;border-radius:14px;min-height:48px;padding:0 14px;font-weight:800;background:#fff}.donor-admin-table td{vertical-align:middle}.admin-new-requests-alert{display:flex;align-items:center;justify-content:space-between;gap:16px;background:linear-gradient(135deg,#fff7ed,#fff);border:1px solid #fed7aa;border-radius:22px;padding:18px 20px;margin-bottom:18px;box-shadow:0 14px 34px rgba(234,88,12,.10)}.admin-new-requests-alert>div{display:flex;flex-direction:column;gap:5px}.admin-new-requests-alert strong{color:#9a3412;font-size:18px}.admin-new-requests-alert p{margin:0;color:#7c2d12;font-weight:800}.admin-new-requests-alert a{background:#ea580c;color:#fff;text-decoration:none;border-radius:999px;padding:11px 18px;font-weight:900;white-space:nowrap}.pulse-dot{width:11px;height:11px;border-radius:50%;background:#ef4444;display:inline-block;margin-left:8px;box-shadow:0 0 0 rgba(239,68,68,.5);animation:admPulseDot 1.1s infinite}.pending-donor-requests{margin-bottom:18px;border-color:#fed7aa}.adm-card-headline{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 0}.adm-card-headline h2{margin:0;color:#243018;font-size:20px}.adm-card-headline p{margin:6px 0 0;color:#667085;font-weight:800}.pending-row{background:#fffaf0}.primary-link{background:#4db748!important;color:#fff!important;border-radius:999px!important;padding:9px 13px!important;text-decoration:none!important}.muted-line{display:block;color:#667085;font-size:12px;margin-top:4px}@@keyframes admPulseDot{0%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}70%{box-shadow:0 0 0 9px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}@@media(max-width:1100px){.donor-admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-new-requests-alert{align-items:flex-start;flex-direction:column}}@@media(max-width:700px){.donor-admin-stats{grid-template-columns:1fr}}
+</style>
+

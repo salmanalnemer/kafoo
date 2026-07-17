@@ -1,0 +1,119 @@
+﻿@model Kafo.Web.Models.Initiative
+
+@{
+    ViewData["Title"] = "تعديل مبادرة";
+}
+
+<div class="ini-admin-page">
+
+    <div class="ini-admin-hero">
+        <div>
+            <span>التطوع والتوظيف</span>
+            <h1>تعديل مبادرة</h1>
+            <p>تحديث بيانات المبادرة والتحكم في ظهورها بالموقع.</p>
+        </div>
+
+        <div class="ini-admin-actions">
+            <a href="/Initiatives" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/Initiatives">رجوع للمبادرات</a>
+        </div>
+    </div>
+
+    <div class="ini-form-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/Initiatives/Edit/@Model.Id" class="ini-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="ImagePath" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="ini-form-grid">
+                <div class="form-group">
+                    <label>عنوان المبادرة</label>
+                    <input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>نوع المبادرة</label>
+                    <input asp-for="InitiativeType" />
+                </div>
+
+                <div class="form-group">
+                    <label>موقع التنفيذ</label>
+                    <input asp-for="Location" />
+                </div>
+
+                <div class="form-group">
+                    <label>الفئة المستهدفة</label>
+                    <input asp-for="TargetGroup" />
+                </div>
+
+                <div class="form-group">
+                    <label>عدد المستفيدين</label>
+                    <input asp-for="BeneficiariesCount" type="number" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label>رابط المشاركة / التسجيل</label>
+                    <input asp-for="RegistrationUrl" dir="ltr" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ البداية</label>
+                    <input asp-for="StartDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>تاريخ النهاية</label>
+                    <input asp-for="EndDate" type="date" />
+                </div>
+
+                <div class="form-group">
+                    <label>تغيير صورة المبادرة</label>
+                    <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp" />
+                </div>
+
+                <div class="form-group">
+                    <label>الترتيب</label>
+                    <input asp-for="DisplayOrder" type="number" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+                {
+                    <div class="form-group full">
+                        <label>الصورة الحالية</label>
+                        <img class="ini-edit-preview" src="@Model.ImagePath" alt="@Model.Title" />
+                    </div>
+                }
+
+                <div class="form-group full">
+                    <label>وصف المبادرة</label>
+                    <textarea asp-for="Description" rows="4"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>أهداف المبادرة</label>
+                    <textarea asp-for="Objectives" rows="4"></textarea>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsFeatured" />
+                    <label>مبادرة مميزة</label>
+                </div>
+
+                <div class="form-check">
+                    <input asp-for="IsActive" />
+                    <label>إظهار المبادرة</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ التعديلات</button>
+            </div>
+        </form>
+    </div>
+
+</div>

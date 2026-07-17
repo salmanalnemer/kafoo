@@ -1,0 +1,84 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.AidReport>
+
+@{
+    ViewData["Title"] = "تقارير المساعدات";
+}
+
+<section class="aid-public-page">
+    <div class="home-container">
+
+        <div class="aid-public-head">
+            <span>المركز الإعلامي</span>
+            <h1>تقارير المساعدات</h1>
+            <p>استعراض تقارير المساعدات المقدمة للمستفيدين وأثرها المجتمعي.</p>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="aid-public-empty">
+                <h3>لا توجد تقارير حالياً</h3>
+                <p>سيتم عرض تقارير المساعدات هنا عند إضافتها من لوحة التحكم.</p>
+            </div>
+        }
+        else
+        {
+            <div class="aid-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="aid-public-card">
+                        <div class="aid-card-cover">
+                            @if (!string.IsNullOrWhiteSpace(item.CoverImagePath))
+                            {
+                                <img src="@item.CoverImagePath" alt="@item.Title" />
+                            }
+                            else
+                            {
+                                <strong>تقرير</strong>
+                            }
+
+                            @if (item.IsFeatured)
+                            {
+                                <b>مميز</b>
+                            }
+                        </div>
+
+                        <div class="aid-card-content">
+                            <span>@item.ReportType</span>
+                            <h2>@item.Title</h2>
+
+                            <div class="aid-card-period">@item.PeriodLabel</div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p>@item.Description</p>
+                            }
+
+                            <div class="aid-card-stats">
+                                <div>
+                                    <strong>@item.BeneficiariesCount.ToString("N0")</strong>
+                                    <small>مستفيد</small>
+                                </div>
+
+                                <div>
+                                    <strong>@item.FamiliesCount.ToString("N0")</strong>
+                                    <small>أسرة</small>
+                                </div>
+
+                                <div>
+                                    <strong>@item.TotalAmount.ToString("N0")</strong>
+                                    <small>ريال</small>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                            {
+                                <a href="@item.FilePath" target="_blank" rel="noopener noreferrer" class="aid-card-file">عرض التقرير</a>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+
+    </div>
+</section>

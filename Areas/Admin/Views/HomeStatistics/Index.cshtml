@@ -1,0 +1,148 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.HomeStatistic>
+
+@{
+    ViewData["Title"] = "الأرقام والإحصائيات";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>الصفحة الرئيسية</span>
+        <h1>الأرقام والإحصائيات</h1>
+        <p>
+            إدارة أرقام العدادات التي تظهر أسفل السلايدر في الواجهة الرئيسية.
+            الأرقام تتحرك تلقائياً عند وصول الزائر إلى القسم.
+        </p>
+    </div>
+
+    <a class="admin-main-action" href="/Admin/HomeStatistics/Create">إضافة إحصائية</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="stats-admin-preview">
+    @if (Model.Any())
+    {
+        foreach (var item in Model.OrderBy(x => x.DisplayOrder))
+        {
+            <article class="stats-admin-preview-card @(item.IsActive ? "" : "disabled")">
+                <div class="stats-admin-icon">
+                    @if (!string.IsNullOrWhiteSpace(item.Icon) && item.Icon.StartsWith("fa-"))
+                    {
+                        <i class="@item.Icon"></i>
+                    }
+                    else
+                    {
+                        <span>@(string.IsNullOrWhiteSpace(item.Icon) ? "♡" : item.Icon)</span>
+                    }
+                </div>
+
+                <strong>@item.Value</strong>
+                <span>@item.Title</span>
+            </article>
+        }
+    }
+    else
+    {
+        <article class="stats-admin-preview-card">
+            <div class="stats-admin-icon"><span>♡</span></div>
+            <strong>855</strong>
+            <span>الخدمات المقدمة</span>
+        </article>
+
+        <article class="stats-admin-preview-card">
+            <div class="stats-admin-icon"><span>♙</span></div>
+            <strong>231,818,337</strong>
+            <span>زوار الموقع</span>
+        </article>
+
+        <article class="stats-admin-preview-card">
+            <div class="stats-admin-icon"><span>☑</span></div>
+            <strong>36,687,106</strong>
+            <span>المعاملات المنجزة</span>
+        </article>
+    }
+</div>
+
+<div class="admin-card">
+    <div class="admin-table-wrap">
+        <table class="admin-modern-table">
+            <thead>
+                <tr>
+                    <th>الترتيب</th>
+                    <th>الأيقونة</th>
+                    <th>العنوان</th>
+                    <th>الرقم</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="dash-empty">لا توجد إحصائيات حتى الآن.</div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.DisplayOrder</td>
+                            <td>
+                                <div class="table-icon-box">
+                                    @if (!string.IsNullOrWhiteSpace(item.Icon) && item.Icon.StartsWith("fa-"))
+                                    {
+                                        <i class="@item.Icon"></i>
+                                    }
+                                    else
+                                    {
+                                        <span>@(string.IsNullOrWhiteSpace(item.Icon) ? "♡" : item.Icon)</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <strong>@item.Title</strong>
+                            </td>
+                            <td>
+                                <strong class="table-number">@item.Value</strong>
+                            </td>
+                            <td>
+                                @if (item.IsActive)
+                                {
+                                    <span class="dash-status active">مفعل</span>
+                                }
+                                else
+                                {
+                                    <span class="dash-status inactive">غير مفعل</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <a class="admin-small-btn purple" href="/Admin/HomeStatistics/Edit/@item.Id">تعديل</a>
+
+                                    <form method="post" action="/Admin/HomeStatistics/ToggleStatus/@item.Id">
+                                        @Html.AntiForgeryToken()
+                                        <button class="admin-small-btn green" type="submit">
+                                            @(item.IsActive ? "إلغاء التفعيل" : "تفعيل")
+                                        </button>
+                                    </form>
+
+                                    <form method="post" action="/Admin/HomeStatistics/Delete/@item.Id" data-confirm="هل أنت متأكد من حذف الإحصائية؟">
+                                        @Html.AntiForgeryToken()
+                                        <button class="admin-small-btn danger" type="submit">حذف</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

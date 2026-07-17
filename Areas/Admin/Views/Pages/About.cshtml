@@ -1,0 +1,89 @@
+﻿@model Kafo.Web.Models.SiteContentPage
+
+@{
+    ViewData["Title"] = "من نحن";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>عن الجمعية</span>
+        <h1>صفحة من نحن</h1>
+        <p>إدارة محتوى صفحة من نحن الظاهرة في الموقع العام.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/About" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+<div class="about-admin-layout">
+    <div class="admin-form-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="PageKey" type="hidden" />
+            <input asp-for="CreatedAt" type="hidden" />
+            <input asp-for="UpdatedAt" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Title">عنوان الصفحة</label>
+                    <input asp-for="Title" placeholder="من نحن" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Subtitle">العنوان الفرعي</label>
+                    <input asp-for="Subtitle" placeholder="جمعية كفؤ لتمكين ذوي الإعاقة بحائل" />
+                </div>
+
+                <div class="form-group full">
+                    <label asp-for="Content">محتوى الصفحة</label>
+                    <textarea asp-for="Content" rows="10"></textarea>
+                    <span asp-validation-for="Content"></span>
+                </div>
+
+                <div class="form-group full">
+                    <label>صورة الصفحة</label>
+                    <input type="file" name="imageFile" accept=".jpg,.jpeg,.png,.webp" />
+                    <small>الصورة تظهر في صفحة من نحن. المقاس المقترح 900×650.</small>
+                </div>
+
+                <div class="form-check full">
+                    <input asp-for="IsActive" />
+                    <label asp-for="IsActive">إظهار الصفحة في الموقع</label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="admin-submit-btn" type="submit">حفظ الصفحة</button>
+                <a href="/Admin/Dashboard">إلغاء</a>
+            </div>
+        </form>
+    </div>
+
+    <aside class="about-admin-preview">
+        <span>معاينة مختصرة</span>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ImagePath))
+        {
+            <img src="@Model.ImagePath" alt="@Model.Title" />
+        }
+        else
+        {
+            <div class="about-admin-empty-image">لا توجد صورة</div>
+        }
+
+        <h2>@Model.Title</h2>
+        <h3>@Model.Subtitle</h3>
+        <p>@Model.Content</p>
+    </aside>
+</div>

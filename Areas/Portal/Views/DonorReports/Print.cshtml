@@ -1,0 +1,119 @@
+@model DonorSupportPrintViewModel
+@{
+    Layout = null;
+    var isSingle = Model.Contributions.Count == 1;
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@Model.ReportTitle</title>
+    <link rel="stylesheet" href="~/css/donor-support-reports.css" asp-append-version="true" />
+</head>
+<body class="support-print-body">
+    <div class="support-print-toolbar">
+        <button type="button" data-browser-action="print">طباعة أو حفظ PDF</button>
+        <button type="button" class="light" data-browser-action="close">إغلاق</button>
+    </div>
+
+    <main class="support-print-sheet">
+        <header class="support-print-header">
+            <img src="/images/logo1.png" alt="جمعية كفو" />
+            <div>
+                <span>جمعية كفو</span>
+                <h1>@Model.ReportTitle</h1>
+                <p>تقرير صادر من بوابة الداعمين</p>
+            </div>
+            <div class="support-print-date">
+                <span>تاريخ الإصدار</span>
+                <strong>@Model.GeneratedAt.ToString("yyyy/MM/dd")</strong>
+            </div>
+        </header>
+
+        <section class="support-print-donor">
+            <div><span>اسم الداعم</span><strong>@Model.DonorName</strong></div>
+            @if (!string.IsNullOrWhiteSpace(Model.DonorCode))
+            {
+                <div><span>البريد الإلكتروني</span><strong dir="ltr">@Model.DonorCode</strong></div>
+            }
+            <div><span>عدد المساهمات</span><strong>@Model.Contributions.Count</strong></div>
+        </section>
+
+        <section class="support-print-summary">
+            <article><span>إجمالي الدعم</span><strong>@Model.TotalAmount.ToString("N2") ر.س</strong></article>
+            <article><span>المبلغ المصروف</span><strong>@Model.TotalSpent.ToString("N2") ر.س</strong></article>
+            <article><span>المبلغ المتبقي</span><strong>@Model.TotalRemaining.ToString("N2") ر.س</strong></article>
+            <article><span>إجمالي المستفيدين</span><strong>@Model.TotalBeneficiaries</strong></article>
+        </section>
+
+        @foreach (var contribution in Model.Contributions)
+        {
+            <section class="support-print-contribution">
+                <div class="support-print-contribution-head">
+                    <div>
+                        <span>@contribution.Status</span>
+                        <h2>@contribution.Title</h2>
+                        <p>@(contribution.ProgramProject?.Title ?? "برنامج غير محدد")</p>
+                    </div>
+                    <strong>@contribution.TotalAmount.ToString("N2") ر.س</strong>
+                </div>
+
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>رقم المساهمة</th>
+                            <td dir="ltr">@(string.IsNullOrWhiteSpace(contribution.ContributionCode) ? $"CONT-{contribution.Id:0000}" : contribution.ContributionCode)</td>
+                            <th>تاريخ الدعم</th>
+                            <td>@contribution.CreatedAt.ToString("yyyy/MM/dd")</td>
+                        </tr>
+                        <tr>
+                            <th>نسبة الإنجاز</th>
+                            <td>@contribution.ProgressPercent%</td>
+                            <th>عدد المستفيدين</th>
+                            <td>@contribution.BeneficiariesCount</td>
+                        </tr>
+                        <tr>
+                            <th>المبلغ المصروف</th>
+                            <td>@contribution.SpentAmount.ToString("N2") ر.س</td>
+                            <th>المبلغ المتبقي</th>
+                            <td>@contribution.RemainingAmount.ToString("N2") ر.س</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                @if (!string.IsNullOrWhiteSpace(contribution.ImpactSummary))
+                {
+                    <div class="support-print-section">
+                        <h3>ملخص أثر الدعم</h3>
+                        <p>@contribution.ImpactSummary</p>
+                    </div>
+                }
+
+                @if (contribution.Updates.Any())
+                {
+                    <div class="support-print-section">
+                        <h3>مراحل التنفيذ والتحديثات</h3>
+                        <div class="support-print-timeline">
+                            @foreach (var update in contribution.Updates.OrderByDescending(x => x.CreatedAt))
+                            {
+                                <article>
+                                    <span>@update.CreatedAt.ToString("yyyy/MM/dd")</span>
+                                    <strong>@update.Title</strong>
+                                    @if (!string.IsNullOrWhiteSpace(update.Details)) { <p>@update.Details</p> }
+                                </article>
+                            }
+                        </div>
+                    </div>
+                }
+            </section>
+        }
+
+        <footer class="support-print-footer">
+            <p>هذا التقرير صادر إلكترونيًا من بوابة الداعمين في جمعية كفو.</p>
+            <span>صفحة تقارير الدعم</span>
+        </footer>
+    </main>
+    <script src="/js/security-ui.js" defer></script>
+</body>
+</html>

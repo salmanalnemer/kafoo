@@ -1,0 +1,201 @@
+﻿@{
+    var title = ViewData["Title"]?.ToString() ?? "بوابة كفو";
+    var currentPath = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
+    var portalType = User.FindFirst("KafoPortalType")?.Value ?? "Donor";
+    var isDonor = string.Equals(portalType, "Donor", StringComparison.OrdinalIgnoreCase);
+    var bodyClass = isDonor ? "donor-portal" : "organization-portal";
+    var portalTitle = isDonor ? "بوابة الداعمين" : "بوابة الشركات والجهات";
+    var portalSubtitle = isDonor ? "الإفصاح ومتابعة أثر الدعم" : "الاستقطاب والتوظيف والفرص";
+    var portalHome = isDonor ? "/Portal/Donor/Dashboard" : "/Portal/Organization/Dashboard";
+
+    Func<string, string> active = url =>
+    {
+        var value = url.ToLowerInvariant();
+        return currentPath == value || currentPath.StartsWith(value + "/") ? "is-active" : "";
+    };
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title | @portalTitle</title>
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal-notifications-clean.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/donor-contribution-details-clean.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/donor-contribution-premium.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/donor-support-reports.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/organization-portal.css" asp-append-version="true" />
+</head>
+<body class="kafo-admin-body portal-body @bodyClass">
+    <div class="kafo-admin-shell portal-admin-shell">
+        <aside class="kafo-admin-sidebar portal-admin-sidebar">
+            <a class="kafo-admin-brand portal-admin-brand" href="@portalHome">
+                <img src="/images/logo1.png" alt="جمعية كفو" />
+                <div>
+                    <strong>@portalTitle</strong>
+                    <span>@portalSubtitle</span>
+                </div>
+            </a>
+
+            <nav class="kafo-admin-nav portal-admin-nav">
+                @if (isDonor)
+                {
+                    <div class="kafo-menu-section" data-section="portal-donor-main">
+                        <button type="button" class="kafo-menu-title"><span>لوحة الداعم</span><b>⌄</b></button>
+                        <div class="kafo-menu-links">
+                            <a class="@active("/Portal/Donor/Dashboard")" href="/Portal/Donor/Dashboard"><span class="kafo-menu-icon">◉</span><span>الرئيسية</span></a>
+                            <a class="@active("/Portal/Donor/Programs")" href="/Portal/Donor/Programs"><span class="kafo-menu-icon">▰</span><span>البرامج المراد دعمها</span></a>
+                            <a class="@active("/Portal/Donor/Contributions")" href="/Portal/Donor/Contributions"><span class="kafo-menu-icon">﷼</span><span>مساهماتي</span></a>
+                        </div>
+                    </div>
+
+                    <div class="kafo-menu-section" data-section="portal-donor-impact">
+                        <button type="button" class="kafo-menu-title"><span>الأثر والتقارير</span><b>⌄</b></button>
+                        <div class="kafo-menu-links">
+                            <a class="@active("/Portal/Donor/Reports")" href="/Portal/Donor/Reports"><span class="kafo-menu-icon">▣</span><span>تقارير الدعم</span></a>
+                            <a class="@active("/Portal/Donor/Surplus")" href="/Portal/Donor/Surplus"><span class="kafo-menu-icon">◇</span><span>فائض الدعم</span></a>
+                            <a class="@active("/Portal/Donor/Notifications")" href="/Portal/Donor/Notifications"><span class="kafo-menu-icon">●</span><span>الإشعارات</span></a>
+                        </div>
+                    </div>
+
+                    <div class="kafo-menu-section" data-section="portal-donor-transparency">
+                        <button type="button" class="kafo-menu-title"><span>الإفصاح والشفافية</span><b>⌄</b></button>
+                        <div class="kafo-menu-links">
+                            <a class="@active("/Portal/Donor/Disclosure")" href="/Portal/Donor/Disclosure"><span class="kafo-menu-icon">♦</span><span>مركز الإفصاح</span></a>
+                            <!--<a href="/FinancialStatements"><span class="kafo-menu-icon">▥</span><span>القوائم المالية</span></a>-->
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="kafo-menu-section" data-section="portal-organization-main">
+                        <button type="button" class="kafo-menu-title"><span>الرئيسية</span><b>⌄</b></button>
+                        <div class="kafo-menu-links">
+                            <a class="@active("/Portal/Organization/Dashboard")" href="/Portal/Organization/Dashboard"><span class="kafo-menu-icon">◉</span><span>لوحة الجهة</span></a>
+                            <a class="@active("/Portal/Organization/OpportunityRequests")" href="/Portal/Organization/OpportunityRequests"><span class="kafo-menu-icon">▤</span><span>طلبات الاستقطاب</span></a>
+                            <a class="@active("/Portal/Organization/OpportunityRequests/Create")" href="/Portal/Organization/OpportunityRequests/Create"><span class="kafo-menu-icon">＋</span><span>طلب جديد</span></a>
+                            <a class="@active("/Portal/Organization/Candidates")" href="/Portal/Organization/Candidates"><span class="kafo-menu-icon">◎</span><span>المرشحون</span></a>
+                            <a class="@active("/Portal/Organization/Reports")" href="/Portal/Organization/Reports"><span class="kafo-menu-icon">▣</span><span>التقارير</span></a>
+                            <a class="@active("/Portal/Organization/Notifications")" href="/Portal/Organization/Notifications"><span class="kafo-menu-icon">●</span><span>الإشعارات</span></a>
+                        </div>
+                    </div>
+
+                    <div class="kafo-menu-section" data-section="portal-organization-opportunities">
+                        <button type="button" class="kafo-menu-title"><span>الفرص العامة</span><b>⌄</b></button>
+                        <div class="kafo-menu-links">
+                            <a href="/Jobs"><span class="kafo-menu-icon">▰</span><span>الوظائف</span></a>
+                            <a href="/VolunteerOpportunities"><span class="kafo-menu-icon">◒</span><span>الفرص التطوعية</span></a>
+                            <a href="/Contact"><span class="kafo-menu-icon">▱</span><span>التواصل مع الجمعية</span></a>
+                        </div>
+                    </div>
+                }
+
+                <div class="kafo-menu-section" data-section="portal-account">
+                    <button type="button" class="kafo-menu-title"><span>الحساب</span><b>⌄</b></button>
+                    <div class="kafo-menu-links">
+                        @if (isDonor)
+                        {
+                            <a class="@active("/Portal/Donor/Profile")" href="/Portal/Donor/Profile"><span class="kafo-menu-icon">☉</span><span>بيانات الحساب</span></a>
+                        }
+                        else
+                        {
+                            <a class="@active("/Portal/Organization/Profile")" href="/Portal/Organization/Profile"><span class="kafo-menu-icon">☉</span><span>الملف التعريفي</span></a>
+                            <a class="@active("/Portal/Organization/Evaluations")" href="/Portal/Organization/Evaluations"><span class="kafo-menu-icon">★</span><span>تقييم الخدمة</span></a>
+                        }
+                        <a href="/Contact"><span class="kafo-menu-icon">▱</span><span>الدعم والمساندة</span></a>
+                    </div>
+                </div>
+
+                <form class="portal-sidebar-logout" method="post" action="/Portal/Logout">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"><span class="kafo-menu-icon">🚪</span><span>تسجيل الخروج</span></button>
+                </form>
+            </nav>
+        </aside>
+
+        <main class="kafo-admin-main portal-admin-main">
+            <header class="kafo-admin-topbar portal-admin-topbar">
+                <div>
+                    <span>جمعية كفو</span>
+                    <h1>@title</h1>
+                </div>
+
+                <div class="portal-top-actions">
+                    <div class="portal-notification-wrap" data-portal-notifications data-portal-notifications-page="@(isDonor ? "/Portal/Donor/Notifications" : "/Portal/Organization/Notifications")">
+                        <button type="button" class="portal-bell" data-notification-toggle aria-label="الإشعارات" aria-expanded="false">
+                            <span class="portal-bell-icon">🔔</span>
+                            <span class="portal-bell-count" data-notification-count hidden>0</span>
+                        </button>
+
+                        <div class="portal-notification-dropdown" data-notification-panel hidden>
+                            <div class="portal-notification-head">
+                                <strong>الإشعارات</strong>
+                                <button type="button" data-notification-mark-read>تعليم الكل كمقروء</button>
+                            </div>
+                            <div class="portal-notification-list" data-notification-list>
+                                <div class="portal-notification-empty">لا توجد إشعارات جديدة.</div>
+                            </div>
+                            <a class="portal-notification-more" href="@(isDonor ? "/Portal/Donor/Notifications" : "/Portal/Organization/Notifications")">عرض كل الإشعارات</a>
+                        </div>
+                    </div>
+
+                    <span class="portal-user-chip">@User.Identity?.Name</span>
+                    <a href="/" target="_blank" rel="noopener noreferrer">زيارة الموقع</a>
+                </div>
+            </header>
+
+            <section class="kafo-admin-content portal-admin-content">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="portal-alert success">@TempData["Success"]</div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="portal-alert error">@TempData["Error"]</div>
+                }
+
+                @RenderBody()
+            </section>
+        </main>
+    </div>
+
+    <script>
+        (function () {
+            var sections = document.querySelectorAll(".kafo-menu-section");
+
+            sections.forEach(function (section) {
+                var key = "kafo-portal-sidebar-" + section.getAttribute("data-section");
+                var button = section.querySelector(".kafo-menu-title");
+                var hasActive = section.querySelector("a.is-active") !== null;
+                var saved = localStorage.getItem(key);
+
+                if (saved === "closed" && !hasActive) {
+                    section.classList.add("is-collapsed");
+                }
+
+                if (hasActive) {
+                    section.classList.remove("is-collapsed");
+                    localStorage.setItem(key, "open");
+                }
+
+                if (button) {
+                    button.addEventListener("click", function () {
+                        section.classList.toggle("is-collapsed");
+                        localStorage.setItem(key, section.classList.contains("is-collapsed") ? "closed" : "open");
+                    });
+                }
+            });
+        })();
+    </script>
+    <script src="~/js/portal-notifications.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/donor-contribution-details-clean.js" asp-append-version="true"></script>
+    <script src="~/js/donor-contribution-premium.js" asp-append-version="true"></script>
+    <script src="/js/security-ui.js" defer></script>
+</body>
+</html>
+
+

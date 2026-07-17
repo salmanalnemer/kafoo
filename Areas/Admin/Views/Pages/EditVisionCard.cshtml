@@ -1,0 +1,110 @@
+﻿@model Kafo.Web.Models.VisionMissionCard
+
+@{
+    ViewData["Title"] = "تعديل بطاقة";
+    var icons = new[]
+    {
+        "fa-solid fa-eye",
+        "fa-solid fa-envelope",
+        "fa-solid fa-gem",
+        "fa-solid fa-heart",
+        "fa-solid fa-award",
+        "fa-solid fa-star",
+        "fa-solid fa-hand-holding-heart",
+        "fa-solid fa-bullseye",
+        "fa-solid fa-people-group",
+        "fa-solid fa-lightbulb",
+        "fa-solid fa-seedling",
+        "fa-solid fa-shield-heart"
+    };
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>الرؤية والرسالة</span>
+        <h1>تعديل البطاقة</h1>
+        <p>تعديل العنوان، المحتوى، الأيقونة، والترتيب.</p>
+    </div>
+
+    <a class="admin-back-link" href="/Admin/Pages/Vision">العودة</a>
+</div>
+
+<div class="admin-form-card">
+    <form method="post" class="admin-form">
+        @Html.AntiForgeryToken()
+
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="CreatedAt" type="hidden" />
+        <input asp-for="UpdatedAt" type="hidden" />
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Title">عنوان البطاقة</label>
+                <input asp-for="Title" />
+                <span asp-validation-for="Title"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DisplayOrder">الترتيب</label>
+                <input asp-for="DisplayOrder" type="number" />
+            </div>
+
+            <div class="form-group full">
+                <label asp-for="Content">المحتوى</label>
+                <textarea asp-for="Content" rows="6"></textarea>
+                <span asp-validation-for="Content"></span>
+            </div>
+
+            <div class="form-group full">
+                <label>الأيقونة</label>
+                <input asp-for="Icon" type="hidden" id="editVisionIconInput" />
+
+                <div class="vision-icon-picker">
+                    @foreach (var icon in icons)
+                    {
+                        <button type="button" class="vision-icon-option @(Model.Icon == icon ? "selected" : "")" data-icon="@icon">
+                            <i class="@icon"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <div class="form-check full">
+                <input asp-for="IsActive" />
+                <label asp-for="IsActive">مفعل</label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="admin-submit-btn" type="submit">حفظ التعديل</button>
+            <a href="/Admin/Pages/Vision">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const iconInput = document.getElementById("editVisionIconInput");
+            const buttons = document.querySelectorAll(".vision-icon-option");
+
+            function setIcon(icon) {
+                if (!iconInput) return;
+
+                iconInput.value = icon;
+
+                buttons.forEach(btn => {
+                    btn.classList.toggle("selected", btn.dataset.icon === icon);
+                });
+            }
+
+            buttons.forEach(btn => {
+                btn.addEventListener("click", function () {
+                    setIcon(btn.dataset.icon);
+                });
+            });
+
+            setIcon(iconInput && iconInput.value ? iconInput.value : "fa-solid fa-eye");
+        })();
+    </script>
+}

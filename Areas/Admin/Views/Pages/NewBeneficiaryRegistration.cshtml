@@ -1,0 +1,220 @@
+﻿@model Kafo.Web.ViewModels.Admin.NewBeneficiaryRegistrationAdminViewModel
+
+@{
+    ViewData["Title"] = "إعداد تسجيل مستفيد جديد";
+
+    var videoType = string.IsNullOrWhiteSpace(Model.Page.VideoSourceType) ? "Youtube" : Model.Page.VideoSourceType;
+    var isYoutube = videoType == "Youtube";
+    var isUpload = videoType == "Upload";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>الخدمات الإلكترونية</span>
+        <p>من هنا تعدل الفيديو، رابط التسجيل، الواتساب، التنبيه، والمستندات المطلوبة.</p>
+    </div>
+
+    <div class="admin-head-actions">
+        <a class="admin-back-link" href="/NewBeneficiaryRegistration" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="admin-alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="admin-alert-danger">@TempData["Error"]</div>
+}
+
+<div class="nbr-admin-grid">
+
+    <section class="admin-form-card nbr-admin-main-card">
+        <form method="post" enctype="multipart/form-data" action="/Admin/Pages/NewBeneficiaryRegistration" class="admin-form">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" name="Page.Id" value="@Model.Page.Id" />
+            <input type="hidden" name="Page.VideoPath" value="@Model.Page.VideoPath" />
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>عنوان الصفحة</label>
+                    <input name="Page.Title" value="@Model.Page.Title" required />
+                </div>
+
+                <div class="form-group">
+                    <label>العنوان الفرعي</label>
+                    <input name="Page.Subtitle" value="@Model.Page.Subtitle" />
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف الصفحة</label>
+                    <textarea name="Page.Description" rows="4" required>@Model.Page.Description</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>مصدر الفيديو</label>
+                    <select name="Page.VideoSourceType" id="newBeneficiaryVideoType">
+                        <option value="Youtube" selected="@isYoutube">رابط YouTube</option>
+                        <option value="Upload" selected="@isUpload">رفع فيديو</option>
+                    </select>
+                </div>
+
+                <div class="form-group nbr-youtube-field">
+                    <label>رابط YouTube</label>
+                    <input name="Page.YoutubeUrl" value="@Model.Page.YoutubeUrl" dir="ltr" placeholder="https://www.youtube.com/watch?v=..." />
+                </div>
+
+                <div class="form-group nbr-upload-field">
+                    <label>رفع فيديو</label>
+                    <input type="file" name="videoFile" accept=".mp4,.webm,.mov" />
+                    <small>المسموح MP4 / WEBM / MOV.</small>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Page.VideoPath))
+                    {
+                        <small>الفيديو الحالي: @Model.Page.VideoPath</small>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label>نص زر التسجيل</label>
+                    <input name="Page.RegisterButtonText" value="@Model.Page.RegisterButtonText" />
+                </div>
+
+                <div class="form-group">
+                    <label>رابط التسجيل</label>
+                    <input name="Page.RegisterButtonUrl" value="@Model.Page.RegisterButtonUrl" dir="ltr" placeholder="https://... أو /..." />
+                </div>
+
+                <div class="form-group">
+                    <label>عنوان التنبيه</label>
+                    <input name="Page.AlertTitle" value="@Model.Page.AlertTitle" />
+                </div>
+
+                <div class="form-group">
+                    <label>نص التنبيه</label>
+                    <textarea name="Page.AlertText" rows="3">@Model.Page.AlertText</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>رقم الواتساب</label>
+                    <input name="Page.WhatsAppNumber" value="@Model.Page.WhatsAppNumber" dir="ltr" placeholder="966500000000 أو 0500000000" />
+                </div>
+
+                <div class="form-group">
+                    <label>نص زر الواتساب</label>
+                    <input name="Page.WhatsAppButtonText" value="@Model.Page.WhatsAppButtonText" />
+                </div>
+
+                <div class="form-group full">
+                    <label>رسالة واتساب الافتراضية</label>
+                    <textarea name="Page.WhatsAppMessage" rows="3">@Model.Page.WhatsAppMessage</textarea>
+                </div>
+
+                <div class="form-check">
+                    <input type="hidden" name="Page.OpenRegisterInNewTab" value="false" />
+                    <input type="checkbox" name="Page.OpenRegisterInNewTab" value="true" checked="@Model.Page.OpenRegisterInNewTab" />
+                    <label>فتح رابط التسجيل في تبويب جديد إذا كان خارجي</label>
+                </div>
+
+                <div class="form-check">
+                    <input type="hidden" name="Page.ShowWhatsAppButton" value="false" />
+                    <input type="checkbox" name="Page.ShowWhatsAppButton" value="true" checked="@Model.Page.ShowWhatsAppButton" />
+                    <label>إظهار زر واتساب</label>
+                </div>
+
+                <div class="form-check">
+                    <input type="hidden" name="Page.IsActive" value="false" />
+                    <input type="checkbox" name="Page.IsActive" value="true" checked="@Model.Page.IsActive" />
+                    <label>إظهار الصفحة</label>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="admin-submit-btn">حفظ إعداد الصفحة</button>
+            </div>
+        </form>
+    </section>
+
+    <aside class="nbr-admin-side-card">
+        <div class="nbr-admin-side-head">
+            <span>المستندات المطلوبة</span>
+            <h2>إدارة القائمة</h2>
+        </div>
+
+        <form method="post" action="/Admin/Pages/NewBeneficiaryRegistration/AddRequirement" class="nbr-admin-add-form">
+            @Html.AntiForgeryToken()
+
+            <input name="NewRequirement.Title" placeholder="اسم المستند أو الشرط" required />
+            <input name="NewRequirement.Note" placeholder="ملاحظة مختصرة" />
+            <input name="NewRequirement.Icon" value="▣" placeholder="الأيقونة مثل ▣ أو ✓" />
+            <input name="NewRequirement.DisplayOrder" type="number" placeholder="الترتيب" />
+
+            <label class="nbr-admin-inline-check">
+                <input type="checkbox" name="NewRequirement.IsActive" value="true" checked />
+                مفعل
+            </label>
+
+            <button type="submit">إضافة مستند</button>
+        </form>
+
+        <div class="nbr-admin-req-list">
+            @foreach (var item in Model.Requirements)
+            {
+                <div class="nbr-admin-req-item @(item.IsActive ? "" : "is-disabled")">
+                    <div class="nbr-admin-req-info">
+                        <b>@item.Icon</b>
+                        <div>
+                            <strong>@item.Title</strong>
+
+                            @if (!string.IsNullOrWhiteSpace(item.Note))
+                            {
+                                <small>@item.Note</small>
+                            }
+
+                            <small>الترتيب: @item.DisplayOrder</small>
+                        </div>
+                    </div>
+
+                    <div class="nbr-admin-req-actions">
+                        <form method="post" action="/Admin/Pages/NewBeneficiaryRegistration/ToggleRequirement/@item.Id">
+                            @Html.AntiForgeryToken()
+                            <button type="submit">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                        </form>
+
+                        <form method="post" action="/Admin/Pages/NewBeneficiaryRegistration/DeleteRequirement/@item.Id" data-confirm="هل تريد حذف هذا المستند؟">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="danger">حذف</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </aside>
+
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const select = document.getElementById("newBeneficiaryVideoType");
+            const youtube = document.querySelector(".nbr-youtube-field");
+            const upload = document.querySelector(".nbr-upload-field");
+
+            function refreshVideoFields() {
+                const isUpload = select.value === "Upload";
+                youtube.style.display = isUpload ? "none" : "";
+                upload.style.display = isUpload ? "" : "none";
+            }
+
+            if (select) {
+                select.addEventListener("change", refreshVideoFields);
+                refreshVideoFields();
+            }
+        })();
+    </script>
+}

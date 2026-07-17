@@ -1,0 +1,16 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminDonorContributionFormViewModel
+@{
+    ViewData["Title"] = "إضافة مساهمة للداعم";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>مساهمات الداعمين</span>
+        <h1>إضافة مساهمة جديدة</h1>
+        <p>ربط دعم الداعم ببرنامج أو مشروع، وتحديد الحالة والمبالغ ونسبة الإنجاز.</p>
+    </div>
+    <a class="admin-back-link" href="/Admin/Donors/Details/@Model.DonorAccountId">رجوع</a>
+</div>
+
+<partial name="~/Areas/Admin/Views/Donors/_ContributionForm.cshtml" model="Model" />
+

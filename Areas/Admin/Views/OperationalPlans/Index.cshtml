@@ -1,0 +1,162 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.OperationalPlanDocument>
+
+@{
+    ViewData["Title"] = "الخطط التشغيلية";
+    var search = ViewBag.Search as string ?? "";
+    var count = Model?.Count ?? 0;
+}
+
+<div class="gov-file-page">
+
+    <div class="gov-file-form-card">
+        <div class="gov-file-head">
+            <div>
+                <span>ملفات الحوكمة</span>
+                <h1>الخطط التشغيلية</h1>
+                <p>إضافة وإدارة ملفات الخطط التشغيلية بصيغة PDF.</p>
+            </div>
+
+            <a href="/OperationalPlans" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="admin-alert-success">@TempData["Success"]</div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="admin-alert-error">@TempData["Error"]</div>
+        }
+
+        <form method="post" enctype="multipart/form-data" action="/Admin/OperationalPlans/Create" class="gov-file-form">
+            @Html.AntiForgeryToken()
+
+            <div class="gov-file-grid">
+                <div class="form-group full">
+                    <label>عنوان الملف</label>
+                    <input name="Title" required placeholder="مثال: الخطة التشغيلية لعام 2026" />
+                </div>
+
+                <div class="form-group">
+                    <label>السنة</label>
+                    <input name="Year" value="@DateTime.Now.Year" required />
+                </div>
+
+                <div class="form-group">
+                    <label>التصنيف</label>
+                    <select name="Category" required>
+                        <option value="الخطط التشغيلية">الخطط التشغيلية</option>
+                        <option value="الخطة التشغيلية السنوية">الخطة التشغيلية السنوية</option>
+                        <option value="خطة البرامج والمشاريع">خطة البرامج والمشاريع</option>
+                        <option value="خطة الأداء والمؤشرات">خطة الأداء والمؤشرات</option>
+                        <option value="خطة المتابعة والتقييم">خطة المتابعة والتقييم</option>
+                        <option value="خطة الاتصال المؤسسي">خطة الاتصال المؤسسي</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+
+                <div class="form-group full">
+                    <label>وصف مختصر</label>
+                    <textarea name="Description" rows="3" placeholder="وصف اختياري للملف"></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>الملف (PDF)</label>
+                    <input type="file" name="documentFile" accept=".pdf" required />
+                </div>
+            </div>
+
+            <div class="gov-file-actions">
+                <button type="submit">رفع الملف</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="gov-file-table-card">
+        <div class="gov-table-head">
+            <h2>الملفات الحالية (@count)</h2>
+
+            <form method="get" action="/Admin/OperationalPlans">
+                <input name="q" value="@search" placeholder="بحث..." />
+                <button type="submit">بحث</button>
+                <a href="/Admin/OperationalPlans">مسح</a>
+            </form>
+        </div>
+
+        <div class="gov-file-table-wrap">
+            <table class="gov-file-table">
+                <thead>
+                    <tr>
+                        <th>العنوان</th>
+                        <th>السنة</th>
+                        <th>التصنيف</th>
+                        <th>الحالة</th>
+                        <th>تحميل</th>
+                        <th>إخفاء/إظهار</th>
+                        <th>حذف</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="gov-empty-row">لا توجد ملفات في هذا القسم.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="gov-file-title">
+                                    <strong>@item.Title</strong>
+                                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                                    {
+                                        <span>@item.Description</span>
+                                    }
+                                </td>
+
+                                <td>@item.Year</td>
+                                <td>@item.Category</td>
+
+                                <td>
+                                    <span class="gov-status @(item.IsActive ? "active" : "disabled")">
+                                        @(item.IsActive ? "ظاهر" : "مخفي")
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.FilePath))
+                                    {
+                                        <a class="gov-open-file" href="@item.FilePath" target="_blank" rel="noopener noreferrer" download>تحميل</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <form method="post" action="/Admin/OperationalPlans/Toggle/@item.Id">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="gov-mini-btn">@(item.IsActive ? "إخفاء" : "إظهار")</button>
+                                    </form>
+                                </td>
+
+                                <td>
+                                    <form method="post" action="/Admin/OperationalPlans/Delete/@item.Id" data-confirm="هل تريد حذف هذا الملف؟">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="gov-delete-btn">حذف</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

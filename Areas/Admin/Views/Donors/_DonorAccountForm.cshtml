@@ -1,0 +1,68 @@
+﻿@model Kafo.Web.ViewModels.Admin.AdminDonorAccountFormViewModel
+
+<div class="admin-form-card donor-form-card">
+    <form method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="admin-validation"></div>
+
+        <div class="donor-form-grid">
+            <label>
+                <span>اسم الداعم</span>
+                <input asp-for="FullName" placeholder="مثال: مؤسسة الخير / محمد أحمد" />
+                <small asp-validation-for="FullName"></small>
+            </label>
+
+            <label>
+                <span>نوع الداعم</span>
+                <select asp-for="DonorType">
+                    <option value="فرد">فرد</option>
+                    <option value="جهة">جهة</option>
+                    <option value="شركة">شركة</option>
+                    <option value="مانح">مانح</option>
+                </select>
+                <small asp-validation-for="DonorType"></small>
+            </label>
+
+            <label>
+                <span>اسم الجهة / الشركة</span>
+                <input asp-for="OrganizationName" placeholder="اختياري" />
+                <small asp-validation-for="OrganizationName"></small>
+            </label>
+
+            <label>
+                <span>البريد الإلكتروني</span>
+                <input asp-for="Email" dir="ltr" placeholder="donor@example.com" />
+                <small asp-validation-for="Email"></small>
+            </label>
+
+            <label>
+                <span>رقم الجوال</span>
+                <input asp-for="Phone" dir="ltr" placeholder="0500000000" />
+                <small asp-validation-for="Phone"></small>
+            </label>
+
+            <label>
+                <span>كلمة المرور</span>
+                <input asp-for="Password" dir="ltr" autocomplete="new-password" placeholder="اتركها فارغة عند التعديل" />
+                <small asp-validation-for="Password"></small>
+            </label>
+        </div>
+
+        <label class="donor-check-row">
+            <input asp-for="IsActive" />
+            <span>الحساب مفعل ويمكنه الدخول إلى بوابة الداعمين</span>
+        </label>
+
+        <div class="donor-form-actions">
+            <button type="submit">حفظ البيانات</button>
+            <a href="/Admin/Donors">إلغاء</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .donor-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.donor-form-grid label,.donor-form-card label{display:grid;gap:8px;font-weight:900;color:#344054}.donor-form-grid input,.donor-form-grid select,.donor-form-grid textarea{width:100%;min-height:48px;border:1px solid #e5e7eb;border-radius:15px;padding:0 14px;font-weight:800;background:#fff}.donor-form-grid textarea{min-height:110px;padding:14px;resize:vertical}.donor-form-grid small{color:#dc2626}.donor-check-row{margin-top:20px;display:flex!important;grid-template-columns:none!important;align-items:center;gap:10px}.donor-check-row input{width:18px;height:18px}.donor-form-actions{display:flex;gap:12px;margin-top:24px}.donor-form-actions button,.donor-form-actions a{border:0;border-radius:15px;min-height:48px;padding:0 22px;font-weight:900;text-decoration:none;display:inline-flex;align-items:center}.donor-form-actions button{background:#4db748;color:#fff}.donor-form-actions a{background:#f2f4f7;color:#344054}.admin-validation{color:#b42318;background:#fef3f2;border:1px solid #fecdca;border-radius:14px;padding:12px;margin-bottom:16px;font-weight:800}@@media(max-width:800px){.donor-form-grid{grid-template-columns:1fr}}
+</style>
+

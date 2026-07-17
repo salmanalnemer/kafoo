@@ -1,0 +1,59 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# Local IDE settings
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Environment-specific configuration and secrets
+appsettings.Production.json
+appsettings.Local.json
+.env
+.env.*
+!.env.example
+secrets.json
+
+# Runtime data: never commit databases, keys, logs, or private uploads
+App_Data/*
+!App_Data/.gitkeep
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.pfx
+*.p12
+*.key
+*.pem
+
+# Uploaded content is deployment data, not source code
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+
+# Logs and diagnostics
+logs/
+*.log
+*.trace
+*.dmp
+
+# Backups and temporary files
+*.bak
+*.backup*
+*backup_before_*
+*.tmp
+*.temp
+~$*
+
+# Test and coverage artifacts
+TestResults/
+coverage/
+coverage.*
+
+# Python helper artifacts
+__pycache__/
+*.py[cod]

@@ -1,0 +1,63 @@
+@model Kafo.Web.ViewModels.Authentication.OtpVerificationViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "التحقق من تسجيل الدخول";
+}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>رمز التحقق | بوابة كفو</title>
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+    <style>
+        .otp-input { min-height:60px; text-align:center; direction:ltr; letter-spacing:10px; font-size:25px!important; font-weight:900!important; }
+        .otp-email { direction:ltr; display:inline-block; color:#26384d; font-weight:900; }
+        .otp-actions { margin-top:10px; }
+        .otp-actions button { width:100%; background:#f2f4f7!important; color:#26384d!important; border:1px solid #e5e7eb!important; }
+        .otp-back { display:block; margin-top:16px; text-align:center; color:#74429a; font-weight:900; text-decoration:none; }
+        .otp-note { font-size:13px; margin-top:-4px!important; }
+    </style>
+</head>
+<body class="portal-login-body unified-portal">
+    <section class="portal-login-card">
+        <div class="portal-login-logo">
+            <img src="/images/logo1.png" alt="جمعية كفو" />
+        </div>
+        <h1>أدخل رمز التحقق</h1>
+        <p>أرسلنا رمزًا من 6 أرقام إلى<br /><span class="otp-email">@Model.MaskedEmail</span></p>
+
+        @if (TempData["OtpMessage"] is string otpMessage)
+        {
+            <div class="portal-alert success">@otpMessage</div>
+        }
+        @if (TempData["OtpError"] is string otpError)
+        {
+            <div class="portal-alert error">@otpError</div>
+        }
+
+        <form method="post" asp-action="VerifyOtp" asp-controller="PortalAuth" asp-area="Portal" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ChallengeId" />
+            <div asp-validation-summary="ModelOnly" class="portal-validation"></div>
+            <label asp-for="Code"></label>
+            <input asp-for="Code" class="otp-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" autofocus />
+            <span asp-validation-for="Code"></span>
+            <p class="otp-note">صلاحية الرمز 10 دقائق، وبحد أقصى 5 محاولات.</p>
+            <button type="submit">تحقق ودخول</button>
+        </form>
+
+        <form class="otp-actions" method="post" asp-action="ResendOtp" asp-controller="PortalAuth" asp-area="Portal">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="challengeId" value="@Model.ChallengeId" />
+            <button type="submit">إعادة إرسال الرمز</button>
+        </form>
+
+        <a class="otp-back" href="/Portal/Login">العودة إلى تسجيل الدخول</a>
+    </section>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

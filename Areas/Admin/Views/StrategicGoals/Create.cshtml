@@ -1,0 +1,58 @@
+﻿@model Kafo.Web.Models.StrategicGoal
+
+@{
+    ViewData["Title"] = "إضافة هدف";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>أهداف الجمعية</span>
+        <h1>إضافة هدف استراتيجي جديد</h1>
+        <p>سيظهر الهدف داخل قسم أهدافنا الاستراتيجية في الصفحة الرئيسية.</p>
+    </div>
+
+    <a class="admin-back-link" href="/Admin/StrategicGoals">العودة للقائمة</a>
+</div>
+
+<div class="admin-form-card">
+    <form method="post" class="admin-form">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Title">عنوان الهدف</label>
+                <input asp-for="Title" placeholder="مثال: التمكين" />
+                <span asp-validation-for="Title"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Icon">الأيقونة</label>
+                <input asp-for="Icon" placeholder="مثال: ✓ أو fa-solid fa-bullseye" />
+                <small>تقدر تكتب رمز مثل ✓ أو كلاس FontAwesome مثل: fa-solid fa-bullseye</small>
+            </div>
+
+            <div class="form-group full">
+                <label asp-for="Description">وصف الهدف</label>
+                <textarea asp-for="Description" rows="4" placeholder="اكتب وصفاً مختصراً للهدف"></textarea>
+                <span asp-validation-for="Description"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DisplayOrder">ترتيب الظهور</label>
+                <input asp-for="DisplayOrder" type="number" />
+            </div>
+
+            <div class="form-check">
+                <input asp-for="IsActive" />
+                <label asp-for="IsActive">مفعل</label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="admin-submit-btn" type="submit">حفظ الهدف</button>
+            <a href="/Admin/StrategicGoals">إلغاء</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,85 @@
+﻿@model Kafo.Web.ViewModels.Admin.SliderFormViewModel
+
+@{
+    ViewData["Title"] = "إضافة سلايدر";
+}
+
+<div class="admin-page-head">
+    <div>
+        <span>السلايدر الرئيسي</span>
+        <h1>إضافة سلايدر جديد</h1>
+        <p>المقاس المعتمد للصورة: 1263 × 399 بكسل. العنوان والوصف اختياريان.</p>
+    </div>
+
+    <a class="admin-back-link" href="/Admin/Sliders">العودة للقائمة</a>
+</div>
+
+<div class="admin-form-card">
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="admin-form">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" />
+                <span asp-validation-for="Title"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DisplayOrder"></label>
+                <input asp-for="DisplayOrder" type="number" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+
+            <div class="form-group full">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" rows="4"></textarea>
+                <span asp-validation-for="Description"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ButtonText"></label>
+                <input asp-for="ButtonText" placeholder="مثال: المزيد" />
+                <span asp-validation-for="ButtonText"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ButtonUrl"></label>
+                <input asp-for="ButtonUrl" placeholder="/Services" />
+                <span asp-validation-for="ButtonUrl"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PublishStart"></label>
+                <input asp-for="PublishStart" type="datetime-local" />
+                <span asp-validation-for="PublishStart"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PublishEnd"></label>
+                <input asp-for="PublishEnd" type="datetime-local" />
+                <span asp-validation-for="PublishEnd"></span>
+            </div>
+
+            <div class="form-group full">
+                <label asp-for="ImageFile"></label>
+                <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                <small>يفضل رفع صورة بنفس المقاس: 1263 × 399 بكسل.</small>
+                <span asp-validation-for="ImageFile"></span>
+            </div>
+
+            <div class="form-check full">
+                <input asp-for="IsActive" />
+                <label asp-for="IsActive"></label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="admin-submit-btn">حفظ السلايدر</button>
+            <a href="/Admin/Sliders">إلغاء</a>
+        </div>
+    </form>
+</div>
+

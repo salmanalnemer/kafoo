@@ -1,0 +1,88 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.BankAccount>
+
+@{
+    ViewData["Title"] = "الحسابات البنكية";
+}
+
+<section class="banks-public-page">
+    <div class="home-container">
+        <div class="banks-page-head">
+            <span>الدعم والتبرع</span>
+            <h1>الحسابات البنكية</h1>
+            <p>يمكنكم دعم برامج الجمعية عبر الحسابات البنكية الرسمية الموضحة أدناه.</p>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="banks-public-grid">
+                @foreach (var item in Model)
+                {
+                    <article class="bank-public-card">
+                        <div class="bank-public-top">
+                            <div class="bank-public-logo">
+                                @if (!string.IsNullOrWhiteSpace(item.LogoPath))
+                                {
+                                    <img src="@item.LogoPath" alt="@item.BankName" />
+                                }
+                                else
+                                {
+                                    <strong>@item.BankName.Substring(0, 1)</strong>
+                                }
+                            </div>
+
+                            <div>
+                                <h2>@item.BankName</h2>
+                                <p>@item.AccountName</p>
+                            </div>
+                        </div>
+
+                        <div class="bank-public-field">
+                            <span>رقم الآيبان</span>
+                            <strong dir="ltr">@item.Iban</strong>
+                            <button type="button" data-copy="@item.Iban">نسخ الآيبان</button>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(item.AccountNumber))
+                        {
+                            <div class="bank-public-field">
+                                <span>رقم الحساب</span>
+                                <strong dir="ltr">@item.AccountNumber</strong>
+                                <button type="button" data-copy="@item.AccountNumber">نسخ رقم الحساب</button>
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="banks-empty-public">
+                لا توجد حسابات بنكية منشورة حالياً.
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll("[data-copy]").forEach(function (btn) {
+            btn.addEventListener("click", async function () {
+                const value = btn.getAttribute("data-copy");
+
+                try {
+                    await navigator.clipboard.writeText(value);
+                    const oldText = btn.textContent;
+                    btn.textContent = "تم النسخ";
+                    btn.classList.add("copied");
+
+                    setTimeout(function () {
+                        btn.textContent = oldText;
+                        btn.classList.remove("copied");
+                    }, 1600);
+                } catch {
+                    alert("لم يتم النسخ تلقائياً، انسخ الرقم يدوياً.");
+                }
+            });
+        });
+    </script>
+}

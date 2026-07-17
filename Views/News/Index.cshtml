@@ -1,0 +1,38 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.NewsPost>
+
+@{
+    ViewData["Title"] = "آخر المستجدات";
+}
+
+<section class="listing-page">
+    <div class="home-container">
+        <div class="official-section-head">
+            <div>
+                <h1>آخر المستجدات</h1>
+                <p>جميع أخبار ومستجدات جمعية كفو.</p>
+            </div>
+        </div>
+
+        <div class="official-news-grid">
+            @foreach (var item in Model)
+            {
+                <article class="official-news-card">
+                    <div class="official-news-image">
+                        @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                        {
+                            <img src="@item.ImagePath" alt="@item.Title" />
+                        }
+                        else
+                        {
+                            <div class="news-placeholder">كفو</div>
+                        }
+                    </div>
+
+                    <h3>@item.Title</h3>
+                    <div class="news-date">📅 @item.PublishDate.ToString("yyyy-MM-dd")</div>
+                    <a class="news-arrow" href="/News/Details/@item.Id">←</a>
+                </article>
+            }
+        </div>
+    </div>
+</section>

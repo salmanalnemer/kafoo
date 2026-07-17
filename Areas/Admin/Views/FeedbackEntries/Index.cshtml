@@ -1,0 +1,141 @@
+﻿@model IReadOnlyList<Kafo.Web.Models.FeedbackEntry>
+
+@{
+    ViewData["Title"] = "التغذية الراجعة";
+    var search = ViewBag.Search as string ?? "";
+    var type = ViewBag.Type as string ?? "";
+    var status = ViewBag.Status as string ?? "";
+    var archived = ViewBag.Archived is bool b && b;
+}
+
+<div class="fb-admin-page">
+
+    <div class="fb-admin-hero">
+        <div>
+            <span>التواصل والإعدادات</span>
+            <h1>التغذية الراجعة</h1>
+            <p>متابعة ملاحظات ومقترحات الزوار والمستفيدين وتحسين الخدمات بناءً عليها.</p>
+        </div>
+
+        <div class="fb-admin-actions">
+            <a href="/Feedback" target="_blank" rel="noopener noreferrer">معاينة الصفحة</a>
+            <a href="/Admin/Feedback?archived=@(!archived)">@(archived ? "الردود الحالية" : "الأرشيف")</a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="fb-admin-filter">
+        <form method="get" action="/Admin/Feedback">
+            <input type="hidden" name="archived" value="@archived.ToString().ToLower()" />
+
+            <input name="q" value="@search" placeholder="ابحث بالعنوان أو الاسم أو الخدمة أو النص..." />
+
+            <select name="type">
+                <option value="">كل الأنواع</option>
+                @if (type == "ملاحظة") { <option value="ملاحظة" selected>ملاحظة</option> } else { <option value="ملاحظة">ملاحظة</option> }
+                @if (type == "اقتراح") { <option value="اقتراح" selected>اقتراح</option> } else { <option value="اقتراح">اقتراح</option> }
+                @if (type == "تحسين خدمة") { <option value="تحسين خدمة" selected>تحسين خدمة</option> } else { <option value="تحسين خدمة">تحسين خدمة</option> }
+                @if (type == "مشكلة") { <option value="مشكلة" selected>مشكلة</option> } else { <option value="مشكلة">مشكلة</option> }
+                @if (type == "أخرى") { <option value="أخرى" selected>أخرى</option> } else { <option value="أخرى">أخرى</option> }
+            </select>
+
+            <select name="status">
+                <option value="">كل الحالات</option>
+                @if (status == "جديدة") { <option value="جديدة" selected>جديدة</option> } else { <option value="جديدة">جديدة</option> }
+                @if (status == "قيد المعالجة") { <option value="قيد المعالجة" selected>قيد المعالجة</option> } else { <option value="قيد المعالجة">قيد المعالجة</option> }
+                @if (status == "تمت المراجعة") { <option value="تمت المراجعة" selected>تمت المراجعة</option> } else { <option value="تمت المراجعة">تمت المراجعة</option> }
+                @if (status == "مغلقة") { <option value="مغلقة" selected>مغلقة</option> } else { <option value="مغلقة">مغلقة</option> }
+            </select>
+
+            <button type="submit">بحث</button>
+            <a href="/Admin/Feedback">مسح</a>
+        </form>
+    </div>
+
+    <div class="fb-admin-table-card">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="fb-admin-empty">
+                <h3>لا توجد تغذية راجعة حالياً</h3>
+                <p>ستظهر الردود هنا بعد إرسالها من صفحة التغذية الراجعة.</p>
+            </div>
+        }
+        else
+        {
+            <div class="fb-admin-table-wrap">
+                <table class="fb-admin-table">
+                    <thead>
+                        <tr>
+                            <th>رقم</th>
+                            <th>المرسل</th>
+                            <th>النوع</th>
+                            <th>الخدمة</th>
+                            <th>العنوان</th>
+                            <th>التقييم</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                            <th>مرفق</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.IsRead ? "" : "fb-unread-row")">
+                                <td>#@item.Id</td>
+
+                                <td class="fb-title-cell">
+                                    <strong>@(string.IsNullOrWhiteSpace(item.FullName) ? "غير محدد" : item.FullName)</strong>
+                                    @if (!item.IsRead)
+                                    {
+                                        <span>جديد</span>
+                                    }
+                                </td>
+
+                                <td>@item.FeedbackType</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.RelatedService) ? "-" : item.RelatedService)</td>
+                                <td>@item.Subject</td>
+                                <td><span class="fb-rating">@item.Rating / 5</span></td>
+                                <td><span class="fb-status">@item.Status</span></td>
+                                <td>@item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.AttachmentPath))
+                                    {
+                                        <a class="fb-file-link" href="@item.AttachmentPath" target="_blank" rel="noopener noreferrer" download>تحميل</a>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="fb-admin-row-actions">
+                                        <a href="/Admin/Feedback/Details/@item.Id">تفاصيل</a>
+
+                                        <form method="post" action="/Admin/Feedback/Archive/@item.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit">@(item.IsArchived ? "استعادة" : "أرشفة")</button>
+                                        </form>
+
+                                        <form method="post" action="/Admin/Feedback/Delete/@item.Id" data-confirm="هل تريد حذف التغذية الراجعة؟">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="danger">حذف</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>
