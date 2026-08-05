@@ -134,6 +134,7 @@
         </nav>
 
         <div class="kafo-official-tools">
+            @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
             <a class="kafo-official-donate" href="@donateHref" target="@donateTarget" rel="noopener">تبرع الآن</a>
 
             <button type="button" class="kafo-official-icon-btn" aria-label="البحث">
@@ -151,7 +152,7 @@
                 </div>
             </div>
 
-            <a class="kafo-official-admin" href="/Portal/Login">الدخول الموحد</a>
+            <a class="kafo-official-admin" href="/Portal/Login">دخول الجمعيات والداعمين</a>
         </div>
 
     </div>

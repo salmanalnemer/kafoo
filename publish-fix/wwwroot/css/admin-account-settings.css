@@ -1,0 +1,538 @@
+.account-settings-page {
+    display: grid;
+    gap: 20px;
+}
+
+.account-settings-hero {
+    background: linear-gradient(135deg, #673f88, #8459a5);
+    color: #fff;
+    border-radius: 28px;
+    padding: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    box-shadow: 0 20px 55px rgba(103, 63, 136, .18);
+}
+
+.account-settings-hero span {
+    color: #cdebc8;
+    font-weight: 900;
+}
+
+.account-settings-hero h1 {
+    margin: 7px 0 9px;
+    font-size: 32px;
+}
+
+.account-settings-hero p {
+    margin: 0;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, .84);
+    font-weight: 700;
+}
+
+.account-settings-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.account-settings-hero-actions a {
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: #4db748;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.account-settings-hero-actions a.secondary {
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .24);
+}
+
+.account-settings-notice {
+    background: #fffaf0;
+    border: 1px solid #f7dca8;
+    border-radius: 20px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.notice-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+    background: #f3a629;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    flex: 0 0 auto;
+}
+
+.account-settings-notice strong {
+    color: #8a5200;
+    font-size: 17px;
+}
+
+.account-settings-notice p {
+    margin: 5px 0 0;
+    color: #7a5b28;
+    line-height: 1.8;
+    font-weight: 700;
+}
+
+.account-settings-stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.account-settings-stats article {
+    background: #fff;
+    border: 1px solid #e7e2ec;
+    border-radius: 20px;
+    padding: 18px;
+    display: grid;
+    gap: 8px;
+}
+
+.account-settings-stats span {
+    color: #776d80;
+    font-weight: 800;
+}
+
+.account-settings-stats strong {
+    color: #663f87;
+    font-size: 27px;
+}
+
+.account-settings-stats article.needs-attention {
+    border-color: #f3b5ad;
+    background: #fff8f7;
+}
+
+.account-settings-stats article.needs-attention strong {
+    color: #c13b2d;
+}
+
+.account-settings-filter,
+.account-settings-list {
+    background: #fff;
+    border: 1px solid #e7e2ec;
+    border-radius: 24px;
+    padding: 20px;
+}
+
+.account-settings-filter form {
+    display: grid;
+    grid-template-columns: minmax(260px, 2fr) minmax(170px, 1fr) minmax(150px, .8fr) auto;
+    align-items: end;
+    gap: 14px;
+}
+
+.account-settings-filter label,
+.account-edit-form label {
+    display: block;
+    color: #65447e;
+    font-weight: 900;
+    margin-bottom: 7px;
+}
+
+.account-settings-filter input,
+.account-settings-filter select,
+.account-edit-form input {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #ddd5e4;
+    border-radius: 13px;
+    padding: 0 13px;
+    font-family: inherit;
+    font-size: 15px;
+    background: #fff;
+    outline: none;
+}
+
+.account-settings-filter input:focus,
+.account-settings-filter select:focus,
+.account-edit-form input:focus {
+    border-color: #74429a;
+    box-shadow: 0 0 0 4px rgba(116, 66, 154, .1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-actions button,
+.filter-actions a {
+    min-height: 46px;
+    border: 0;
+    border-radius: 13px;
+    padding: 0 18px;
+    font-family: inherit;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.filter-actions button {
+    background: #663f87;
+    color: #fff;
+}
+
+.filter-actions a {
+    background: #f2eff5;
+    color: #663f87;
+}
+
+.account-settings-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.account-settings-list-head h2 {
+    margin: 0;
+    color: #54336e;
+    font-size: 22px;
+}
+
+.account-settings-list-head p {
+    margin: 5px 0 0;
+    color: #7d7484;
+}
+
+.account-settings-list-head > span {
+    background: #f4eff8;
+    color: #663f87;
+    padding: 8px 13px;
+    border-radius: 999px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.portal-accounts {
+    display: grid;
+    gap: 14px;
+}
+
+.portal-account-card {
+    border: 1px solid #e6dfea;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.portal-account-card.email-warning {
+    border-color: #efb4ac;
+}
+
+.portal-account-summary {
+    padding: 17px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.portal-account-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    background: #ede5f3;
+    color: #663f87;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.portal-account-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.portal-account-title h3 {
+    margin: 0;
+    color: #2f2635;
+    font-size: 18px;
+}
+
+.account-kind,
+.account-state {
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.account-kind {
+    background: #f1ecf5;
+    color: #663f87;
+}
+
+.account-state.active {
+    background: #eaf7e8;
+    color: #2f8b2c;
+}
+
+.account-state.disabled {
+    background: #fdecea;
+    color: #b6382d;
+}
+
+.portal-account-identity > p {
+    margin: 5px 0 8px;
+    color: #7c7381;
+    font-weight: 700;
+}
+
+.portal-account-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    color: #675d6e;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.email-attention-message {
+    margin-top: 10px;
+    background: #fff1ef;
+    color: #aa3329;
+    border-radius: 10px;
+    padding: 8px 11px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.portal-account-main-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.portal-account-main-actions button,
+.portal-account-main-actions a {
+    min-height: 39px;
+    padding: 0 13px;
+    border-radius: 11px;
+    border: 0;
+    font-family: inherit;
+    font-weight: 900;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.portal-account-main-actions button {
+    background: #663f87;
+    color: #fff;
+}
+
+.portal-account-main-actions a {
+    background: #f0f5ef;
+    color: #388a35;
+}
+
+.portal-account-panel {
+    display: none;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, .8fr);
+    gap: 18px;
+    padding: 20px;
+    border-top: 1px solid #e8e1ec;
+    background: #faf9fb;
+}
+
+.portal-account-panel.is-open {
+    display: grid;
+}
+
+.account-edit-column,
+.password-reset-column {
+    background: #fff;
+    border: 1px solid #e7e0eb;
+    border-radius: 18px;
+    padding: 18px;
+}
+
+.account-block-title {
+    margin-bottom: 16px;
+}
+
+.account-block-title strong {
+    color: #56356f;
+    display: block;
+    font-size: 17px;
+}
+
+.account-block-title span {
+    color: #817688;
+    font-size: 13px;
+}
+
+.account-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.account-active-control {
+    min-height: 46px;
+    display: flex !important;
+    align-items: center;
+    gap: 9px;
+    margin: 0 !important;
+    padding: 0 13px;
+    border: 1px solid #ddd5e4;
+    border-radius: 13px;
+    color: #4f4655 !important;
+}
+
+.account-active-control input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 auto;
+}
+
+.save-account-button,
+.password-reset-column button {
+    border: 0;
+    border-radius: 12px;
+    min-height: 43px;
+    padding: 0 17px;
+    font-family: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.save-account-button {
+    margin-top: 15px;
+    background: #4db748;
+    color: #fff;
+}
+
+.password-reset-column {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-reset-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: #ede5f3;
+    color: #663f87;
+    display: grid;
+    place-items: center;
+    font-size: 21px;
+    margin-bottom: 10px;
+}
+
+.password-reset-column > strong {
+    color: #56356f;
+    font-size: 17px;
+}
+
+.password-reset-column p {
+    color: #786e7e;
+    line-height: 1.7;
+    font-size: 13px;
+}
+
+.password-reset-column button {
+    background: #663f87;
+    color: #fff;
+}
+
+.password-reset-column button:disabled {
+    background: #c8c1cd;
+    cursor: not-allowed;
+}
+
+.password-reset-column small {
+    margin-top: 9px;
+    color: #8a7e91;
+    line-height: 1.6;
+}
+
+.account-settings-empty {
+    text-align: center;
+    padding: 45px 20px;
+    color: #756b7b;
+}
+
+.account-settings-empty strong {
+    display: block;
+    color: #583670;
+    font-size: 20px;
+}
+
+.account-settings-empty p {
+    margin-bottom: 0;
+}
+
+@media (max-width: 1150px) {
+    .account-settings-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .account-settings-filter form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .portal-account-panel {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 760px) {
+    .account-settings-hero,
+    .account-settings-list-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .account-settings-stats,
+    .account-settings-filter form,
+    .account-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-account-summary {
+        grid-template-columns: auto 1fr;
+    }
+
+    .portal-account-main-actions {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+    }
+
+    .portal-account-main-actions button,
+    .portal-account-main-actions a {
+        flex: 1;
+    }
+}

@@ -75,6 +75,54 @@ public sealed class SmtpEmailSender : IEmailSender
             cancellationToken);
     }
 
+    public Task SendPasswordResetOtpAsync(
+        string recipientEmail,
+        string recipientName,
+        string code,
+        TimeSpan validity,
+        CancellationToken cancellationToken = default)
+    {
+        ValidateOtpCode(code);
+
+        var minutes = Math.Max(1, (int)Math.Ceiling(validity.TotalMinutes));
+        var safeName = EncodeName(recipientName);
+        var safeCode = WebUtility.HtmlEncode(code.Trim());
+
+        var html = $"""
+            <!doctype html>
+            <html lang="ar" dir="rtl">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width,initial-scale=1">
+              <title>استعادة كلمة المرور</title>
+            </head>
+            <body style="margin:0;background:#f6f7fb;font-family:Tahoma,Arial,sans-serif;color:#26384d">
+              <div style="max-width:620px;margin:32px auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:22px;overflow:hidden">
+                <div style="background:#74429a;padding:26px 30px;color:#ffffff">
+                  <h1 style="margin:0;font-size:23px">استعادة كلمة المرور</h1>
+                </div>
+                <div style="padding:30px;line-height:1.9">
+                  <p style="margin-top:0">مرحبًا {safeName}،</p>
+                  <p>استخدم رمز التحقق التالي لإكمال استعادة كلمة المرور في بوابة جمعية كفو:</p>
+                  <div dir="ltr" style="margin:24px 0;text-align:center;font-size:34px;font-weight:800;letter-spacing:10px;color:#74429a;background:#f7f2fb;border:1px dashed #bba0cf;border-radius:16px;padding:18px">{safeCode}</div>
+                  <p>الرمز صالح لمدة <strong>{minutes} دقائق</strong> ولمرة واحدة فقط.</p>
+                  <p style="color:#667085;font-size:14px">إذا لم تطلب استعادة كلمة المرور، تجاهل الرسالة ولا تشارك الرمز مع أي شخص.</p>
+                </div>
+                <div style="padding:18px 30px;background:#f8fafc;color:#667085;font-size:13px">جمعية كفو لتمكين ذوي الإعاقة</div>
+              </div>
+            </body>
+            </html>
+            """;
+
+        return SendHtmlAsync(
+            recipientEmail,
+            recipientName,
+            "رمز استعادة كلمة المرور | جمعية كفو",
+            html,
+            "password reset OTP",
+            cancellationToken);
+    }
+
     public Task SendNotificationAsync(
         string recipientEmail,
         string recipientName,

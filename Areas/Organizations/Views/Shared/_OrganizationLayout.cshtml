@@ -1,4 +1,4 @@
-@{
+﻿@{
     var title = ViewData["Title"]?.ToString() ?? "بوابة الشركات والجهات";
     var currentPath = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
 
@@ -17,14 +17,16 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="~/js/accessibility-preferences.js" asp-append-version="true"></script>
     <title>@title | بوابة الشركات والجهات</title>
     <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/accessibility-preferences.css" asp-append-version="true" />
 </head>
 <body class="kafo-admin-body portal-body organization-portal">
-    <div class="kafo-admin-shell portal-admin-shell">
+<div class="kafo-admin-shell portal-admin-shell">
 
         <aside class="kafo-admin-sidebar portal-admin-sidebar">
             <a class="kafo-admin-brand portal-admin-brand" href="/Organizations">
@@ -120,6 +122,7 @@
                 </div>
 
                 <div class="portal-top-actions">
+                    @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
                     <span class="portal-user-chip">@User.Identity?.Name</span>
                     <a href="/" target="_blank" rel="noopener noreferrer">زيارة الموقع</a>
                 </div>

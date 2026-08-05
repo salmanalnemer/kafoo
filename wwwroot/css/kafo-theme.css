@@ -10288,3 +10288,262 @@ main {
         width: 100% !important;
     }
 }
+
+/* =========================================================
+   FINAL OFFICIAL HEADER SPACING FIX
+   فصل الشعار وروابط الأقسام وأدوات الهيدر بشكل نهائي
+   يجب أن يبقى هذا القسم في نهاية الملف
+========================================================= */
+
+/* الهيدر: شعار | روابط رئيسية | أدوات */
+.kafo-official-inner {
+    width: min(1640px, calc(100% - 48px)) !important;
+    max-width: 1640px !important;
+    margin-inline: auto !important;
+    padding-inline: 0 !important;
+
+    display: grid !important;
+    grid-template-columns:
+        minmax(250px, auto)
+        minmax(0, 1fr)
+        minmax(360px, auto) !important;
+
+    align-items: center !important;
+    column-gap: 38px !important;
+    row-gap: 14px !important;
+}
+
+/* الشعار: الإبقاء على الفراغ الذي ضبط معك */
+.kafo-official-logo {
+    margin: 0 0 0 80px !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+    justify-self: start !important;
+    align-self: center !important;
+}
+
+.kafo-official-logo img {
+    display: block !important;
+    width: auto !important;
+    height: 66px !important;
+    max-width: 170px !important;
+    object-fit: contain !important;
+}
+
+/* منطقة روابط الأقسام */
+.kafo-official-nav {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 17px !important;
+    overflow: visible !important;
+}
+
+/* منطقة أدوات الهيدر مستقلة تماماً عن روابط الأقسام */
+.kafo-official-tools {
+    min-width: 360px !important;
+
+    /* هذا الهامش هو الفراغ الحقيقي بين تواصل معنا وأيقونة الدارك */
+    margin: 0 50px 0 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+
+    gap: 16px !important;
+    white-space: nowrap !important;
+    justify-self: end !important;
+    align-self: center !important;
+
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* إلغاء أي وضع ثابت أو مطلق سابق لأداة الدارك مود */
+.kafo-official-tools > .kafo-theme-control {
+    position: static !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+
+    margin: 0 8px !important;
+    padding: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 0 0 44px !important;
+    transform: none !important;
+    translate: none !important;
+}
+
+/* زر القمر/الشمس نفسه */
+.kafo-official-tools .kafo-theme-toggle {
+    position: static !important;
+    inset: auto !important;
+
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 0 0 40px !important;
+    transform: none !important;
+}
+
+/* منع أي عنصر من الدخول داخل مساحة الأيقونة */
+.kafo-official-tools > * {
+    flex-shrink: 0 !important;
+}
+
+/* دعم حالة ظهور أداة الدارك خارج الحاوية بالخطأ */
+body > .kafo-theme-control {
+    position: fixed !important;
+    top: 18px !important;
+    left: 18px !important;
+    right: auto !important;
+    bottom: auto !important;
+}
+
+/* شاشات اللابتوب */
+@media (max-width: 1500px) and (min-width: 1201px) {
+    .kafo-official-inner {
+        width: calc(100% - 28px) !important;
+        grid-template-columns:
+            minmax(220px, auto)
+            minmax(0, 1fr)
+            minmax(330px, auto) !important;
+        column-gap: 24px !important;
+    }
+
+    .kafo-official-logo {
+        margin-left: 80px !important;
+    }
+
+    .kafo-official-nav {
+        gap: 12px !important;
+    }
+
+    .kafo-official-link,
+    .kafo-official-menu > button {
+        font-size: 14px !important;
+    }
+
+    .kafo-official-tools {
+        min-width: 330px !important;
+        margin-right: 30px !important;
+        gap: 12px !important;
+    }
+
+    .kafo-official-tools > .kafo-theme-control {
+        margin-inline: 7px !important;
+    }
+}
+
+/* عند ضيق العرض تتحول القائمة إلى سطر مستقل */
+@media (max-width: 1200px) {
+    .kafo-official-inner {
+        width: calc(100% - 28px) !important;
+        grid-template-columns: auto 1fr !important;
+        column-gap: 20px !important;
+        padding-block: 10px !important;
+    }
+
+    .kafo-official-logo {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        margin-left: 28px !important;
+    }
+
+    .kafo-official-tools {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+
+        min-width: 0 !important;
+        margin-right: 20px !important;
+
+        justify-self: end !important;
+        justify-content: flex-end !important;
+    }
+
+    .kafo-official-nav {
+        grid-column: 1 / -1 !important;
+        grid-row: 2 !important;
+
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        padding: 5px 2px 9px !important;
+        scrollbar-width: thin !important;
+    }
+
+    .kafo-official-tools > .kafo-theme-control {
+        margin-inline: 6px !important;
+    }
+}
+
+/* الجوال */
+@media (max-width: 700px) {
+    .kafo-official-inner {
+        width: calc(100% - 18px) !important;
+        column-gap: 10px !important;
+    }
+
+    .kafo-official-logo {
+        margin-left: 12px !important;
+    }
+
+    .kafo-official-logo img {
+        height: 54px !important;
+        max-width: 140px !important;
+    }
+
+    .kafo-official-tools {
+        margin-right: 8px !important;
+        gap: 7px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .kafo-official-tools > .kafo-theme-control {
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        height: 40px !important;
+        margin-inline: 4px !important;
+        flex-basis: 40px !important;
+    }
+
+    .kafo-official-tools .kafo-theme-toggle {
+        width: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        height: 38px !important;
+        flex-basis: 38px !important;
+    }
+
+    .kafo-official-nav {
+        gap: 13px !important;
+    }
+}
+

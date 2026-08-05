@@ -17,8 +17,9 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="~/js/accessibility-preferences.js" asp-append-version="true"></script>
     <title>@title | @portalTitle</title>
     <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
@@ -27,9 +28,10 @@
     <link rel="stylesheet" href="~/css/donor-contribution-premium.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/donor-support-reports.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/organization-portal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/accessibility-preferences.css" asp-append-version="true" />
 </head>
 <body class="kafo-admin-body portal-body @bodyClass">
-    <div class="kafo-admin-shell portal-admin-shell">
+<div class="kafo-admin-shell portal-admin-shell">
         <aside class="kafo-admin-sidebar portal-admin-sidebar">
             <a class="kafo-admin-brand portal-admin-brand" href="@portalHome">
                 <img src="/images/logo1.png" alt="جمعية كفو" />
@@ -123,6 +125,7 @@
                 </div>
 
                 <div class="portal-top-actions">
+                    @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
                     <div class="portal-notification-wrap" data-portal-notifications data-portal-notifications-page="@(isDonor ? "/Portal/Donor/Notifications" : "/Portal/Organization/Notifications")">
                         <button type="button" class="portal-bell" data-notification-toggle aria-label="الإشعارات" aria-expanded="false">
                             <span class="portal-bell-icon">🔔</span>

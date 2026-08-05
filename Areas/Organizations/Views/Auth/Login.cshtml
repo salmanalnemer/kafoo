@@ -6,14 +6,17 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="~/js/accessibility-preferences.js" asp-append-version="true"></script>
     <title>دخول الشركات والجهات | جمعية كفؤ</title>
     <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/accessibility-preferences.css" asp-append-version="true" />
 </head>
 <body class="portal-login-body organization-portal">
-    <section class="portal-login-card">
+    @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
+<section class="portal-login-card">
         <div class="portal-login-logo">
             <img src="/images/logo1.png" alt="جمعية كفؤ" />
         </div>

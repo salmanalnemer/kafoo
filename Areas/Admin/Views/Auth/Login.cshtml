@@ -8,8 +8,9 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="~/js/accessibility-preferences.js" asp-append-version="true"></script>
     <title>تسجيل الدخول | لوحة تحكم جمعية كفؤ</title>
 
     <style>
@@ -215,6 +216,34 @@
             height: 18px;
         }
 
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin: 4px 0 22px;
+        }
+
+        .login-options .remember-row {
+            margin: 0;
+        }
+
+        .forgot-password-link {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+            cursor: pointer;
+            color: var(--kafo-purple);
+            text-decoration: none;
+            font-weight: 900;
+        }
+
+        .forgot-password-link:hover {
+            color: var(--kafo-green);
+        }
+
         .login-btn {
             width: 100%;
             min-height: 54px;
@@ -276,10 +305,11 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="~/css/accessibility-preferences.css" asp-append-version="true" />
 </head>
 <body>
-
-    <main class="login-shell">
+    @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
+<main class="login-shell">
         <section class="login-brand">
             <div class="brand-content">
                 <div class="brand-logo">
@@ -328,15 +358,22 @@
                         <span asp-validation-for="Password"></span>
                     </div>
 
-                    <label class="remember-row">
-                        <input asp-for="RememberMe" />
-                        <span>تذكرني على هذا الجهاز</span>
-                    </label>
+                    <div class="login-options">
+                        <label class="remember-row">
+                            <input asp-for="RememberMe" />
+                            <span>تذكرني لمدة 30 يومًا</span>
+                        </label>
+                        <a class="forgot-password-link"
+                           href="@Url.Action("AdminForgotPassword", "PasswordRecovery", new { area = "" })"
+                           aria-label="الانتقال إلى صفحة استعادة كلمة المرور">
+                            نسيت كلمة المرور؟
+                        </a>
+                    </div>
 
                     <button type="submit" class="login-btn">إرسال رمز التحقق</button>
 
                     <div class="default-note">
-                       سيتم إرسال رمز تحقق من البريد support@kafoo.com.sa
+                       سيتم إرسال رمز تحقق من البريد support@kafoo.org.sa
                         
                     </div>
                 </form>

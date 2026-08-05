@@ -1,0 +1,2140 @@
+﻿/* =====================================================
+   KAFO Portal Areas Theme
+   Same dashboard language as Admin, with separated colors
+   Donor: --kafo-green #4db748
+   Organizations: --kafo-text #243018
+===================================================== */
+
+:root {
+    --kafo-green: #4db748;
+    --kafo-text: #243018;
+    --portal-bg: #f5f6fa;
+    --portal-card: #ffffff;
+    --portal-border: #e6e8ef;
+    --portal-muted: #667085;
+    --portal-shadow: 0 12px 28px rgba(16, 24, 40, .045);
+    --portal-radius: 22px;
+    --portal-sidebar-bg: #5d3b80;
+    --portal-sidebar-accent: #4db748;
+    --portal-title: #74429a;
+    --portal-soft: #f7fbf6;
+    --portal-soft-border: rgba(77, 183, 72, .22);
+}
+
+body.donor-portal {
+    --kafo-green: #693bb4;
+    --portal-sidebar-bg: #21064d;
+    --portal-sidebar-accent: #ffffff;
+    --portal-title: #693bb4;
+    --portal-text: #1f2937;
+    --portal-soft: #f5fbf4;
+    --portal-soft-border: #693bb459;
+}
+
+body.organization-portal {
+    --kafo-text: #243018;
+    --portal-sidebar-bg: #243018;
+    --portal-sidebar-accent: #4db748;
+    --portal-title: #243018;
+    --portal-text: #243018;
+    --portal-soft: #f6f8f2;
+    --portal-soft-border: rgba(36, 48, 24, .24);
+}
+
+body.portal-body,
+body.portal-login-body {
+    font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif !important;
+    color: var(--portal-text, #1f2937) !important;
+}
+
+/* Layout overrides: keep Admin dashboard shape */
+.portal-admin-sidebar.kafo-admin-sidebar {
+    background: var(--portal-sidebar-bg) !important;
+}
+
+.portal-admin-sidebar .kafo-admin-brand,
+.portal-admin-brand.kafo-admin-brand {
+    text-decoration: none !important;
+}
+
+.portal-admin-sidebar .kafo-admin-brand img,
+.portal-admin-brand.kafo-admin-brand img {
+    box-shadow: 0 10px 24px rgba(0,0,0,.08) !important;
+}
+
+.portal-admin-sidebar a.is-active::after,
+.portal-admin-sidebar.kafo-admin-sidebar a.is-active::after {
+    background: var(--portal-sidebar-accent) !important;
+}
+
+.portal-admin-topbar.kafo-admin-topbar span {
+    color: var(--kafo-green) !important;
+}
+
+.organization-portal .portal-admin-topbar.kafo-admin-topbar span {
+    color: var(--portal-sidebar-accent) !important;
+}
+
+.portal-admin-topbar.kafo-admin-topbar h1 {
+    color: var(--portal-title) !important;
+}
+
+.portal-admin-topbar.kafo-admin-topbar a,
+.portal-top-actions a {
+    background: var(--portal-title) !important;
+    color: #ffffff !important;
+}
+
+.donor-portal .portal-admin-topbar.kafo-admin-topbar a,
+.donor-portal .portal-top-actions a {
+    background: var(--kafo-green) !important;
+}
+
+.portal-top-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+}
+
+.portal-user-chip {
+    min-height: 42px !important;
+    border-radius: 999px !important;
+    background: #f8fafc !important;
+    color: var(--portal-title) !important;
+    border: 1px solid var(--portal-border) !important;
+    padding: 0 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 900 !important;
+    font-size: 13px !important;
+}
+
+.donor-portal .portal-user-chip {
+    color: #2f7f2e !important;
+}
+
+/* Sidebar logout as an admin nav item */
+.portal-sidebar-logout {
+    margin: 10px 0 0 !important;
+    padding: 0 !important;
+}
+
+.portal-sidebar-logout button {
+    width: 100% !important;
+    min-height: 43px !important;
+    padding: 0 23px 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    color: rgba(255,255,255,.88) !important;
+    background: transparent !important;
+    border: 0 !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    text-align: right !important;
+}
+
+.portal-sidebar-logout button:hover {
+    background: rgba(255,255,255,.08) !important;
+    color: #ffffff !important;
+}
+
+/* Content components */
+.portal-admin-content {
+    display: grid !important;
+    gap: 18px !important;
+}
+
+.portal-grid {
+    display: grid !important;
+    gap: 16px !important;
+}
+
+.portal-grid.stats {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.portal-grid.compact {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.portal-grid.two {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.portal-stat,
+.portal-panel {
+    background: var(--portal-card) !important;
+    border: 1px solid var(--portal-border) !important;
+    border-radius: var(--portal-radius) !important;
+    box-shadow: var(--portal-shadow) !important;
+}
+
+.portal-stat {
+    padding: 20px !important;
+    min-height: 116px !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.portal-stat::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 5px !important;
+    height: 100% !important;
+    background: var(--kafo-green) !important;
+}
+
+.organization-portal .portal-stat::before {
+    background: var(--kafo-text) !important;
+}
+
+.portal-stat span {
+    display: block !important;
+    color: var(--portal-muted) !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    margin-bottom: 9px !important;
+}
+
+.portal-stat strong {
+    display: block !important;
+    color: var(--portal-title) !important;
+    font-size: 27px !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+}
+
+.portal-panel {
+    padding: 22px !important;
+}
+
+.portal-panel.highlight {
+    border-color: var(--portal-soft-border) !important;
+    background: linear-gradient(180deg, #ffffff, var(--portal-soft)) !important;
+}
+
+.portal-panel.warning {
+    border-color: #f3c66d !important;
+    background: #fff9e8 !important;
+}
+
+.portal-panel-head {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+    margin-bottom: 18px !important;
+}
+
+.portal-panel h2 {
+    margin: 0 0 6px !important;
+    color: var(--portal-title) !important;
+    font-size: 22px !important;
+    font-weight: 900 !important;
+}
+
+.portal-panel h3 {
+    margin: 14px 0 6px !important;
+    color: var(--portal-title) !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+}
+
+.portal-panel p {
+    margin: 0 !important;
+    color: var(--portal-muted) !important;
+    line-height: 1.9 !important;
+    font-weight: 700 !important;
+}
+
+.portal-muted {
+    color: var(--portal-muted) !important;
+    margin-top: 8px !important;
+    font-weight: 800 !important;
+}
+
+.portal-btn,
+.portal-actions button,
+.portal-form button,
+.candidate-form button,
+.portal-login-card button {
+    border: 0 !important;
+    min-height: 44px !important;
+    background: var(--portal-title) !important;
+    color: #ffffff !important;
+    border-radius: 14px !important;
+    padding: 0 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    font-weight: 900 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+}
+
+.donor-portal .portal-btn,
+.donor-portal .portal-actions button,
+.donor-portal .portal-form button,
+.donor-portal .candidate-form button,
+.donor-portal .portal-login-card button {
+    background: #2a0564 !important;
+}
+
+.portal-btn.light,
+.portal-actions a.light {
+    background: #f2f4f7 !important;
+    color: var(--portal-text, #1f2937) !important;
+    border: 1px solid var(--portal-border) !important;
+}
+
+.portal-link {
+    color: var(--portal-title) !important;
+    font-weight: 900 !important;
+    text-decoration: none !important;
+}
+
+.donor-portal .portal-link {
+    color: #2f7f2e !important;
+}
+
+.portal-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 32px !important;
+    padding: 6px 12px !important;
+    border-radius: 999px !important;
+    background: var(--portal-soft) !important;
+    color: var(--portal-title) !important;
+    border: 1px solid var(--portal-soft-border) !important;
+    font-weight: 900 !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+}
+
+.portal-table-wrap {
+    overflow-x: auto !important;
+}
+
+.portal-table {
+    width: 100% !important;
+    min-width: 780px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 10px !important;
+}
+
+.portal-table th {
+    text-align: right !important;
+    color: var(--portal-muted) !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    padding: 0 12px 4px !important;
+}
+
+.portal-table td {
+    background: #ffffff !important;
+    border-top: 1px solid var(--portal-border) !important;
+    border-bottom: 1px solid var(--portal-border) !important;
+    padding: 14px 12px !important;
+    vertical-align: middle !important;
+    color: var(--portal-text, #1f2937) !important;
+    font-weight: 750 !important;
+}
+
+.portal-table td:first-child {
+    border-right: 1px solid var(--portal-border) !important;
+    border-radius: 0 16px 16px 0 !important;
+}
+
+.portal-table td:last-child {
+    border-left: 1px solid var(--portal-border) !important;
+    border-radius: 16px 0 0 16px !important;
+}
+
+.portal-table small {
+    display: block !important;
+    color: var(--portal-muted) !important;
+    margin-top: 4px !important;
+}
+
+.portal-progress {
+    height: 10px !important;
+    background: #edf0f4 !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+    min-width: 120px !important;
+}
+
+.portal-progress.large {
+    height: 13px !important;
+    margin-top: 18px !important;
+}
+
+.portal-progress span {
+    display: block !important;
+    height: 100% !important;
+    background: var(--kafo-green) !important;
+    border-radius: inherit !important;
+}
+
+.organization-portal .portal-progress span {
+    background: var(--kafo-text) !important;
+}
+
+.portal-impact,
+.portal-empty,
+.portal-demo-box {
+    background: #f9fafb !important;
+    border: 1px dashed var(--portal-border) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    color: var(--portal-muted) !important;
+    line-height: 1.8 !important;
+    font-weight: 800 !important;
+}
+
+.portal-timeline,
+.portal-list {
+    display: grid !important;
+    gap: 12px !important;
+}
+
+.portal-timeline article,
+.portal-list article {
+    background: #ffffff !important;
+    border: 1px solid var(--portal-border) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    box-shadow: 0 8px 22px rgba(16, 24, 40, .035) !important;
+}
+
+.portal-timeline article {
+    border-right: 5px solid var(--kafo-green) !important;
+}
+
+.organization-portal .portal-timeline article {
+    border-right-color: var(--kafo-text) !important;
+}
+
+.portal-timeline strong,
+.portal-list strong {
+    display: block !important;
+    margin-bottom: 7px !important;
+    color: var(--portal-title) !important;
+    font-weight: 900 !important;
+}
+
+.portal-timeline small,
+.portal-list small {
+    color: var(--portal-muted) !important;
+    font-weight: 800 !important;
+}
+
+.portal-details {
+    display: grid !important;
+    gap: 8px !important;
+    margin-top: 16px !important;
+}
+
+.portal-form {
+    display: grid !important;
+    gap: 16px !important;
+}
+
+.portal-form-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+}
+
+.portal-form-grid .span-2 {
+    grid-column: span 2 !important;
+}
+
+.portal-form label,
+.portal-login-card label {
+    display: block !important;
+    color: var(--portal-text, #1f2937) !important;
+    font-weight: 900 !important;
+    margin-bottom: 8px !important;
+}
+
+.portal-form input,
+.portal-form select,
+.portal-form textarea,
+.portal-login-card input,
+.portal-login-card select,
+.portal-login-card textarea,
+.candidate-form input,
+.candidate-form select {
+    width: 100% !important;
+    border: 1px solid var(--portal-border) !important;
+    background: #ffffff !important;
+    border-radius: 14px !important;
+    padding: 12px 13px !important;
+    outline: none !important;
+    font-family: inherit !important;
+    color: var(--portal-text, #1f2937) !important;
+    font-weight: 800 !important;
+}
+
+.portal-form input:focus,
+.portal-form select:focus,
+.portal-form textarea:focus,
+.portal-login-card input:focus,
+.portal-login-card select:focus,
+.portal-login-card textarea:focus,
+.candidate-form input:focus,
+.candidate-form select:focus {
+    border-color: var(--kafo-green) !important;
+    box-shadow: 0 0 0 4px rgba(77, 183, 72, .13) !important;
+}
+
+.organization-portal .portal-form input:focus,
+.organization-portal .portal-form select:focus,
+.organization-portal .portal-form textarea:focus,
+.organization-portal .portal-login-card input:focus,
+.organization-portal .portal-login-card select:focus,
+.organization-portal .portal-login-card textarea:focus,
+.organization-portal .candidate-form input:focus,
+.organization-portal .candidate-form select:focus {
+    border-color: var(--kafo-text) !important;
+    box-shadow: 0 0 0 4px rgba(36, 48, 24, .13) !important;
+}
+
+.portal-form span,
+.portal-login-card span,
+.portal-validation {
+    color: #b42318 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+
+.portal-actions {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.inline-form {
+    margin-top: 14px !important;
+}
+
+.candidate-form {
+    display: grid !important;
+    grid-template-columns: 170px minmax(0, 1fr) 90px !important;
+    gap: 10px !important;
+    align-items: center !important;
+    margin-top: 12px !important;
+}
+
+.portal-alert {
+    border-radius: 16px !important;
+    padding: 14px 16px !important;
+    margin-bottom: 0 !important;
+    font-weight: 900 !important;
+}
+
+.portal-alert.success {
+    background: #ecfdf3 !important;
+    color: #027a48 !important;
+    border: 1px solid #abefc6 !important;
+}
+
+.portal-alert.error {
+    background: #fef3f2 !important;
+    color: #b42318 !important;
+    border: 1px solid #fecdca !important;
+}
+
+/* Login */
+.portal-login-body {
+    min-height: 100vh !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 24px !important;
+    margin: 0 !important;
+    direction: rtl !important;
+    background:
+        radial-gradient(circle at top right, rgba(77, 183, 72, .18), transparent 34%),
+        linear-gradient(135deg, #f5f6fa 0%, #ffffff 48%, #edf2ea 100%) !important;
+}
+
+.organization-portal.portal-login-body {
+    background:
+        radial-gradient(circle at top right, rgba(36, 48, 24, .22), transparent 34%),
+        linear-gradient(135deg, #f5f6fa 0%, #ffffff 48%, #eef2e9 100%) !important;
+}
+
+.portal-login-card {
+    width: min(480px, 100%) !important;
+    background: #ffffff !important;
+    border: 1px solid var(--portal-border) !important;
+    border-radius: 30px !important;
+    box-shadow: 0 28px 80px rgba(16, 24, 40, .14) !important;
+    padding: 30px !important;
+}
+
+.portal-login-logo {
+    width: 86px !important;
+    height: 86px !important;
+    margin: 0 auto 14px !important;
+    border-radius: 24px !important;
+    background: #ffffff !important;
+    border: 1px solid var(--portal-border) !important;
+    display: grid !important;
+    place-items: center !important;
+    box-shadow: 0 12px 28px rgba(16, 24, 40, .06) !important;
+}
+
+.portal-login-card img {
+    width: 68px !important;
+    height: 68px !important;
+    object-fit: contain !important;
+    display: block !important;
+}
+
+.portal-login-kicker {
+    display: block !important;
+    text-align: center !important;
+    color: var(--kafo-green) !important;
+    font-weight: 900 !important;
+    margin-bottom: 6px !important;
+}
+
+.organization-portal .portal-login-kicker {
+    color: var(--kafo-text) !important;
+}
+
+.portal-login-card h1 {
+    text-align: center !important;
+    color: var(--portal-title) !important;
+    margin: 0 0 8px !important;
+    font-size: 28px !important;
+    font-weight: 900 !important;
+}
+
+.portal-login-card p {
+    text-align: center !important;
+    color: var(--portal-muted) !important;
+    line-height: 1.8 !important;
+    margin: 0 0 22px !important;
+    font-weight: 750 !important;
+}
+
+.portal-login-card form {
+    display: grid !important;
+    gap: 12px !important;
+}
+
+.portal-check {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 2px 0 4px !important;
+}
+
+.portal-check input {
+    width: auto !important;
+}
+
+.portal-check span {
+    color: var(--portal-text, #1f2937) !important;
+}
+
+.portal-demo-box {
+    margin-top: 16px !important;
+    text-align: center !important;
+    font-size: 13px !important;
+}
+
+@media (max-width: 1200px) {
+    .portal-grid.stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 980px) {
+    .portal-admin-sidebar.kafo-admin-sidebar {
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .portal-admin-main.kafo-admin-main {
+        margin-right: 0 !important;
+    }
+
+    .portal-grid.stats,
+    .portal-grid.compact {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .portal-grid.two,
+    .portal-form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .portal-form-grid .span-2 {
+        grid-column: span 1 !important;
+    }
+}
+
+@media (max-width: 700px) {
+    .portal-admin-main.kafo-admin-main {
+        padding: 16px !important;
+    }
+
+    .portal-admin-topbar.kafo-admin-topbar,
+    .portal-panel-head {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .portal-top-actions {
+        width: 100% !important;
+    }
+
+    .portal-top-actions a,
+    .portal-user-chip {
+        width: 100% !important;
+    }
+
+    .portal-grid.stats,
+    .portal-grid.compact {
+        grid-template-columns: 1fr !important;
+    }
+
+    .candidate-form {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Donor portal extended pages */
+.portal-hero {
+    background: linear-gradient(135deg, #ffffff, var(--portal-soft)) !important;
+    border: 1px solid var(--portal-soft-border) !important;
+    border-radius: 28px !important;
+    box-shadow: var(--portal-shadow) !important;
+    padding: 26px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 18px !important;
+}
+
+.portal-hero span {
+    color: var(--kafo-green) !important;
+    font-weight: 900 !important;
+}
+
+.portal-hero h2 {
+    margin: 8px 0 !important;
+    font-size: 30px !important;
+    font-weight: 900 !important;
+    color: var(--portal-title) !important;
+}
+
+.portal-hero p {
+    margin: 0 !important;
+    color: var(--portal-muted) !important;
+    line-height: 1.9 !important;
+    font-weight: 800 !important;
+}
+
+.portal-mini-stat {
+    background: #ffffff !important;
+    border: 1px solid var(--portal-border) !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+    box-shadow: 0 8px 20px rgba(16,24,40,.035) !important;
+}
+
+.portal-mini-stat span {
+    display: block !important;
+    color: var(--portal-muted) !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    margin-bottom: 7px !important;
+}
+
+.portal-mini-stat strong {
+    display: block !important;
+    color: var(--portal-title) !important;
+    font-size: 21px !important;
+    font-weight: 900 !important;
+}
+
+.portal-filter-bar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    align-items: center !important;
+}
+
+.portal-filter-bar a {
+    min-height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--portal-border) !important;
+    background: #ffffff !important;
+    color: var(--portal-text, #1f2937) !important;
+    text-decoration: none !important;
+    font-weight: 900 !important;
+    font-size: 13px !important;
+}
+
+.portal-filter-bar a.is-current {
+    background: var(--kafo-green) !important;
+    color: #ffffff !important;
+    border-color: var(--kafo-green) !important;
+}
+
+.portal-card-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+}
+
+.portal-program-card {
+    background: #ffffff !important;
+    border: 1px solid var(--portal-border) !important;
+    border-radius: 24px !important;
+    overflow: hidden !important;
+    box-shadow: var(--portal-shadow) !important;
+    display: grid !important;
+}
+
+.portal-program-card > img,
+.portal-program-placeholder {
+    width: 100% !important;
+    height: 180px !important;
+    object-fit: cover !important;
+    display: grid !important;
+    place-items: center !important;
+    background: var(--portal-soft) !important;
+    color: var(--portal-title) !important;
+    font-size: 32px !important;
+    font-weight: 900 !important;
+}
+
+.portal-program-card > div {
+    padding: 18px !important;
+    display: grid !important;
+    gap: 10px !important;
+}
+
+.portal-program-card h2 {
+    margin: 0 !important;
+    color: var(--portal-title) !important;
+    font-size: 21px !important;
+    font-weight: 900 !important;
+}
+
+.portal-program-card p {
+    margin: 0 !important;
+    color: var(--portal-muted) !important;
+    line-height: 1.8 !important;
+    font-weight: 750 !important;
+}
+
+.portal-meta-row {
+    display: flex !important;
+    gap: 10px !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.portal-meta-row small {
+    color: var(--portal-muted) !important;
+    font-weight: 800 !important;
+}
+
+.reports-list article {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+}
+
+.notifications-list article.is-unread {
+    background: var(--portal-soft) !important;
+    border-color: var(--portal-soft-border) !important;
+}
+
+.disclosure-grid .portal-panel {
+    min-height: 300px !important;
+}
+
+.portal-form button.portal-btn,
+.portal-panel-head form .portal-btn {
+    font-family: inherit !important;
+}
+
+@media (max-width: 1200px) {
+    .portal-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 760px) {
+    .portal-hero,
+    .reports-list article {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .portal-card-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* =====================================================
+   Portal header notifications bell
+===================================================== */
+.portal-notification-wrap {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 40 !important;
+}
+
+.portal-bell {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 999px !important;
+    border: 1px solid var(--portal-border) !important;
+    background: #ffffff !important;
+    color: var(--portal-title) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    position: relative !important;
+    box-shadow: 0 10px 22px rgba(16, 24, 40, .06) !important;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+
+.portal-bell:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 14px 28px rgba(16, 24, 40, .10) !important;
+}
+
+.portal-bell-icon {
+    font-size: 18px !important;
+    line-height: 1 !important;
+}
+
+.portal-bell-count {
+    position: absolute !important;
+    top: -6px !important;
+    left: -6px !important;
+    min-width: 21px !important;
+    height: 21px !important;
+    padding: 0 6px !important;
+    border-radius: 999px !important;
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+}
+
+.portal-bell.has-unread {
+    border-color: rgba(239, 68, 68, .38) !important;
+    animation: kafoBellPulse 1.55s ease-in-out infinite !important;
+}
+
+.portal-bell.is-ringing .portal-bell-icon {
+    display: inline-block !important;
+    transform-origin: top center !important;
+    animation: kafoBellRing .42s ease-in-out 4 !important;
+}
+
+.portal-notification-dropdown {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    left: 0 !important;
+    width: min(380px, calc(100vw - 28px)) !important;
+    background: #ffffff !important;
+    border: 1px solid var(--portal-border) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 44px rgba(16, 24, 40, .14) !important;
+    overflow: hidden !important;
+    z-index: 999 !important;
+}
+
+.portal-notification-head {
+    padding: 14px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    border-bottom: 1px solid var(--portal-border) !important;
+    background: linear-gradient(180deg, #ffffff, var(--portal-soft)) !important;
+}
+
+.portal-notification-head strong {
+    color: var(--portal-title) !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+}
+
+.portal-notification-head button {
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--portal-title) !important;
+    cursor: pointer !important;
+    font-family: inherit !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    padding: 4px 0 !important;
+}
+
+.portal-notification-list {
+    max-height: 342px !important;
+    overflow-y: auto !important;
+}
+
+.portal-notification-item {
+    display: grid !important;
+    gap: 5px !important;
+    padding: 13px 16px !important;
+    text-decoration: none !important;
+    border-bottom: 1px solid #f0f2f6 !important;
+    color: inherit !important;
+    background: #ffffff !important;
+}
+
+.portal-notification-item:hover {
+    background: #f8fafc !important;
+}
+
+.portal-notification-item.is-unread {
+    background: var(--portal-soft) !important;
+    box-shadow: inset -4px 0 0 var(--portal-title) !important;
+}
+
+.donor-portal .portal-notification-item.is-unread {
+    box-shadow: inset -4px 0 0 var(--kafo-green) !important;
+}
+
+.portal-notification-item strong {
+    color: var(--portal-title) !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+}
+
+.portal-notification-item p {
+    margin: 0 !important;
+    color: #475467 !important;
+    font-size: 12.5px !important;
+    line-height: 1.7 !important;
+}
+
+.portal-notification-item small,
+.portal-notification-empty {
+    color: var(--portal-muted) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
+
+.portal-notification-empty {
+    padding: 22px 16px !important;
+    text-align: center !important;
+}
+
+.portal-notification-more {
+    display: flex !important;
+    min-height: 45px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    background: var(--portal-title) !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    font-size: 13px !important;
+}
+
+.donor-portal .portal-notification-more {
+    background: var(--kafo-green) !important;
+}
+
+.notifications-list article.is-unread {
+    border-color: var(--portal-soft-border) !important;
+    background: var(--portal-soft) !important;
+}
+
+@keyframes kafoBellPulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, .34); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+@keyframes kafoBellRing {
+    0% { transform: rotate(0deg); }
+    20% { transform: rotate(14deg); }
+    40% { transform: rotate(-12deg); }
+    60% { transform: rotate(8deg); }
+    80% { transform: rotate(-6deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@media (max-width: 720px) {
+    .portal-notification-dropdown {
+        left: -90px !important;
+        width: min(340px, calc(100vw - 20px)) !important;
+    }
+}
+\n\n/* Donor support - association bank accounts */\n.donor-bank-grid {\n    display: grid;\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n    gap: 16px;\n    margin-top: 18px;\n}\n\n.donor-bank-card {\n    border: 1px solid #e3e7ec;\n    border-radius: 16px;\n    padding: 18px;\n    background: #fff;\n    box-shadow: 0 8px 24px rgba(30, 41, 59, .05);\n}\n\n.donor-bank-card-head {\n    display: flex;\n    align-items: center;\n    gap: 12px;\n    padding-bottom: 14px;\n    margin-bottom: 14px;\n    border-bottom: 1px solid #edf0f3;\n}\n\n.donor-bank-card-head img {\n    width: 52px;\n    height: 52px;\n    object-fit: contain;\n    border: 1px solid #edf0f3;\n    border-radius: 12px;\n    padding: 5px;\n    background: #fff;\n}\n\n.donor-bank-card-head span,\n.donor-bank-card dt {\n    display: block;\n    color: #8a94a3;\n    font-size: .78rem;\n    margin-bottom: 3px;\n}\n\n.donor-bank-card-head strong {\n    color: #1f2937;\n    font-size: 1.02rem;\n}\n\n.donor-bank-card dl {\n    display: grid;\n    grid-template-columns: repeat(2, minmax(0, 1fr));\n    gap: 12px;\n    margin: 0 0 15px;\n}\n\n.donor-bank-card dl > div {\n    min-width: 0;\n    padding: 10px 12px;\n    border-radius: 11px;\n    background: #f8fafc;\n}\n\n.donor-bank-card dd {\n    margin: 0;\n    color: #172033;\n    font-weight: 700;\n    overflow-wrap: anywhere;\n}\n\n.donor-bank-card .donor-bank-iban-row {\n    grid-column: 1 / -1;\n}\n\n.donor-bank-card .donor-bank-iban-row dd {\n    direction: ltr;\n    text-align: right;\n    letter-spacing: .04em;\n}\n\n.donor-bank-card .donor-copy-iban {\n    width: 100%;\n    justify-content: center;\n}\n\n.donor-bank-card .donor-copy-iban:disabled {\n    opacity: .75;\n    cursor: default;\n}\n\n.donor-bank-note {\n    margin: 14px 0 0 !important;\n    padding: 11px 13px;\n    border-radius: 10px;\n    background: #fff8e7;\n    color: #7a5a0a !important;\n}\n\n@media (max-width: 760px) {\n    .donor-bank-grid {\n        grid-template-columns: 1fr;\n    }\n\n    .donor-bank-card dl {\n        grid-template-columns: 1fr;\n    }\n\n    .donor-bank-card .donor-bank-iban-row {\n        grid-column: auto;\n    }\n}\n
+
+/* ===== Donor programs: compact description + program image ===== */
+.portal-program-placeholder.is-hidden {
+    display: none !important;
+}
+
+.portal-program-description-wrap {
+    display: grid !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+}
+
+.portal-program-description {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 1 !important;
+    overflow: hidden !important;
+    white-space: normal !important;
+    line-height: 1.8 !important;
+    max-height: 1.8em !important;
+}
+
+.portal-program-description.is-expanded {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.portal-read-more {
+    width: max-content !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--kafo-green) !important;
+    font: inherit !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+    text-decoration: underline !important;
+    text-underline-offset: 4px !important;
+}
+
+.portal-read-more:hover {
+    opacity: .78 !important;
+}
+
+.donor-program-hero {
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+.donor-program-hero-image {
+    width: 100% !important;
+    height: 280px !important;
+    background: var(--portal-soft) !important;
+    overflow: hidden !important;
+}
+
+.donor-program-hero-image img {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    object-fit: cover !important;
+}
+
+.donor-program-hero-content {
+    padding: 22px !important;
+}
+
+.support-description {
+    margin-top: 8px !important;
+    max-width: 760px !important;
+}
+
+@media (max-width: 700px) {
+    .donor-program-hero-image {
+        height: 210px !important;
+    }
+
+    .donor-program-hero-content {
+        padding: 16px !important;
+    }
+}
+
+/* ===== Donor support page: compact program card beside bank accounts ===== */
+.donor-support-top-grid {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: 18px;
+    align-items: stretch;
+    margin-bottom: 18px;
+}
+
+.donor-support-top-grid > .portal-panel {
+    margin: 0 !important;
+    min-width: 0;
+}
+
+.donor-program-compact-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+.donor-program-compact-card .donor-program-hero-image {
+    height: 170px !important;
+}
+
+.donor-program-compact-card .donor-program-hero-content {
+    padding: 16px 18px 17px !important;
+}
+
+.donor-program-compact-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.donor-program-compact-head h2 {
+    margin: 7px 0 0;
+    font-size: 1.3rem;
+}
+
+.donor-program-compact-head .portal-btn {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+}
+
+.donor-program-compact-card .support-description {
+    max-width: none !important;
+    margin-top: 10px !important;
+}
+
+.donor-program-compact-card .portal-impact {
+    display: none !important;
+}
+
+.donor-bank-compact-panel {
+    padding: 18px !important;
+}
+
+.donor-bank-title-row {
+    margin-bottom: 12px !important;
+}
+
+.donor-bank-title-row h2 {
+    margin: 7px 0 3px;
+    font-size: 1.3rem;
+}
+
+.donor-bank-title-row p {
+    margin: 0 !important;
+    font-size: .88rem;
+}
+
+.donor-bank-compact-panel .donor-bank-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-top: 10px !important;
+    max-height: 330px;
+    overflow: auto;
+    padding-inline-end: 3px;
+}
+
+.donor-bank-compact-panel .donor-bank-card {
+    padding: 13px !important;
+    border-radius: 13px !important;
+    box-shadow: none !important;
+}
+
+.donor-bank-compact-panel .donor-bank-card-head {
+    padding-bottom: 9px !important;
+    margin-bottom: 9px !important;
+}
+
+.donor-bank-compact-panel .donor-bank-card-head img {
+    width: 42px !important;
+    height: 42px !important;
+}
+
+.donor-bank-compact-panel .donor-bank-card dl {
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+}
+
+.donor-bank-compact-panel .donor-bank-card dl > div {
+    padding: 8px 10px !important;
+}
+
+.donor-bank-compact-panel .donor-bank-note {
+    margin-top: 10px !important;
+    padding: 9px 11px !important;
+    font-size: .82rem;
+}
+
+@media (max-width: 980px) {
+    .donor-support-top-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .donor-bank-compact-panel .donor-bank-grid {
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+@media (max-width: 600px) {
+    .donor-program-compact-card .donor-program-hero-image {
+        height: 145px !important;
+    }
+
+    .donor-program-compact-head {
+        align-items: center;
+    }
+
+    .donor-bank-compact-panel {
+        padding: 14px !important;
+    }
+}
+
+/* Compact donor support page: bank logos + transaction form */
+.compact-support-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr);
+    gap: 18px;
+    align-items: stretch;
+    margin-bottom: 18px;
+}
+
+.donor-program-mini-card,
+.donor-bank-selector-panel {
+    min-height: 0;
+    margin: 0;
+}
+
+.donor-program-mini-card {
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.donor-program-mini-image {
+    height: 175px;
+    overflow: hidden;
+    background: #f3f0fb;
+}
+
+.donor-program-mini-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.donor-program-mini-content {
+    padding: 18px 20px 20px;
+}
+
+.donor-program-mini-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.donor-program-mini-head h2 {
+    margin: 7px 0 8px;
+}
+
+.donor-program-mini-card .portal-program-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+}
+
+.donor-program-mini-card .portal-program-description.is-expanded {
+    display: block;
+    overflow: visible;
+}
+
+.donor-bank-selector-panel {
+    padding: 20px !important;
+}
+
+.donor-bank-selector-head h2 {
+    margin: 7px 0 4px;
+}
+
+.donor-bank-selector-head p {
+    margin: 0;
+}
+
+.donor-bank-logo-list {
+    display: flex;
+    gap: 9px;
+    margin: 16px 0 13px;
+    overflow-x: auto;
+    padding: 2px 1px 7px;
+    scrollbar-width: thin;
+}
+
+.donor-bank-logo-button {
+    min-width: 92px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    background: #fff;
+    padding: 9px 10px;
+    display: grid;
+    place-items: center;
+    gap: 5px;
+    color: #475569;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.donor-bank-logo-button:hover,
+.donor-bank-logo-button.is-active {
+    border-color: #69ad63;
+    background: #f5fbf4;
+    box-shadow: 0 5px 16px rgba(51, 120, 56, .09);
+}
+
+.donor-bank-logo-button img,
+.donor-bank-fallback {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.donor-bank-fallback {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #eef7ed;
+    color: #2f7d32;
+    font-weight: 800;
+}
+
+.donor-bank-logo-button > span:last-child {
+    font-size: .78rem;
+    white-space: nowrap;
+}
+
+.donor-bank-details {
+    display: none;
+    border: 1px solid #e6ebf0;
+    border-radius: 14px;
+    background: #fbfcfd;
+    padding: 14px;
+}
+
+.donor-bank-details.is-active {
+    display: block;
+}
+
+.donor-bank-details-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 11px;
+}
+
+.donor-bank-details-title span {
+    font-size: .72rem;
+    color: #2f7d32;
+    background: #eaf7e8;
+    border-radius: 999px;
+    padding: 4px 8px;
+}
+
+.donor-bank-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.donor-bank-details-grid > div {
+    min-width: 0;
+}
+
+.donor-bank-details-grid span {
+    display: block;
+    color: #8993a4;
+    font-size: .72rem;
+    margin-bottom: 3px;
+}
+
+.donor-bank-details-grid strong {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: .87rem;
+}
+
+.donor-bank-details-grid .iban-cell {
+    grid-column: 1 / -1;
+}
+
+.donor-bank-details .donor-copy-iban {
+    margin-top: 11px;
+    padding: 8px 12px;
+    min-height: auto;
+}
+
+.donor-contribution-form-panel {
+    margin-top: 0;
+}
+
+.donor-support-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.money-input-wrap {
+    position: relative;
+}
+
+.money-input-wrap input {
+    padding-left: 58px !important;
+}
+
+.money-input-wrap > span {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+@media (max-width: 980px) {
+    .compact-support-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .donor-program-mini-image {
+        height: 135px;
+    }
+
+    .donor-program-mini-head,
+    .donor-bank-details-title {
+        align-items: stretch;
+    }
+
+    .donor-support-fields,
+    .donor-bank-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .donor-bank-details-grid .iban-cell {
+        grid-column: auto;
+    }
+}
+
+
+/* Organization opportunity request actions */
+.org-request-row-actions,
+.org-request-details-actions {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+
+.org-request-delete-form,
+.org-request-details-actions form {
+    margin: 0 !important;
+}
+
+.org-request-action {
+    min-height: 36px !important;
+    padding: 0 12px !important;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-family: inherit !important;
+    font-size: .82rem !important;
+    font-weight: 900 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+}
+
+.org-request-action.view {
+    background: #f4f0fb !important;
+    color: #5f3d91 !important;
+    border-color: #e0d5ee !important;
+}
+
+.org-request-action.edit {
+    background: #eef7ff !important;
+    color: #175cd3 !important;
+    border-color: #cfe5ff !important;
+}
+
+.org-request-action.delete,
+.portal-btn.danger {
+    background: #fff1f0 !important;
+    color: #b42318 !important;
+    border: 1px solid #fecdca !important;
+}
+
+.org-request-action.delete:hover,
+.portal-btn.danger:hover {
+    background: #fee4e2 !important;
+}
+
+@media (max-width: 760px) {
+    .org-request-details-actions {
+        width: 100% !important;
+    }
+
+    .org-request-details-actions .portal-btn,
+    .org-request-details-actions form {
+        flex: 1 1 160px !important;
+    }
+
+    .org-request-details-actions form .portal-btn {
+        width: 100% !important;
+    }
+}
+
+
+/* =====================================================
+   Organized organization opportunity request details
+===================================================== */
+.org-request-details-page {
+    width: 100% !important;
+    display: grid !important;
+    gap: 14px !important;
+}
+
+.org-request-details-page .portal-panel {
+    margin: 0 !important;
+    padding: 18px 20px !important;
+}
+
+.org-request-hero {
+    position: relative !important;
+    overflow: hidden !important;
+    background:
+        linear-gradient(135deg, rgba(36, 48, 24, .035), transparent 55%),
+        #ffffff !important;
+}
+
+.org-request-hero::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 6px !important;
+    height: 100% !important;
+    background: var(--portal-title) !important;
+}
+
+.org-request-hero-main {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+}
+
+.org-request-hero-copy {
+    min-width: 0 !important;
+}
+
+.org-request-kicker {
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 28px !important;
+    margin-bottom: 8px !important;
+    padding: 0 11px !important;
+    border-radius: 999px !important;
+    color: var(--portal-title) !important;
+    background: var(--portal-soft) !important;
+    border: 1px solid var(--portal-soft-border) !important;
+    font-size: .76rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-hero h2 {
+    margin: 0 0 5px !important;
+    font-size: 1.55rem !important;
+    line-height: 1.35 !important;
+}
+
+.org-request-hero p {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    font-size: .84rem !important;
+}
+
+.org-request-dot {
+    color: #c0c6cf !important;
+}
+
+.org-request-hero-side {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    flex: 0 0 auto !important;
+}
+
+.org-request-status {
+    min-width: 110px !important;
+    justify-content: center !important;
+}
+
+.org-request-section {
+    border-radius: 18px !important;
+}
+
+.org-request-section-head,
+.org-request-section-head > div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 11px !important;
+}
+
+.org-request-section-head {
+    justify-content: space-between !important;
+    margin-bottom: 13px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #eef0f4 !important;
+}
+
+.org-request-section-head h2 {
+    margin: 0 0 2px !important;
+    font-size: 1rem !important;
+}
+
+.org-request-section-head p {
+    font-size: .76rem !important;
+    line-height: 1.6 !important;
+}
+
+.org-request-section-number {
+    width: 38px !important;
+    height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 38px !important;
+    border-radius: 11px !important;
+    color: #ffffff !important;
+    background: var(--portal-title) !important;
+    font-size: .75rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-timeline-compact {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+}
+
+.org-request-stage {
+    position: relative !important;
+    min-width: 0 !important;
+    min-height: 62px !important;
+    padding: 9px 8px !important;
+    border: 1px solid #e8eaf0 !important;
+    border-radius: 12px !important;
+    background: #fafbfc !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.org-request-stage-index {
+    width: 27px !important;
+    height: 27px !important;
+    flex: 0 0 27px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #747b87 !important;
+    background: #eef0f3 !important;
+    font-size: .72rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-stage-label {
+    min-width: 0 !important;
+    color: #697180 !important;
+    font-size: .71rem !important;
+    font-weight: 900 !important;
+    line-height: 1.45 !important;
+}
+
+.org-request-stage.is-complete {
+    border-color: #cce8cb !important;
+    background: #f5fbf4 !important;
+}
+
+.org-request-stage.is-complete .org-request-stage-index {
+    color: #ffffff !important;
+    background: #4c9d49 !important;
+}
+
+.org-request-stage.is-complete .org-request-stage-label {
+    color: #2f6f2c !important;
+}
+
+.org-request-stage.is-current {
+    border-color: var(--portal-soft-border) !important;
+    background: var(--portal-soft) !important;
+    box-shadow: 0 6px 18px rgba(36, 48, 24, .07) !important;
+}
+
+.org-request-stage.is-current .org-request-stage-index {
+    color: #ffffff !important;
+    background: var(--portal-title) !important;
+}
+
+.org-request-stage.is-current .org-request-stage-label {
+    color: var(--portal-title) !important;
+}
+
+.org-request-table-wrap,
+.org-request-info-table-wrap {
+    width: 100% !important;
+    overflow-x: auto !important;
+    border: 1px solid #e8eaf0 !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+}
+
+.org-request-details-table,
+.org-request-info-table,
+.org-request-candidates-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+}
+
+.org-request-details-table th,
+.org-request-details-table td,
+.org-request-info-table th,
+.org-request-info-table td,
+.org-request-candidates-table th,
+.org-request-candidates-table td {
+    padding: 12px 13px !important;
+    border-bottom: 1px solid #edf0f3 !important;
+    vertical-align: middle !important;
+    text-align: right !important;
+    overflow-wrap: anywhere !important;
+}
+
+.org-request-details-table tr:last-child th,
+.org-request-details-table tr:last-child td,
+.org-request-info-table tr:last-child th,
+.org-request-info-table tr:last-child td,
+.org-request-candidates-table tbody tr:last-child td {
+    border-bottom: 0 !important;
+}
+
+.org-request-details-table th,
+.org-request-info-table th {
+    width: 15% !important;
+    color: #667085 !important;
+    background: #f8f9fb !important;
+    font-size: .76rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-details-table td,
+.org-request-info-table td {
+    color: #202632 !important;
+    font-size: .84rem !important;
+    font-weight: 800 !important;
+}
+
+.org-request-value-emphasis {
+    color: var(--portal-title) !important;
+    font-size: .96rem !important;
+}
+
+.org-request-info-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.3fr) minmax(360px, .7fr) !important;
+    gap: 13px !important;
+}
+
+.org-request-description-card {
+    min-height: 100% !important;
+    padding: 15px !important;
+    border: 1px solid #e8eaf0 !important;
+    border-radius: 14px !important;
+    background: #fbfcfd !important;
+}
+
+.org-request-description-card > span {
+    display: block !important;
+    margin-bottom: 7px !important;
+    color: var(--portal-title) !important;
+    font-size: .78rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-description-card p {
+    color: #475467 !important;
+    font-size: .84rem !important;
+    line-height: 1.9 !important;
+    white-space: pre-line !important;
+}
+
+.org-request-count-badge {
+    min-height: 30px !important;
+    padding: 0 11px !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    color: var(--portal-title) !important;
+    background: var(--portal-soft) !important;
+    border: 1px solid var(--portal-soft-border) !important;
+    font-size: .75rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-candidates-table {
+    min-width: 950px !important;
+}
+
+.org-request-candidates-table thead th {
+    color: #667085 !important;
+    background: #f7f8fa !important;
+    font-size: .74rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-candidates-table tbody td {
+    color: #344054 !important;
+    font-size: .79rem !important;
+    font-weight: 700 !important;
+}
+
+.org-request-candidates-table th:nth-child(1) {
+    width: 17% !important;
+}
+
+.org-request-candidates-table th:nth-child(2) {
+    width: 23% !important;
+}
+
+.org-request-candidates-table th:nth-child(3) {
+    width: 13% !important;
+}
+
+.org-request-candidates-table th:nth-child(4) {
+    width: 34% !important;
+}
+
+.org-request-candidates-table th:nth-child(5) {
+    width: 13% !important;
+}
+
+.org-request-candidate-name {
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+}
+
+.org-request-candidate-name > span {
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 9px !important;
+    color: #ffffff !important;
+    background: var(--portal-title) !important;
+    font-weight: 900 !important;
+}
+
+.org-request-candidate-name strong {
+    color: #202632 !important;
+    font-size: .82rem !important;
+}
+
+.org-request-candidate-status {
+    display: inline-flex !important;
+    align-items: center !important;
+    min-height: 27px !important;
+    padding: 0 9px !important;
+    border-radius: 999px !important;
+    color: #475467 !important;
+    background: #f2f4f7 !important;
+    font-size: .7rem !important;
+    font-weight: 900 !important;
+}
+
+.org-request-candidate-form {
+    display: grid !important;
+    grid-template-columns: 150px minmax(190px, 1fr) 72px !important;
+    align-items: center !important;
+    gap: 7px !important;
+}
+
+.org-request-candidate-form select,
+.org-request-candidate-form input {
+    width: 100% !important;
+    min-height: 36px !important;
+    padding: 7px 9px !important;
+    border: 1px solid #dfe3e8 !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    color: #344054 !important;
+    font-family: inherit !important;
+    font-size: .75rem !important;
+    outline: none !important;
+}
+
+.org-request-candidate-form select:focus,
+.org-request-candidate-form input:focus {
+    border-color: var(--portal-title) !important;
+    box-shadow: 0 0 0 3px rgba(36, 48, 24, .08) !important;
+}
+
+.org-request-candidate-form button {
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    border-radius: 9px !important;
+    font-size: .75rem !important;
+}
+
+.org-request-empty {
+    min-height: 105px !important;
+    display: grid !important;
+    place-items: center !important;
+}
+
+@media (max-width: 1150px) {
+    .org-request-timeline-compact {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+
+    .org-request-info-layout {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 800px) {
+    .org-request-details-page .portal-panel {
+        padding: 16px !important;
+    }
+
+    .org-request-hero-main,
+    .org-request-hero-side {
+        align-items: stretch !important;
+        flex-direction: column !important;
+    }
+
+    .org-request-hero-side {
+        width: 100% !important;
+    }
+
+    .org-request-details-actions {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .org-request-details-actions form,
+    .org-request-details-actions .portal-btn,
+    .org-request-details-actions form .portal-btn {
+        width: 100% !important;
+    }
+
+    .org-request-timeline-compact {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .org-request-details-table {
+        min-width: 760px !important;
+    }
+}
+
+@media (max-width: 520px) {
+    .org-request-details-actions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .org-request-timeline-compact {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Portal account password and organization profile */
+.portal-password-card {
+    border-top: 4px solid #74429a;
+}
+
+.portal-password-card small {
+    display: block;
+    margin-top: 7px;
+    color: #6f6477;
+    line-height: 1.6;
+}
+
+.organization-profile-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.organization-profile-logo {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 16px;
+    background: #fff;
+    padding: 8px;
+    border: 1px solid rgba(116, 66, 154, .14);
+}
+
+@media (max-width: 680px) {
+    .organization-profile-hero {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

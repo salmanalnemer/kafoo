@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Kafo.Web.Configuration;
 using Kafo.Web.Data;
 using Kafo.Web.Models;
@@ -54,52 +54,36 @@ public class AdminAuthController : Controller
     [HttpPost("/Admin/Login")]
     [EnableRateLimiting("auth")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(32 * 1024)]
     public async Task<IActionResult> Login(AdminLoginViewModel model, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return View("~/Areas/Admin/Views/Auth/Login.cshtml", model);
 
         var email = model.Email.Trim().ToLowerInvariant();
-        var user = await _context.AdminUsers
-            .FirstOrDefaultAsync(x => x.Email != null && x.Email.ToLower() == email, cancellationToken);
+        var snapshot = await _context.AdminUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.Email != null && x.Email.ToLower() == email,
+                cancellationToken);
 
-        var locked = user != null && LoginSecurity.IsLocked(user.LockoutEndUtc);
         var credentialsValid = false;
-        var needsRehash = false;
-
-        if (user != null && user.IsActive && !locked)
+        if (snapshot is { IsActive: true } && !LoginSecurity.IsLocked(snapshot.LockoutEndUtc))
         {
             credentialsValid = AdminPasswordHasher.VerifyPassword(
                 model.Password,
-                user.PasswordHash,
-                user.PasswordSalt,
-                out needsRehash);
+                snapshot.PasswordHash,
+                snapshot.PasswordSalt);
         }
         else
         {
             AdminPasswordHasher.VerifyDummy(model.Password);
         }
 
-        if (!credentialsValid || user == null)
+        if (!credentialsValid || snapshot == null)
         {
-            var retryAfter = LoginSecurity.GetRemainingLockout(user?.LockoutEndUtc);
-
-            if (user is { IsActive: true } && !locked)
-            {
-                var failedCount = user.AccessFailedCount;
-                var lockoutEnd = user.LockoutEndUtc;
-                var newLockout = LoginSecurity.RegisterFailure(
-                    ref failedCount,
-                    ref lockoutEnd,
-                    _securityOptions);
-
-                user.AccessFailedCount = failedCount;
-                user.LockoutEndUtc = lockoutEnd;
-                user.UpdatedAt = DateTime.Now;
-                retryAfter = MaxDuration(retryAfter, newLockout);
-
-                await _context.SaveChangesAsync(cancellationToken);
-            }
+            if (snapshot is { IsActive: true })
+                await RegisterFailureAtomicallyAsync(snapshot.Id, cancellationToken);
 
             await _audit.WriteAsync(
                 HttpContext,
@@ -108,35 +92,38 @@ public class AdminAuthController : Controller
                 success: false,
                 severity: "Warning",
                 actorType: "Admin",
-                actorId: user?.Id.ToString(),
+                actorId: snapshot?.Id.ToString(),
                 cancellationToken: cancellationToken);
 
             ModelState.AddModelError(
                 string.Empty,
-                BuildLoginFailureMessage(retryAfter));
+                "تعذر تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.");
 
             return View("~/Areas/Admin/Views/Auth/Login.cshtml", model);
         }
 
-        var accessFailedCount = user.AccessFailedCount;
-        var currentLockoutEnd = user.LockoutEndUtc;
-        LoginSecurity.Reset(ref accessFailedCount, ref currentLockoutEnd);
-        user.AccessFailedCount = accessFailedCount;
-        user.LockoutEndUtc = currentLockoutEnd;
+        var user = await FinalizePasswordStepAtomicallyAsync(
+            snapshot.Id,
+            model.Password,
+            cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(user.SecurityStamp))
-            user.SecurityStamp = LoginSecurity.NewSecurityStamp();
-
-        if (needsRehash)
+        if (user == null)
         {
-            var upgraded = AdminPasswordHasher.HashPassword(model.Password);
-            user.PasswordHash = upgraded.Hash;
-            user.PasswordSalt = upgraded.Salt;
-            user.PasswordChangedAtUtc ??= DateTime.UtcNow;
-        }
+            await _audit.WriteAsync(
+                HttpContext,
+                "AdminLoginFailed",
+                "Administrator account changed or was locked during authentication.",
+                success: false,
+                severity: "Warning",
+                actorType: "Admin",
+                actorId: snapshot.Id.ToString(),
+                cancellationToken: cancellationToken);
 
-        user.UpdatedAt = DateTime.Now;
-        await _context.SaveChangesAsync(cancellationToken);
+            ModelState.AddModelError(
+                string.Empty,
+                "تعذر تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.");
+            return View("~/Areas/Admin/Views/Auth/Login.cshtml", model);
+        }
 
         try
         {
@@ -144,7 +131,7 @@ public class AdminAuthController : Controller
                 new LoginOtpRequest(
                     "Admin",
                     user.Id,
-                    email,
+                    user.Email ?? email,
                     user.FullName,
                     model.RememberMe,
                     model.ReturnUrl,
@@ -166,10 +153,11 @@ public class AdminAuthController : Controller
         {
             ModelState.AddModelError(string.Empty, ex.Message);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Unable to send admin login OTP for account {AdminUserId}", user.Id);
-            ModelState.AddModelError(string.Empty,
+            ModelState.AddModelError(
+                string.Empty,
                 "تعذر إرسال رمز التحقق. تأكد من إعدادات البريد الإلكتروني ثم حاول مجددًا.");
         }
 
@@ -198,6 +186,7 @@ public class AdminAuthController : Controller
     [HttpPost("/Admin/VerifyOtp")]
     [EnableRateLimiting("auth")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(32 * 1024)]
     public async Task<IActionResult> VerifyOtp(
         OtpVerificationViewModel model,
         CancellationToken cancellationToken)
@@ -233,12 +222,25 @@ public class AdminAuthController : Controller
             return View("~/Areas/Admin/Views/Auth/VerifyOtp.cshtml", model);
         }
 
+        var verifiedChallenge = await _context.LoginOtpChallenges
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.ChallengeId == model.ChallengeId &&
+                     x.PortalType == "Admin" &&
+                     x.AccountId == result.AccountId.Value,
+                cancellationToken);
+
         var user = await _context.AdminUsers
             .FirstOrDefaultAsync(x => x.Id == result.AccountId.Value && x.IsActive, cancellationToken);
 
-        if (user == null || LoginSecurity.IsLocked(user.LockoutEndUtc))
+        if (user == null ||
+            verifiedChallenge == null ||
+            LoginSecurity.IsLocked(user.LockoutEndUtc) ||
+            !string.Equals(user.Email?.Trim(), verifiedChallenge.Email, StringComparison.OrdinalIgnoreCase) ||
+            (user.PasswordChangedAtUtc.HasValue &&
+             user.PasswordChangedAtUtc.Value > verifiedChallenge.CreatedAtUtc))
         {
-            ModelState.AddModelError(string.Empty, "الحساب غير موجود أو غير مفعل.");
+            ModelState.AddModelError(string.Empty, "طلب التحقق لم يعد صالحًا. سجل الدخول مرة أخرى.");
             return View("~/Areas/Admin/Views/Auth/VerifyOtp.cshtml", model);
         }
 
@@ -273,6 +275,7 @@ public class AdminAuthController : Controller
     [HttpPost("/Admin/ResendOtp")]
     [EnableRateLimiting("auth")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(16 * 1024)]
     public async Task<IActionResult> ResendOtp(string challengeId, CancellationToken cancellationToken)
     {
         var challenge = await _otpService.GetChallengeInfoAsync(challengeId, cancellationToken);
@@ -292,7 +295,7 @@ public class AdminAuthController : Controller
         {
             TempData["OtpError"] = ex.Message;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Unable to resend admin OTP for challenge {ChallengeId}", challengeId);
             TempData["OtpError"] = "تعذر إعادة إرسال الرمز. حاول مرة أخرى.";
@@ -303,6 +306,7 @@ public class AdminAuthController : Controller
 
     [HttpPost("/Admin/Logout")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(16 * 1024)]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
         var adminId = User.FindFirstValue("KafoAdminUserId");
@@ -393,39 +397,132 @@ public class AdminAuthController : Controller
             {
                 IsPersistent = rememberMe,
                 ExpiresUtc = rememberMe
-                    ? DateTimeOffset.UtcNow.AddDays(7)
+                    ? DateTimeOffset.UtcNow.AddDays(30)
                     : DateTimeOffset.UtcNow.AddHours(2),
                 AllowRefresh = false
             });
     }
 
-    private static string BuildLoginFailureMessage(TimeSpan? retryAfter)
+    private async Task RegisterFailureAtomicallyAsync(
+        int adminUserId,
+        CancellationToken cancellationToken)
     {
-        if (!retryAfter.HasValue || retryAfter.Value <= TimeSpan.Zero)
+        for (var retry = 0; retry < 3; retry++)
         {
-            return "تعذر تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.";
+            var snapshot = await _context.AdminUsers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == adminUserId, cancellationToken);
+
+            if (snapshot is not { IsActive: true } || LoginSecurity.IsLocked(snapshot.LockoutEndUtc))
+                return;
+
+            var failedCount = snapshot.AccessFailedCount;
+            var lockoutEnd = snapshot.LockoutEndUtc;
+            LoginSecurity.RegisterFailure(
+                ref failedCount,
+                ref lockoutEnd,
+                _securityOptions);
+
+            var affected = await _context.AdminUsers
+                .Where(x =>
+                    x.Id == adminUserId &&
+                    x.IsActive &&
+                    x.AccessFailedCount == snapshot.AccessFailedCount &&
+                    x.LockoutEndUtc == snapshot.LockoutEndUtc)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.AccessFailedCount, failedCount)
+                        .SetProperty(x => x.LockoutEndUtc, lockoutEnd)
+                        .SetProperty(x => x.UpdatedAt, DateTime.Now),
+                    cancellationToken);
+
+            if (affected == 1)
+                return;
         }
 
-        var minutes = Math.Max(1, (int)Math.Ceiling(retryAfter.Value.TotalMinutes));
-        var durationText = minutes switch
-        {
-            1 => "دقيقة واحدة",
-            2 => "دقيقتين",
-            _ => $"{minutes} دقائق"
-        };
-
-        return $"تم تعليق محاولة تسجيل الدخول مؤقتًا لحماية الحساب. حاول مجددًا بعد {durationText}.";
+        _logger.LogWarning(
+            "Admin login failure counter had repeated concurrency conflicts for account {AdminUserId}",
+            adminUserId);
     }
 
-    private static TimeSpan? MaxDuration(TimeSpan? first, TimeSpan? second)
+    private async Task<AdminUser?> FinalizePasswordStepAtomicallyAsync(
+        int adminUserId,
+        string password,
+        CancellationToken cancellationToken)
     {
-        if (!first.HasValue)
-            return second;
+        for (var retry = 0; retry < 3; retry++)
+        {
+            var snapshot = await _context.AdminUsers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == adminUserId, cancellationToken);
 
-        if (!second.HasValue)
-            return first;
+            if (snapshot is not { IsActive: true } || LoginSecurity.IsLocked(snapshot.LockoutEndUtc))
+            {
+                AdminPasswordHasher.VerifyDummy(password);
+                return null;
+            }
 
-        return first.Value >= second.Value ? first : second;
+            if (!AdminPasswordHasher.VerifyPassword(
+                    password,
+                    snapshot.PasswordHash,
+                    snapshot.PasswordSalt,
+                    out var needsRehash))
+            {
+                await RegisterFailureAtomicallyAsync(adminUserId, cancellationToken);
+                return null;
+            }
+
+            var securityStamp = string.IsNullOrWhiteSpace(snapshot.SecurityStamp)
+                ? LoginSecurity.NewSecurityStamp()
+                : snapshot.SecurityStamp;
+            var passwordHash = snapshot.PasswordHash;
+            var passwordSalt = snapshot.PasswordSalt;
+            var passwordChangedAtUtc = snapshot.PasswordChangedAtUtc;
+
+            if (needsRehash)
+            {
+                var upgraded = AdminPasswordHasher.HashPassword(password);
+                passwordHash = upgraded.Hash;
+                passwordSalt = upgraded.Salt;
+                passwordChangedAtUtc ??= DateTime.UtcNow;
+            }
+
+            var affected = await _context.AdminUsers
+                .Where(x =>
+                    x.Id == adminUserId &&
+                    x.IsActive &&
+                    x.AccessFailedCount == snapshot.AccessFailedCount &&
+                    x.LockoutEndUtc == snapshot.LockoutEndUtc &&
+                    x.PasswordHash == snapshot.PasswordHash &&
+                    x.PasswordSalt == snapshot.PasswordSalt)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.AccessFailedCount, 0)
+                        .SetProperty(x => x.LockoutEndUtc, (DateTime?)null)
+                        .SetProperty(x => x.SecurityStamp, securityStamp)
+                        .SetProperty(x => x.PasswordHash, passwordHash)
+                        .SetProperty(x => x.PasswordSalt, passwordSalt)
+                        .SetProperty(x => x.PasswordChangedAtUtc, passwordChangedAtUtc)
+                        .SetProperty(x => x.UpdatedAt, DateTime.Now),
+                    cancellationToken);
+
+            if (affected != 1)
+                continue;
+
+            snapshot.AccessFailedCount = 0;
+            snapshot.LockoutEndUtc = null;
+            snapshot.SecurityStamp = securityStamp;
+            snapshot.PasswordHash = passwordHash;
+            snapshot.PasswordSalt = passwordSalt;
+            snapshot.PasswordChangedAtUtc = passwordChangedAtUtc;
+            snapshot.UpdatedAt = DateTime.Now;
+            return snapshot;
+        }
+
+        _logger.LogWarning(
+            "Admin password step had repeated concurrency conflicts for account {AdminUserId}",
+            adminUserId);
+        return null;
     }
 
     private void AddOtpError(LoginOtpVerificationStatus status)

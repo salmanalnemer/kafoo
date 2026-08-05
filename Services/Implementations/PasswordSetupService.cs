@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using Kafo.Web.Configuration;
 using Kafo.Web.Data;
@@ -13,6 +13,8 @@ namespace Kafo.Web.Services.Implementations;
 
 public sealed class PasswordSetupService : IPasswordSetupService
 {
+    private const string ProductionPublicBaseUrl = "https://app1.kafoo.org.sa";
+
     private readonly ApplicationDbContext _db;
     private readonly IEmailSender _emailSender;
     private readonly SecurityOptions _options;
@@ -25,6 +27,23 @@ public sealed class PasswordSetupService : IPasswordSetupService
         _db = db;
         _emailSender = emailSender;
         _options = options.Value;
+    }
+
+    public async Task<string> CreateTokenAsync(
+        string accountType,
+        int accountId,
+        int? requestedByAdminUserId,
+        HttpContext httpContext,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await CreateTokenStateAsync(
+            accountType,
+            accountId,
+            requestedByAdminUserId,
+            httpContext,
+            cancellationToken);
+
+        return result.RawToken;
     }
 
     public async Task IssueAsync(
@@ -40,8 +59,78 @@ public sealed class PasswordSetupService : IPasswordSetupService
         if (!PortalEmailPolicy.IsDeliverable(recipientEmail))
             throw new InvalidOperationException("البريد الإلكتروني غير صالح لاستقبال رابط إعداد كلمة المرور.");
 
+        var result = await CreateTokenStateAsync(
+            accountType,
+            accountId,
+            requestedByAdminUserId,
+            httpContext,
+            cancellationToken);
+
+        var baseUrl = ResolvePublicBaseUrl(_options.PublicBaseUrl);
+        var actionUrl = $"{baseUrl}/Account/SetPassword?token={Uri.EscapeDataString(result.RawToken)}";
+        try
+        {
+            await _emailSender.SendNotificationAsync(
+                recipientEmail,
+                recipientName,
+                accountLabel,
+                "إعداد كلمة المرور",
+                $"تم إنشاء رابط آمن لإعداد كلمة مرور حسابك. الرابط صالح لمدة {Math.Clamp(_options.PasswordSetupTokenMinutes, 15, 120)} دقيقة ولمرة واحدة فقط.",
+                actionUrl,
+                cancellationToken);
+        }
+        catch
+        {
+            _db.PasswordSetupTokens.Remove(result.Token);
+            await _db.SaveChangesAsync(CancellationToken.None);
+            throw;
+        }
+    }
+
+    private static string ResolvePublicBaseUrl(string? configuredValue)
+    {
+        var candidate = (configuredValue ?? string.Empty).Trim().TrimEnd('/');
+
+        if (!Uri.TryCreate(candidate, UriKind.Absolute, out var uri) ||
+            uri.Scheme != Uri.UriSchemeHttps ||
+            uri.Host.EndsWith(".trycloudflare.com", StringComparison.OrdinalIgnoreCase) ||
+            uri.Host.Contains("your-tunnel", StringComparison.OrdinalIgnoreCase) ||
+            uri.Host.Contains("localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            return ProductionPublicBaseUrl;
+        }
+
+        // روابط إعداد كلمة المرور لهذا النظام يجب أن تستخدم نطاق الإنتاج الرسمي فقط.
+        return string.Equals(
+            uri.Host,
+            "app1.kafoo.org.sa",
+            StringComparison.OrdinalIgnoreCase)
+                ? $"{uri.Scheme}://{uri.Authority}"
+                : ProductionPublicBaseUrl;
+    }
+
+    public static string HashToken(string rawToken)
+        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken))).ToLowerInvariant();
+
+    public static string NormalizeAccountType(string accountType)
+        => accountType.Trim().ToLowerInvariant() switch
+        {
+            "admin" => "Admin",
+            "donor" => "Donor",
+            "organization" => "Organization",
+            _ => throw new InvalidOperationException("نوع الحساب غير صالح.")
+        };
+
+    private async Task<(string RawToken, PasswordSetupToken Token)> CreateTokenStateAsync(
+        string accountType,
+        int accountId,
+        int? requestedByAdminUserId,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
         var normalizedType = NormalizeAccountType(accountType);
         var now = DateTime.UtcNow;
+
         var existing = await _db.PasswordSetupTokens
             .Where(x =>
                 x.AccountType == normalizedType &&
@@ -49,6 +138,7 @@ public sealed class PasswordSetupService : IPasswordSetupService
                 x.UsedAtUtc == null &&
                 x.ExpiresAtUtc > now)
             .ToListAsync(cancellationToken);
+
         foreach (var item in existing)
             item.UsedAtUtc = now;
 
@@ -66,40 +156,6 @@ public sealed class PasswordSetupService : IPasswordSetupService
 
         _db.PasswordSetupTokens.Add(token);
         await _db.SaveChangesAsync(cancellationToken);
-
-        var baseUrl = _options.PublicBaseUrl.TrimEnd('/');
-        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var parsedBase) || parsedBase.Scheme != Uri.UriSchemeHttps)
-            throw new InvalidOperationException("Security:PublicBaseUrl must be a valid HTTPS address.");
-
-        var actionUrl = $"{baseUrl}/Account/SetPassword?token={Uri.EscapeDataString(rawToken)}";
-        try
-        {
-            await _emailSender.SendNotificationAsync(
-                recipientEmail,
-                recipientName,
-                accountLabel,
-                "إعداد كلمة المرور",
-                $"تم إنشاء رابط آمن لإعداد كلمة مرور حسابك. الرابط صالح لمدة {Math.Clamp(_options.PasswordSetupTokenMinutes, 15, 120)} دقيقة ولمرة واحدة فقط.",
-                actionUrl,
-                cancellationToken);
-        }
-        catch
-        {
-            _db.PasswordSetupTokens.Remove(token);
-            await _db.SaveChangesAsync(CancellationToken.None);
-            throw;
-        }
+        return (rawToken, token);
     }
-
-    public static string HashToken(string rawToken)
-        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken))).ToLowerInvariant();
-
-    public static string NormalizeAccountType(string accountType)
-        => accountType.Trim().ToLowerInvariant() switch
-        {
-            "admin" => "Admin",
-            "donor" => "Donor",
-            "organization" => "Organization",
-            _ => throw new InvalidOperationException("نوع الحساب غير صالح.")
-        };
 }

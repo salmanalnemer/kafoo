@@ -1,4 +1,4 @@
-using Kafo.Web.Data;
+﻿using Kafo.Web.Data;
 using Kafo.Web.Models;
 using Kafo.Web.Security;
 using Kafo.Web.Services.Interfaces;
@@ -52,7 +52,12 @@ public class AdminUsersController : Controller
             .Select(user =>
             {
                 var roleCode = ResolveRole(user, administrationManagerIds);
-                var canManageTarget = AdminRolePolicy.CanManageTarget(actor.RoleCode, roleCode);
+                // حساب مدير النظام محمي بالكامل من إدارة المستخدمين.
+                // لا يجوز تعديله أو حذفُه أو إرسال رابط إعداد كلمة مرور له من هذه الصفحة.
+                var isProtectedSystemManager = roleCode == AdminRolePolicy.SystemManager;
+                var canManageTarget =
+                    !isProtectedSystemManager &&
+                    AdminRolePolicy.CanManageTarget(actor.RoleCode, roleCode);
 
                 return new AdminUserListItemViewModel
                 {
@@ -205,6 +210,13 @@ public class AdminUsersController : Controller
             return NotFound();
 
         var targetRole = await AdminRolePolicy.ResolveRoleAsync(_context, user, cancellationToken);
+
+        if (targetRole == AdminRolePolicy.SystemManager)
+        {
+            TempData["Error"] = "حساب مدير النظام محمي ولا يمكن تعديله من إدارة المستخدمين.";
+            return Redirect("/Admin/Users");
+        }
+
         if (!AdminRolePolicy.CanManageTarget(actor.RoleCode, targetRole))
             return Forbid();
 
@@ -242,6 +254,13 @@ public class AdminUsersController : Controller
             return NotFound();
 
         var oldRole = await AdminRolePolicy.ResolveRoleAsync(_context, user, cancellationToken);
+
+        if (oldRole == AdminRolePolicy.SystemManager)
+        {
+            TempData["Error"] = "حساب مدير النظام محمي ولا يمكن تعديل بياناته أو حالته أو دوره من إدارة المستخدمين.";
+            return Redirect("/Admin/Users");
+        }
+
         if (!AdminRolePolicy.CanManageTarget(actor.RoleCode, oldRole))
             return Forbid();
 
@@ -432,6 +451,13 @@ public class AdminUsersController : Controller
             return NotFound();
 
         var targetRole = await AdminRolePolicy.ResolveRoleAsync(_context, user, cancellationToken);
+
+        if (targetRole == AdminRolePolicy.SystemManager)
+        {
+            TempData["Error"] = "حساب مدير النظام محمي. لا يمكن إرسال رابط إعداد كلمة المرور له من إدارة المستخدمين.";
+            return Redirect("/Admin/Users");
+        }
+
         if (!AdminRolePolicy.CanManageTarget(actor.RoleCode, targetRole))
             return Forbid();
 
@@ -494,20 +520,15 @@ public class AdminUsersController : Controller
             return NotFound();
 
         var targetRole = await AdminRolePolicy.ResolveRoleAsync(_context, user, cancellationToken);
-        if (!AdminRolePolicy.CanManageTarget(actor.RoleCode, targetRole))
-            return Forbid();
 
         if (targetRole == AdminRolePolicy.SystemManager)
         {
-            var otherActiveSystemManagers = await _context.AdminUsers
-                .CountAsync(x => x.Id != user.Id && x.IsSuperAdmin && x.IsActive, cancellationToken);
-
-            if (otherActiveSystemManagers == 0)
-            {
-                TempData["Error"] = "لا يمكن حذف آخر مدير نظام فعال.";
-                return Redirect("/Admin/Users");
-            }
+            TempData["Error"] = "حساب مدير النظام محمي ولا يمكن حذفه نهائيًا.";
+            return Redirect("/Admin/Users");
         }
+
+        if (!AdminRolePolicy.CanManageTarget(actor.RoleCode, targetRole))
+            return Forbid();
 
         var permissions = await _context.AdminPagePermissions
             .Where(x => x.AdminUserId == id)

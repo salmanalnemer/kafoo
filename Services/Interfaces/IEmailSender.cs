@@ -9,6 +9,13 @@ public interface IEmailSender
         TimeSpan validity,
         CancellationToken cancellationToken = default);
 
+    Task SendPasswordResetOtpAsync(
+        string recipientEmail,
+        string recipientName,
+        string code,
+        TimeSpan validity,
+        CancellationToken cancellationToken = default);
+
     Task SendNotificationAsync(
         string recipientEmail,
         string recipientName,

@@ -6,14 +6,17 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="~/js/accessibility-preferences.js" asp-append-version="true"></script>
     <title>دخول بوابة كفو | الداعمين والشركات والجهات</title>
     <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/portal-area.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/accessibility-preferences.css" asp-append-version="true" />
 </head>
 <body class="portal-login-body unified-portal">
-    <section class="portal-login-card">
+    @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
+<section class="portal-login-card">
         <div class="portal-login-logo">
             <img src="/images/logo1.png" alt="جمعية كفؤ" />
         </div>
@@ -38,16 +41,23 @@
             <input asp-for="Password" autocomplete="current-password" placeholder="••••••••" />
             <span asp-validation-for="Password"></span>
 
-            <label class="portal-check">
-                <input asp-for="RememberMe" />
-                <span>تذكرني</span>
-            </label>
+            <div class="portal-login-options">
+                <label class="portal-check">
+                    <input asp-for="RememberMe" />
+                    <span>تذكرني لمدة 30 يومًا</span>
+                </label>
+                <a class="forgot-password-link"
+                   href="@Url.Action("PortalForgotPassword", "PasswordRecovery", new { area = "" })"
+                   aria-label="الانتقال إلى صفحة استعادة كلمة المرور">
+                    نسيت كلمة المرور؟
+                </a>
+            </div>
 
             <button type="submit">إرسال رمز التحقق</button>
         </form>
 
         <div class="portal-demo-box">
-            سيتم إرسال رمز التحقق من البريد <strong dir="ltr">support@kafoo.com.sa</strong>
+            سيتم إرسال رمز التحقق من البريد <strong dir="ltr">support@kafoo.org.sa</strong>
         </div>
     </section>
 

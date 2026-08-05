@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kafo.Web.Middleware;
-
 public class AdminAccessMiddleware
 {
     private readonly RequestDelegate _next;
@@ -95,6 +94,7 @@ public class AdminAccessMiddleware
     private static bool IsPublicAdminPath(string path)
     {
         return path.StartsWith("/Admin/Login", StringComparison.OrdinalIgnoreCase) ||
+               path.StartsWith("/Admin/ForgotPassword", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWith("/Admin/VerifyOtp", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWith("/Admin/ResendOtp", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWith("/Admin/Logout", StringComparison.OrdinalIgnoreCase) ||

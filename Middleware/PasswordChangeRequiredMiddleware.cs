@@ -35,7 +35,7 @@ public sealed class PasswordChangeRequiredMiddleware
             path.StartsWith("/js/", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWith("/images/", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWith("/lib/", StringComparison.OrdinalIgnoreCase) ||
-            path.Equals("/favicon.ico", StringComparison.OrdinalIgnoreCase))
+            path.Equals("/favicon.png", StringComparison.OrdinalIgnoreCase))
             return true;
 
         return string.Equals(portalType, "Admin", StringComparison.OrdinalIgnoreCase)

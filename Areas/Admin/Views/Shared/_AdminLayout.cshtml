@@ -1,4 +1,4 @@
-@using Kafo.Web.Data
+﻿@using Kafo.Web.Data
 @using Kafo.Web.Security
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext AdminDb
@@ -52,17 +52,19 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="~/js/accessibility-preferences.js" asp-append-version="true"></script>
     <title>@title | لوحة التحكم</title>
     <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin-notifications.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin-notifications-clean.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/accessibility-preferences.css" asp-append-version="true" />
 </head>
 
 <body class="kafo-admin-body">
-    <div class="kafo-admin-shell">
+<div class="kafo-admin-shell">
 
         <aside class="kafo-admin-sidebar">
             <div class="kafo-admin-brand">
@@ -223,6 +225,7 @@
                 </div>
 
                 <div class="kafo-admin-top-actions">
+                    @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
                     @if (canAccess("/Admin/Donors"))
                     {
                         <div class="admin-notifications" data-admin-notifications>

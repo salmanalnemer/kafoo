@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -88,9 +88,7 @@ builder.Services.AddAntiforgery(options =>
 {
     options.Cookie.Name = "Kafo.Antiforgery";
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
-        ? CookieSecurePolicy.SameAsRequest
-        : CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Strict;
     options.HeaderName = "RequestVerificationToken";
 });
@@ -358,9 +356,7 @@ static void ConfigureCookie(
     options.Cookie.Name = cookieName;
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
-        ? CookieSecurePolicy.SameAsRequest
-        : CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Strict;
     options.SlidingExpiration = false;
     options.ExpireTimeSpan = TimeSpan.FromHours(2);
@@ -372,8 +368,11 @@ static string GetClientKey(HttpContext context)
 
 static int GetAuthenticationPermitLimit(string path)
 {
-    if (path.Contains("resendotp", StringComparison.Ordinal))
+    if (path.Contains("resendotp", StringComparison.Ordinal) ||
+        path.Contains("resendpasswordresetotp", StringComparison.Ordinal))
+    {
         return 5;
+    }
 
     if (path.Contains("verifyotp", StringComparison.Ordinal))
         return 10;

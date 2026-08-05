@@ -2,6 +2,13 @@ namespace Kafo.Web.Services.Interfaces;
 
 public interface IPasswordSetupService
 {
+    Task<string> CreateTokenAsync(
+        string accountType,
+        int accountId,
+        int? requestedByAdminUserId,
+        HttpContext httpContext,
+        CancellationToken cancellationToken = default);
+
     Task IssueAsync(
         string accountType,
         int accountId,

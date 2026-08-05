@@ -35,9 +35,9 @@
                 <input id="organization-contact-name" name="contactName" value="@Model.ContactName" maxlength="180" />
             </div>
             <div>
-                <label for="organization-email">البريد الإلكتروني</label>
-                <input id="organization-email" type="email" name="email" value="@Model.Email" maxlength="180" dir="ltr" required />
-                <span asp-validation-for="Email"></span>
+                <label for="organization-email">البريد الإلكتروني الحالي</label>
+                <input id="organization-email" type="email" value="@Model.Email" maxlength="180" dir="ltr" readonly autocomplete="email" />
+                <small>تغيير البريد يتم من القسم الآمن أدناه بعد التحقق من كلمة المرور والرمز.</small>
             </div>
             <div>
                 <label for="organization-phone">رقم الجوال</label>
@@ -55,7 +55,39 @@
     </form>
 </section>
 
-<section class="portal-panel portal-password-card">
+
+<section class="portal-panel">
+    <div class="portal-panel-head">
+        <div>
+            <h2>تغيير البريد الإلكتروني</h2>
+            <p>لن يتم اعتماد البريد الجديد قبل التحقق من كلمة المرور الحالية ورمز OTP المرسل إليه.</p>
+        </div>
+    </div>
+
+    @if (TempData["EmailChangeError"] is string emailChangeError)
+    {
+        <div class="alert alert-danger">@emailChangeError</div>
+    }
+
+    <form method="post" action="/Portal/Organization/Profile/RequestEmailChange" class="portal-form">
+        @Html.AntiForgeryToken()
+        <div class="portal-form-grid">
+            <div>
+                <label for="organization-new-email">البريد الإلكتروني الجديد</label>
+                <input id="organization-new-email" name="newEmail" type="email" maxlength="180" dir="ltr" autocomplete="email" required />
+            </div>
+            <div>
+                <label for="organization-email-current-password">كلمة المرور الحالية</label>
+                <input id="organization-email-current-password" name="currentPassword" type="password" maxlength="128" autocomplete="current-password" required />
+            </div>
+        </div>
+        <div class="portal-actions">
+            <button type="submit">إرسال رمز التحقق</button>
+        </div>
+    </form>
+</section>
+
+<section id="change-password" class="portal-panel portal-password-card">
     <div class="portal-panel-head">
         <div>
             <h2>تغيير كلمة المرور</h2>

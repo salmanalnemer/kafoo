@@ -4,7 +4,7 @@ public sealed class SecurityOptions
 {
     public const string SectionName = "Security";
 
-    public string PublicBaseUrl { get; set; } = "https://kafoo.org.sa";
+    public string PublicBaseUrl { get; set; } = "https://app1.kafoo.org.sa";
     public string PrivateStoragePath { get; set; } = "App_Data/secure-uploads";
     public string DataProtectionKeysPath { get; set; } = "App_Data/data-protection-keys";
     public string LogPath { get; set; } = "App_Data/logs";

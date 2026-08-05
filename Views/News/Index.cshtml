@@ -2,9 +2,11 @@
 
 @{
     ViewData["Title"] = "آخر المستجدات";
+    const string xUsername = "kafoohail";
+    var xProfileUrl = $"https://x.com/{xUsername}";
 }
 
-<section class="listing-page">
+<section class="listing-page kafo-news-page">
     <div class="home-container">
         <div class="official-section-head">
             <div>
@@ -13,26 +15,91 @@
             </div>
         </div>
 
-        <div class="official-news-grid">
-            @foreach (var item in Model)
-            {
-                <article class="official-news-card">
-                    <div class="official-news-image">
-                        @if (!string.IsNullOrWhiteSpace(item.ImagePath))
-                        {
-                            <img src="@item.ImagePath" alt="@item.Title" />
-                        }
-                        else
-                        {
-                            <div class="news-placeholder">كفو</div>
-                        }
-                    </div>
+        <section class="kafo-x-section"
+                 aria-labelledby="kafoXFeedTitle"
+                 data-kafo-x-feed
+                 data-x-username="@xUsername"
+                 data-x-height="850">
+            <header class="kafo-x-section-head">
+                <div class="kafo-x-heading">
+                    <span class="kafo-x-mark" aria-hidden="true">𝕏</span>
 
-                    <h3>@item.Title</h3>
-                    <div class="news-date">📅 @item.PublishDate.ToString("yyyy-MM-dd")</div>
-                    <a class="news-arrow" href="/News/Details/@item.Id">←</a>
-                </article>
-            }
-        </div>
+                    <div>
+                        <h2 id="kafoXFeedTitle">آخر منشورات الجمعية على X</h2>
+                        <p>تابع أحدث الأخبار والفعاليات من حساب الجمعية الرسمي.</p>
+                    </div>
+                </div>
+
+                <a class="kafo-x-profile-link"
+                   href="@xProfileUrl"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    زيارة الحساب الرسمي
+                    <span aria-hidden="true">↗</span>
+                </a>
+            </header>
+
+            <div class="kafo-x-feed-shell">
+                <div class="kafo-x-loading" data-kafo-x-loading role="status">
+                    <span class="kafo-x-spinner" aria-hidden="true"></span>
+                    <span>جارٍ تحميل منشورات الجمعية...</span>
+                </div>
+
+                <div class="kafo-x-feed-host" data-kafo-x-host></div>
+
+                <noscript>
+                    <div class="kafo-x-fallback">
+                        يلزم تفعيل JavaScript لعرض منشورات الجمعية.
+                        <a href="@xProfileUrl"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            زيارة الحساب على X
+                        </a>
+                    </div>
+                </noscript>
+            </div>
+        </section>
+
+        @if (Model.Count > 0)
+        {
+            <section class="kafo-local-news-section" aria-labelledby="kafoLocalNewsTitle">
+                <div class="official-section-head kafo-local-news-head">
+                    <div>
+                        <h2 id="kafoLocalNewsTitle">أخبار الجمعية</h2>
+                        <p>الأخبار والمستجدات المنشورة من إدارة الموقع.</p>
+                    </div>
+                </div>
+
+                <div class="official-news-grid">
+                    @foreach (var item in Model)
+                    {
+                        <article class="official-news-card">
+                            <div class="official-news-image">
+                                @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                {
+                                    <img src="@item.ImagePath" alt="@item.Title" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <div class="news-placeholder">كفو</div>
+                                }
+                            </div>
+
+                            <h3>@item.Title</h3>
+                            <div class="news-date">📅 @item.PublishDate.ToString("yyyy-MM-dd")</div>
+                            <a class="news-arrow"
+                               href="/News/Details/@item.Id"
+                               aria-label="قراءة خبر @item.Title">←</a>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
     </div>
 </section>
+
+@section Scripts {
+    <script src="~/js/kafo-x-feed.js"
+            asp-append-version="true"
+            defer></script>
+}

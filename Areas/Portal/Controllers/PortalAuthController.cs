@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Kafo.Web.Configuration;
 using Kafo.Web.Data;
 using Kafo.Web.Models.Donors;
@@ -55,38 +55,44 @@ public class PortalAuthController : Controller
     [HttpPost("/Portal/Login")]
     [EnableRateLimiting("auth")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(32 * 1024)]
     public async Task<IActionResult> Login(PortalLoginViewModel model, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return View("~/Areas/Portal/Views/Auth/Login.cshtml", model);
 
         var email = model.Email.Trim().ToLowerInvariant();
-        var donor = await _context.DonorAccounts
-            .FirstOrDefaultAsync(x => x.Email != null && x.Email.ToLower() == email, cancellationToken);
-        var organization = await _context.OrganizationAccounts
-            .FirstOrDefaultAsync(x => x.Email != null && x.Email.ToLower() == email, cancellationToken);
+        var donorSnapshot = await _context.DonorAccounts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.Email != null && x.Email.ToLower() == email,
+                cancellationToken);
+        var organizationSnapshot = await _context.OrganizationAccounts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.Email != null && x.Email.ToLower() == email,
+                cancellationToken);
 
         var donorValid = VerifyAccount(
-            donor?.IsActive == true,
-            donor?.LockoutEndUtc,
+            donorSnapshot?.IsActive == true,
+            donorSnapshot?.LockoutEndUtc,
             model.Password,
-            donor?.PasswordHash,
-            donor?.PasswordSalt,
-            out var donorNeedsRehash);
+            donorSnapshot?.PasswordHash,
+            donorSnapshot?.PasswordSalt);
         var organizationValid = VerifyAccount(
-            organization?.IsActive == true,
-            organization?.LockoutEndUtc,
+            organizationSnapshot?.IsActive == true,
+            organizationSnapshot?.LockoutEndUtc,
             model.Password,
-            organization?.PasswordHash,
-            organization?.PasswordSalt,
-            out var organizationNeedsRehash);
+            organizationSnapshot?.PasswordHash,
+            organizationSnapshot?.PasswordSalt);
 
-        if (donorValid && organizationValid)
+        // البريد يجب أن يكون فريدًا بين نوعي الحساب. وجود سجلين حالة حرجة حتى لو تطابقت كلمة مرور واحدة فقط.
+        if (donorSnapshot != null && organizationSnapshot != null)
         {
-            _logger.LogWarning(
+            _logger.LogCritical(
                 "Duplicate unified portal email detected for donor {DonorId} and organization {OrganizationId}",
-                donor!.Id,
-                organization!.Id);
+                donorSnapshot.Id,
+                organizationSnapshot.Id);
             await _audit.WriteAsync(
                 HttpContext,
                 "PortalDuplicateEmail",
@@ -94,42 +100,55 @@ public class PortalAuthController : Controller
                 success: false,
                 severity: "Critical",
                 cancellationToken: cancellationToken);
-            ModelState.AddModelError(string.Empty,
-                "تعذر تحديد الحساب المرتبط بالبريد. تواصل مع إدارة النظام.");
+
+            ModelState.AddModelError(
+                string.Empty,
+                "تعذر تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.");
             return View("~/Areas/Portal/Views/Auth/Login.cshtml", model);
         }
 
-        if (donorValid && donor != null)
+        if (donorValid && donorSnapshot != null)
         {
-            ResetAndUpgrade(donor, model.Password, donorNeedsRehash);
-            await _context.SaveChangesAsync(cancellationToken);
-            return await SendOtpAndRedirectAsync(
-                "Donor", donor.Id, email, donor.FullName, model, cancellationToken);
+            var donor = await FinalizeDonorPasswordStepAtomicallyAsync(
+                donorSnapshot.Id,
+                model.Password,
+                cancellationToken);
+
+            if (donor != null)
+            {
+                return await SendOtpAndRedirectAsync(
+                    "Donor",
+                    donor.Id,
+                    donor.Email ?? email,
+                    donor.FullName,
+                    model,
+                    cancellationToken);
+            }
+        }
+        else if (organizationValid && organizationSnapshot != null)
+        {
+            var organization = await FinalizeOrganizationPasswordStepAtomicallyAsync(
+                organizationSnapshot.Id,
+                model.Password,
+                cancellationToken);
+
+            if (organization != null)
+            {
+                return await SendOtpAndRedirectAsync(
+                    "Organization",
+                    organization.Id,
+                    organization.Email ?? email,
+                    organization.Name,
+                    model,
+                    cancellationToken);
+            }
         }
 
-        if (organizationValid && organization != null)
-        {
-            ResetAndUpgrade(organization, model.Password, organizationNeedsRehash);
-            await _context.SaveChangesAsync(cancellationToken);
-            return await SendOtpAndRedirectAsync(
-                "Organization", organization.Id, email, organization.Name, model, cancellationToken);
-        }
+        if (!donorValid && donorSnapshot is { IsActive: true })
+            await RegisterDonorFailureAtomicallyAsync(donorSnapshot.Id, cancellationToken);
 
-        var retryAfter = MaxDuration(
-            LoginSecurity.GetRemainingLockout(donor?.LockoutEndUtc),
-            LoginSecurity.GetRemainingLockout(organization?.LockoutEndUtc));
-
-        if (donor is { IsActive: true } && !LoginSecurity.IsLocked(donor.LockoutEndUtc))
-            retryAfter = MaxDuration(retryAfter, RegisterFailure(donor));
-
-        if (organization is { IsActive: true } &&
-            !LoginSecurity.IsLocked(organization.LockoutEndUtc))
-        {
-            retryAfter = MaxDuration(retryAfter, RegisterFailure(organization));
-        }
-
-        if (donor != null || organization != null)
-            await _context.SaveChangesAsync(cancellationToken);
+        if (!organizationValid && organizationSnapshot is { IsActive: true })
+            await RegisterOrganizationFailureAtomicallyAsync(organizationSnapshot.Id, cancellationToken);
 
         await _audit.WriteAsync(
             HttpContext,
@@ -137,13 +156,13 @@ public class PortalAuthController : Controller
             "Unified portal login credentials were rejected.",
             success: false,
             severity: "Warning",
-            actorType: donor != null ? "Donor" : organization != null ? "Organization" : null,
-            actorId: donor?.Id.ToString() ?? organization?.Id.ToString(),
+            actorType: donorSnapshot != null ? "Donor" : organizationSnapshot != null ? "Organization" : null,
+            actorId: donorSnapshot?.Id.ToString() ?? organizationSnapshot?.Id.ToString(),
             cancellationToken: cancellationToken);
 
         ModelState.AddModelError(
             string.Empty,
-            BuildLoginFailureMessage(retryAfter));
+            "تعذر تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.");
 
         return View("~/Areas/Portal/Views/Auth/Login.cshtml", model);
     }
@@ -169,6 +188,7 @@ public class PortalAuthController : Controller
     [HttpPost("/Portal/VerifyOtp")]
     [EnableRateLimiting("auth")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(32 * 1024)]
     public async Task<IActionResult> VerifyOtp(
         OtpVerificationViewModel model,
         CancellationToken cancellationToken)
@@ -201,13 +221,31 @@ public class PortalAuthController : Controller
             return View("~/Areas/Portal/Views/Auth/VerifyOtp.cshtml", model);
         }
 
+        var verifiedChallenge = await _context.LoginOtpChallenges
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.ChallengeId == model.ChallengeId &&
+                     x.PortalType == result.PortalType &&
+                     x.AccountId == result.AccountId.Value,
+                cancellationToken);
+
+        if (verifiedChallenge == null)
+        {
+            ModelState.AddModelError(string.Empty, "طلب التحقق لم يعد صالحًا. سجل الدخول مرة أخرى.");
+            return View("~/Areas/Portal/Views/Auth/VerifyOtp.cshtml", model);
+        }
+
         if (string.Equals(result.PortalType, "Donor", StringComparison.OrdinalIgnoreCase))
         {
             var donor = await _context.DonorAccounts
                 .FirstOrDefaultAsync(x => x.Id == result.AccountId.Value && x.IsActive, cancellationToken);
-            if (donor == null || LoginSecurity.IsLocked(donor.LockoutEndUtc))
+            if (donor == null ||
+                LoginSecurity.IsLocked(donor.LockoutEndUtc) ||
+                !string.Equals(donor.Email?.Trim(), verifiedChallenge.Email, StringComparison.OrdinalIgnoreCase) ||
+                (donor.PasswordChangedAtUtc.HasValue &&
+                 donor.PasswordChangedAtUtc.Value > verifiedChallenge.CreatedAtUtc))
             {
-                ModelState.AddModelError(string.Empty, "الحساب غير موجود أو غير مفعل.");
+                ModelState.AddModelError(string.Empty, "طلب التحقق لم يعد صالحًا. سجل الدخول مرة أخرى.");
                 return View("~/Areas/Portal/Views/Auth/VerifyOtp.cshtml", model);
             }
 
@@ -225,9 +263,13 @@ public class PortalAuthController : Controller
         {
             var organization = await _context.OrganizationAccounts
                 .FirstOrDefaultAsync(x => x.Id == result.AccountId.Value && x.IsActive, cancellationToken);
-            if (organization == null || LoginSecurity.IsLocked(organization.LockoutEndUtc))
+            if (organization == null ||
+                LoginSecurity.IsLocked(organization.LockoutEndUtc) ||
+                !string.Equals(organization.Email?.Trim(), verifiedChallenge.Email, StringComparison.OrdinalIgnoreCase) ||
+                (organization.PasswordChangedAtUtc.HasValue &&
+                 organization.PasswordChangedAtUtc.Value > verifiedChallenge.CreatedAtUtc))
             {
-                ModelState.AddModelError(string.Empty, "الحساب غير موجود أو غير مفعل.");
+                ModelState.AddModelError(string.Empty, "طلب التحقق لم يعد صالحًا. سجل الدخول مرة أخرى.");
                 return View("~/Areas/Portal/Views/Auth/VerifyOtp.cshtml", model);
             }
 
@@ -248,6 +290,7 @@ public class PortalAuthController : Controller
     [HttpPost("/Portal/ResendOtp")]
     [EnableRateLimiting("auth")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(16 * 1024)]
     public async Task<IActionResult> ResendOtp(string challengeId, CancellationToken cancellationToken)
     {
         var challenge = await _otpService.GetChallengeInfoAsync(challengeId, cancellationToken);
@@ -266,7 +309,7 @@ public class PortalAuthController : Controller
         {
             TempData["OtpError"] = ex.Message;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Unable to resend portal OTP for challenge {ChallengeId}", challengeId);
             TempData["OtpError"] = "تعذر إعادة إرسال الرمز. حاول مرة أخرى.";
@@ -277,6 +320,7 @@ public class PortalAuthController : Controller
 
     [HttpPost("/Portal/Logout")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(16 * 1024)]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
         var portalType = User.FindFirstValue("KafoPortalType");
@@ -322,7 +366,7 @@ public class PortalAuthController : Controller
         {
             ModelState.AddModelError(string.Empty, ex.Message);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "Unable to send portal OTP for {PortalType} account {AccountId}",
@@ -377,94 +421,265 @@ public class PortalAuthController : Controller
             {
                 IsPersistent = rememberMe,
                 ExpiresUtc = rememberMe
-                    ? DateTimeOffset.UtcNow.AddDays(7)
+                    ? DateTimeOffset.UtcNow.AddDays(30)
                     : DateTimeOffset.UtcNow.AddHours(2),
                 AllowRefresh = false
             });
     }
 
-    private bool VerifyAccount(
+    private static bool VerifyAccount(
         bool isActive,
         DateTime? lockoutEndUtc,
         string password,
         string? hash,
-        string? salt,
-        out bool needsRehash)
+        string? salt)
     {
-        needsRehash = false;
         if (!isActive || LoginSecurity.IsLocked(lockoutEndUtc) ||
             string.IsNullOrWhiteSpace(hash) || string.IsNullOrWhiteSpace(salt))
         {
             AdminPasswordHasher.VerifyDummy(password);
             return false;
         }
-        return AdminPasswordHasher.VerifyPassword(password, hash, salt, out needsRehash);
+
+        return AdminPasswordHasher.VerifyPassword(password, hash, salt);
     }
 
-    private TimeSpan? RegisterFailure(DonorAccount account)
+    private async Task RegisterDonorFailureAtomicallyAsync(
+        int donorId,
+        CancellationToken cancellationToken)
     {
-        var count = account.AccessFailedCount;
-        var lockout = account.LockoutEndUtc;
-        var duration = LoginSecurity.RegisterFailure(
-            ref count,
-            ref lockout,
-            _securityOptions);
-
-        account.AccessFailedCount = count;
-        account.LockoutEndUtc = lockout;
-        account.UpdatedAt = DateTime.Now;
-
-        return duration;
-    }
-
-    private TimeSpan? RegisterFailure(OrganizationAccount account)
-    {
-        var count = account.AccessFailedCount;
-        var lockout = account.LockoutEndUtc;
-        var duration = LoginSecurity.RegisterFailure(
-            ref count,
-            ref lockout,
-            _securityOptions);
-
-        account.AccessFailedCount = count;
-        account.LockoutEndUtc = lockout;
-        account.UpdatedAt = DateTime.Now;
-
-        return duration;
-    }
-
-    private static void ResetAndUpgrade(DonorAccount account, string password, bool needsRehash)
-    {
-        account.AccessFailedCount = 0;
-        account.LockoutEndUtc = null;
-        if (needsRehash)
+        for (var retry = 0; retry < 3; retry++)
         {
-            var upgraded = AdminPasswordHasher.HashPassword(password);
-            account.PasswordHash = upgraded.Hash;
-            account.PasswordSalt = upgraded.Salt;
-            account.PasswordChangedAtUtc ??= DateTime.UtcNow;
+            var snapshot = await _context.DonorAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == donorId, cancellationToken);
+
+            if (snapshot is not { IsActive: true } || LoginSecurity.IsLocked(snapshot.LockoutEndUtc))
+                return;
+
+            var count = snapshot.AccessFailedCount;
+            var lockout = snapshot.LockoutEndUtc;
+            LoginSecurity.RegisterFailure(ref count, ref lockout, _securityOptions);
+
+            var affected = await _context.DonorAccounts
+                .Where(x =>
+                    x.Id == donorId &&
+                    x.IsActive &&
+                    x.AccessFailedCount == snapshot.AccessFailedCount &&
+                    x.LockoutEndUtc == snapshot.LockoutEndUtc)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.AccessFailedCount, count)
+                        .SetProperty(x => x.LockoutEndUtc, lockout)
+                        .SetProperty(x => x.UpdatedAt, DateTime.Now),
+                    cancellationToken);
+
+            if (affected == 1)
+                return;
         }
-        account.SecurityStamp = string.IsNullOrWhiteSpace(account.SecurityStamp)
-            ? LoginSecurity.NewSecurityStamp()
-            : account.SecurityStamp;
-        account.UpdatedAt = DateTime.Now;
+
+        _logger.LogWarning(
+            "Donor login failure counter had repeated concurrency conflicts for account {DonorId}",
+            donorId);
     }
 
-    private static void ResetAndUpgrade(OrganizationAccount account, string password, bool needsRehash)
+    private async Task RegisterOrganizationFailureAtomicallyAsync(
+        int organizationId,
+        CancellationToken cancellationToken)
     {
-        account.AccessFailedCount = 0;
-        account.LockoutEndUtc = null;
-        if (needsRehash)
+        for (var retry = 0; retry < 3; retry++)
         {
-            var upgraded = AdminPasswordHasher.HashPassword(password);
-            account.PasswordHash = upgraded.Hash;
-            account.PasswordSalt = upgraded.Salt;
-            account.PasswordChangedAtUtc ??= DateTime.UtcNow;
+            var snapshot = await _context.OrganizationAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == organizationId, cancellationToken);
+
+            if (snapshot is not { IsActive: true } || LoginSecurity.IsLocked(snapshot.LockoutEndUtc))
+                return;
+
+            var count = snapshot.AccessFailedCount;
+            var lockout = snapshot.LockoutEndUtc;
+            LoginSecurity.RegisterFailure(ref count, ref lockout, _securityOptions);
+
+            var affected = await _context.OrganizationAccounts
+                .Where(x =>
+                    x.Id == organizationId &&
+                    x.IsActive &&
+                    x.AccessFailedCount == snapshot.AccessFailedCount &&
+                    x.LockoutEndUtc == snapshot.LockoutEndUtc)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.AccessFailedCount, count)
+                        .SetProperty(x => x.LockoutEndUtc, lockout)
+                        .SetProperty(x => x.UpdatedAt, DateTime.Now),
+                    cancellationToken);
+
+            if (affected == 1)
+                return;
         }
-        account.SecurityStamp = string.IsNullOrWhiteSpace(account.SecurityStamp)
-            ? LoginSecurity.NewSecurityStamp()
-            : account.SecurityStamp;
-        account.UpdatedAt = DateTime.Now;
+
+        _logger.LogWarning(
+            "Organization login failure counter had repeated concurrency conflicts for account {OrganizationId}",
+            organizationId);
+    }
+
+    private async Task<DonorAccount?> FinalizeDonorPasswordStepAtomicallyAsync(
+        int donorId,
+        string password,
+        CancellationToken cancellationToken)
+    {
+        for (var retry = 0; retry < 3; retry++)
+        {
+            var snapshot = await _context.DonorAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == donorId, cancellationToken);
+
+            if (snapshot is not { IsActive: true } || LoginSecurity.IsLocked(snapshot.LockoutEndUtc))
+            {
+                AdminPasswordHasher.VerifyDummy(password);
+                return null;
+            }
+
+            if (!AdminPasswordHasher.VerifyPassword(
+                    password,
+                    snapshot.PasswordHash,
+                    snapshot.PasswordSalt,
+                    out var needsRehash))
+            {
+                await RegisterDonorFailureAtomicallyAsync(donorId, cancellationToken);
+                return null;
+            }
+
+            var securityStamp = string.IsNullOrWhiteSpace(snapshot.SecurityStamp)
+                ? LoginSecurity.NewSecurityStamp()
+                : snapshot.SecurityStamp;
+            var passwordHash = snapshot.PasswordHash;
+            var passwordSalt = snapshot.PasswordSalt;
+            var passwordChangedAtUtc = snapshot.PasswordChangedAtUtc;
+
+            if (needsRehash)
+            {
+                var upgraded = AdminPasswordHasher.HashPassword(password);
+                passwordHash = upgraded.Hash;
+                passwordSalt = upgraded.Salt;
+                passwordChangedAtUtc ??= DateTime.UtcNow;
+            }
+
+            var affected = await _context.DonorAccounts
+                .Where(x =>
+                    x.Id == donorId &&
+                    x.IsActive &&
+                    x.AccessFailedCount == snapshot.AccessFailedCount &&
+                    x.LockoutEndUtc == snapshot.LockoutEndUtc &&
+                    x.PasswordHash == snapshot.PasswordHash &&
+                    x.PasswordSalt == snapshot.PasswordSalt)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.AccessFailedCount, 0)
+                        .SetProperty(x => x.LockoutEndUtc, (DateTime?)null)
+                        .SetProperty(x => x.SecurityStamp, securityStamp)
+                        .SetProperty(x => x.PasswordHash, passwordHash)
+                        .SetProperty(x => x.PasswordSalt, passwordSalt)
+                        .SetProperty(x => x.PasswordChangedAtUtc, passwordChangedAtUtc)
+                        .SetProperty(x => x.UpdatedAt, DateTime.Now),
+                    cancellationToken);
+
+            if (affected != 1)
+                continue;
+
+            snapshot.AccessFailedCount = 0;
+            snapshot.LockoutEndUtc = null;
+            snapshot.SecurityStamp = securityStamp;
+            snapshot.PasswordHash = passwordHash;
+            snapshot.PasswordSalt = passwordSalt;
+            snapshot.PasswordChangedAtUtc = passwordChangedAtUtc;
+            snapshot.UpdatedAt = DateTime.Now;
+            return snapshot;
+        }
+
+        _logger.LogWarning(
+            "Donor password step had repeated concurrency conflicts for account {DonorId}",
+            donorId);
+        return null;
+    }
+
+    private async Task<OrganizationAccount?> FinalizeOrganizationPasswordStepAtomicallyAsync(
+        int organizationId,
+        string password,
+        CancellationToken cancellationToken)
+    {
+        for (var retry = 0; retry < 3; retry++)
+        {
+            var snapshot = await _context.OrganizationAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == organizationId, cancellationToken);
+
+            if (snapshot is not { IsActive: true } || LoginSecurity.IsLocked(snapshot.LockoutEndUtc))
+            {
+                AdminPasswordHasher.VerifyDummy(password);
+                return null;
+            }
+
+            if (!AdminPasswordHasher.VerifyPassword(
+                    password,
+                    snapshot.PasswordHash,
+                    snapshot.PasswordSalt,
+                    out var needsRehash))
+            {
+                await RegisterOrganizationFailureAtomicallyAsync(organizationId, cancellationToken);
+                return null;
+            }
+
+            var securityStamp = string.IsNullOrWhiteSpace(snapshot.SecurityStamp)
+                ? LoginSecurity.NewSecurityStamp()
+                : snapshot.SecurityStamp;
+            var passwordHash = snapshot.PasswordHash;
+            var passwordSalt = snapshot.PasswordSalt;
+            var passwordChangedAtUtc = snapshot.PasswordChangedAtUtc;
+
+            if (needsRehash)
+            {
+                var upgraded = AdminPasswordHasher.HashPassword(password);
+                passwordHash = upgraded.Hash;
+                passwordSalt = upgraded.Salt;
+                passwordChangedAtUtc ??= DateTime.UtcNow;
+            }
+
+            var affected = await _context.OrganizationAccounts
+                .Where(x =>
+                    x.Id == organizationId &&
+                    x.IsActive &&
+                    x.AccessFailedCount == snapshot.AccessFailedCount &&
+                    x.LockoutEndUtc == snapshot.LockoutEndUtc &&
+                    x.PasswordHash == snapshot.PasswordHash &&
+                    x.PasswordSalt == snapshot.PasswordSalt)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(x => x.AccessFailedCount, 0)
+                        .SetProperty(x => x.LockoutEndUtc, (DateTime?)null)
+                        .SetProperty(x => x.SecurityStamp, securityStamp)
+                        .SetProperty(x => x.PasswordHash, passwordHash)
+                        .SetProperty(x => x.PasswordSalt, passwordSalt)
+                        .SetProperty(x => x.PasswordChangedAtUtc, passwordChangedAtUtc)
+                        .SetProperty(x => x.UpdatedAt, DateTime.Now),
+                    cancellationToken);
+
+            if (affected != 1)
+                continue;
+
+            snapshot.AccessFailedCount = 0;
+            snapshot.LockoutEndUtc = null;
+            snapshot.SecurityStamp = securityStamp;
+            snapshot.PasswordHash = passwordHash;
+            snapshot.PasswordSalt = passwordSalt;
+            snapshot.PasswordChangedAtUtc = passwordChangedAtUtc;
+            snapshot.UpdatedAt = DateTime.Now;
+            return snapshot;
+        }
+
+        _logger.LogWarning(
+            "Organization password step had repeated concurrency conflicts for account {OrganizationId}",
+            organizationId);
+        return null;
     }
 
     private async Task WriteSuccessAuditAsync(string portalType, int accountId, CancellationToken cancellationToken)
@@ -499,35 +714,6 @@ public class PortalAuthController : Controller
     private static bool IsExternalPortalType(string? portalType)
         => string.Equals(portalType, "Donor", StringComparison.OrdinalIgnoreCase) ||
            string.Equals(portalType, "Organization", StringComparison.OrdinalIgnoreCase);
-
-    private static string BuildLoginFailureMessage(TimeSpan? retryAfter)
-    {
-        if (!retryAfter.HasValue || retryAfter.Value <= TimeSpan.Zero)
-        {
-            return "تعذر تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.";
-        }
-
-        var minutes = Math.Max(1, (int)Math.Ceiling(retryAfter.Value.TotalMinutes));
-        var durationText = minutes switch
-        {
-            1 => "دقيقة واحدة",
-            2 => "دقيقتين",
-            _ => $"{minutes} دقائق"
-        };
-
-        return $"تم تعليق محاولة تسجيل الدخول مؤقتًا لحماية الحساب. حاول مجددًا بعد {durationText}.";
-    }
-
-    private static TimeSpan? MaxDuration(TimeSpan? first, TimeSpan? second)
-    {
-        if (!first.HasValue)
-            return second;
-
-        if (!second.HasValue)
-            return first;
-
-        return first.Value >= second.Value ? first : second;
-    }
 
     private void AddOtpError(LoginOtpVerificationStatus status)
     {

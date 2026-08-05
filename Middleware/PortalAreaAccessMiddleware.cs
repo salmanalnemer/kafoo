@@ -35,6 +35,7 @@ public class PortalAreaAccessMiddleware
         }
 
         if (path.StartsWith("/Portal/Login", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWith("/Portal/ForgotPassword", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWith("/Portal/VerifyOtp", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWith("/Portal/ResendOtp", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWith("/Portal/Logout", StringComparison.OrdinalIgnoreCase))
@@ -103,6 +104,12 @@ public class PortalAreaAccessMiddleware
         if (path.EndsWith("/Logout", StringComparison.OrdinalIgnoreCase))
         {
             context.Response.Redirect("/Portal/Logout");
+            return;
+        }
+
+        if (path.EndsWith("/ForgotPassword", StringComparison.OrdinalIgnoreCase))
+        {
+            context.Response.Redirect("/Portal/ForgotPassword");
             return;
         }
 

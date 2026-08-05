@@ -6,8 +6,9 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8" />
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="~/js/accessibility-preferences.js" asp-append-version="true"></script>
     <title>رمز التحقق | لوحة تحكم جمعية كفو</title>
     <style>
         :root { --purple:#74429a; --green:#4cb748; --dark:#26384d; --muted:#667085; --border:#e5e7eb; }
@@ -32,9 +33,11 @@
         .field-validation-error { color:#b42318; font-size:13px; font-weight:800; }
         .expires { font-size:13px; margin-top:-8px; }
     </style>
+    <link rel="stylesheet" href="~/css/accessibility-preferences.css" asp-append-version="true" />
 </head>
 <body>
-    <main class="otp-card">
+    @await Html.PartialAsync("~/Views/Shared/_AccessibilityControls.cshtml")
+<main class="otp-card">
         <div class="logo"><img src="/images/logo1.png" alt="شعار جمعية كفو" /></div>
         <h1>أدخل رمز التحقق</h1>
         <p>أرسلنا رمزًا من 6 أرقام إلى<br /><span class="email">@Model.MaskedEmail</span></p>

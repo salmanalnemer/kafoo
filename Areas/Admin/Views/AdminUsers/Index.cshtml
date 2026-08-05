@@ -1,4 +1,4 @@
-@model Kafo.Web.ViewModels.Admin.AdminUsersIndexViewModel
+﻿@model Kafo.Web.ViewModels.Admin.AdminUsersIndexViewModel
 @using Kafo.Web.Security
 
 @{
@@ -113,7 +113,13 @@
                                             </form>
                                         }
 
-                                        @if (!item.CanEdit && !item.CanManagePermissions && !item.CanDelete)
+                                        @if (item.RoleCode == AdminRolePolicy.SystemManager)
+                                        {
+                                            <span class="adm-protected-account" title="لا يمكن تعديل أو حذف حساب مدير النظام">
+                                                🔒 حساب محمي
+                                            </span>
+                                        }
+                                        else if (!item.CanEdit && !item.CanManagePermissions && !item.CanDelete)
                                         {
                                             <span>لا توجد إجراءات متاحة</span>
                                         }

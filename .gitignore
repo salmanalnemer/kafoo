@@ -57,3 +57,5 @@ coverage.*
 # Python helper artifacts
 __pycache__/
 *.py[cod]
+
+wwwroot.zip

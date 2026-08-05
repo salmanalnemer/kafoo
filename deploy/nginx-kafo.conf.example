@@ -3,7 +3,7 @@ limit_req_zone $binary_remote_addr zone=kafo_auth:10m rate=10r/m;
 server {
     listen 80;
     server_name kafoo.org.sa www.kafoo.org.sa;
-    return 301 https://kafoo.org.sa$request_uri;
+    return 301 https://app1.kafoo.org.sa$request_uri;
 }
 
 server {

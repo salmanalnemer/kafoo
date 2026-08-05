@@ -1,0 +1,714 @@
+﻿:root {
+    --kafo-dm-page: #0f1115;
+    --kafo-dm-shell: #13161c;
+    --kafo-dm-surface: #181c23;
+    --kafo-dm-surface-raised: #20252e;
+    --kafo-dm-surface-hover: #292f3a;
+    --kafo-dm-border: #323a46;
+    --kafo-dm-border-strong: #465160;
+    --kafo-dm-text: #f4f6f8;
+    --kafo-dm-muted: #aeb8c5;
+    --kafo-dm-subtle: #8893a1;
+    --kafo-dm-purple: #9b6bc1;
+    --kafo-dm-purple-strong: #74429a;
+    --kafo-dm-purple-soft: #c6a4df;
+    --kafo-dm-green: #69c965;
+    --kafo-dm-green-soft: #98e194;
+    --kafo-dm-blue: #6ea8fe;
+    --kafo-dm-red: #ff8e8e;
+    --kafo-dm-orange: #f8bd72;
+    --kafo-dm-shadow: 0 18px 42px rgba(0, 0, 0, .34);
+    --kafo-theme-button-size: 40px;
+}
+
+/* زر واحد فقط داخل الهيدر. */
+.kafo-theme-control,
+.kafo-theme-control * {
+    box-sizing: border-box;
+}
+
+.kafo-theme-control {
+    position: relative;
+    z-index: 1300;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    direction: rtl;
+    font-family: "Tajawal", "Segoe UI", Tahoma, Arial, sans-serif;
+}
+
+body > .kafo-theme-control {
+    position: fixed;
+    inset-block-start: 16px;
+    inset-inline-end: 16px;
+    z-index: 2147483000;
+}
+
+.kafo-theme-toggle {
+    width: var(--kafo-theme-button-size);
+    height: var(--kafo-theme-button-size);
+    min-width: var(--kafo-theme-button-size);
+    margin: 0;
+    padding: 0;
+    border: 1px solid rgba(116, 66, 154, .24);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .94);
+    color: #5f347f;
+    box-shadow: 0 8px 20px rgba(31, 41, 55, .12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        transform .16s ease,
+        background-color .16s ease,
+        color .16s ease,
+        border-color .16s ease,
+        box-shadow .16s ease;
+}
+
+.kafo-theme-toggle:hover {
+    transform: translateY(-1px);
+    background: #74429a;
+    border-color: #74429a;
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgba(116, 66, 154, .24);
+}
+
+.kafo-theme-toggle:active {
+    transform: translateY(0);
+}
+
+.kafo-theme-toggle:focus-visible {
+    outline: 3px solid rgba(77, 183, 72, .42);
+    outline-offset: 2px;
+}
+
+.kafo-theme-icon {
+    width: 21px;
+    height: 21px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kafo-theme-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.kafo-theme-icon-moon svg path {
+    fill: currentColor;
+    stroke: none;
+}
+
+.kafo-theme-icon-sun {
+    display: none;
+}
+
+html[data-theme="dark"] .kafo-theme-icon-moon {
+    display: none;
+}
+
+html[data-theme="dark"] .kafo-theme-icon-sun {
+    display: inline-flex;
+}
+
+.kafo-theme-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.kafo-official-tools,
+.kafo-admin-top-actions,
+.portal-top-actions,
+.kafo-official-inner,
+.kafo-admin-topbar,
+.portal-admin-topbar {
+    overflow: visible !important;
+}
+
+/* لوحة ألوان داكنة واحدة لكل الموقع واللوحات والبوابات. */
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    --kafo-white: var(--kafo-dm-surface);
+    --kafo-bg: var(--kafo-dm-page);
+    --kafo-text: var(--kafo-dm-text);
+    --kafo-muted: var(--kafo-dm-muted);
+    --kafo-border: var(--kafo-dm-border);
+    --kafo-purple: var(--kafo-dm-purple);
+    --kafo-purple-dark: var(--kafo-dm-purple-strong);
+    --kafo-green: var(--kafo-dm-green);
+    --kafo-shadow: var(--kafo-dm-shadow);
+    --slider-bg: var(--kafo-dm-surface);
+
+    --admin-white: var(--kafo-dm-surface);
+    --admin-bg: var(--kafo-dm-page);
+    --admin-text: var(--kafo-dm-text);
+    --admin-muted: var(--kafo-dm-muted);
+    --admin-border: var(--kafo-dm-border);
+    --admin-purple: var(--kafo-dm-purple-strong);
+    --admin-purple-dark: #5b2f7c;
+    --admin-purple-hover: var(--kafo-dm-purple);
+    --admin-green: var(--kafo-dm-green);
+    --admin-shadow: var(--kafo-dm-shadow);
+
+    --portal-bg: var(--kafo-dm-page);
+    --portal-card: var(--kafo-dm-surface);
+    --portal-border: var(--kafo-dm-border);
+    --portal-muted: var(--kafo-dm-muted);
+    --portal-text: var(--kafo-dm-text);
+    --portal-title: var(--kafo-dm-purple-soft);
+    --portal-soft: var(--kafo-dm-surface-raised);
+    --portal-soft-border: var(--kafo-dm-border);
+    --portal-shadow: var(--kafo-dm-shadow);
+    --portal-sidebar-bg: var(--kafo-dm-shell);
+    --portal-sidebar-accent: var(--kafo-dm-green);
+
+    --account-text: var(--kafo-dm-text);
+    --account-muted: var(--kafo-dm-muted);
+    --account-border: var(--kafo-dm-border);
+    --account-purple: var(--kafo-dm-purple);
+    --account-green: var(--kafo-dm-green);
+
+    --aor-text: var(--kafo-dm-text);
+    --aor-muted: var(--kafo-dm-muted);
+    --aor-border: var(--kafo-dm-border);
+    --aor-soft: var(--kafo-dm-surface-raised);
+    --aor-purple-soft: var(--kafo-dm-surface-raised);
+    --aor-purple: var(--kafo-dm-purple);
+    --aor-purple-dark: var(--kafo-dm-purple-strong);
+    --aor-green: var(--kafo-dm-green);
+    --aor-green-dark: #3c9d48;
+
+    --od-text: var(--kafo-dm-text);
+    --od-muted: var(--kafo-dm-muted);
+    --od-border: var(--kafo-dm-border);
+    --od-primary: var(--kafo-dm-purple);
+    --od-primary-dark: var(--kafo-dm-purple-strong);
+    --od-primary-soft: var(--kafo-dm-surface-raised);
+    --od-green: var(--kafo-dm-green);
+    --od-blue: var(--kafo-dm-blue);
+    --od-orange: var(--kafo-dm-orange);
+    --od-teal: #66d0c6;
+    --od-red: var(--kafo-dm-red);
+
+    --org-text: var(--kafo-dm-text);
+    --org-muted: var(--kafo-dm-muted);
+    --org-border: var(--kafo-dm-border);
+    --org-primary: var(--kafo-dm-purple);
+    --org-primary-dark: var(--kafo-dm-purple-strong);
+    --org-primary-soft: var(--kafo-dm-surface-raised);
+    --org-success: var(--kafo-dm-green);
+    --org-danger: var(--kafo-dm-red);
+
+    --bs-body-bg: var(--kafo-dm-page);
+    --bs-body-color: var(--kafo-dm-text);
+    --bs-emphasis-color: var(--kafo-dm-text);
+    --bs-secondary-color: var(--kafo-dm-muted);
+    --bs-secondary-bg: var(--kafo-dm-surface-raised);
+    --bs-tertiary-color: var(--kafo-dm-muted);
+    --bs-tertiary-bg: var(--kafo-dm-surface-raised);
+    --bs-border-color: var(--kafo-dm-border);
+    --bs-light-rgb: 32, 37, 46;
+    --bs-dark-rgb: 15, 17, 21;
+    --bs-white-rgb: 24, 28, 35;
+    --bs-black-rgb: 244, 246, 248;
+}
+
+/* الخلفية الأساسية موحّدة. */
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] body.admin-body,
+html[data-theme="dark"] body.kafo-admin-body,
+html[data-theme="dark"] body.portal-body,
+html[data-theme="dark"] body.account-security-body,
+html[data-theme="dark"] .kafo-admin-shell,
+html[data-theme="dark"] .kafo-admin-main,
+html[data-theme="dark"] .portal-admin-main,
+html[data-theme="dark"] main,
+html[data-theme="dark"] .page-wrapper,
+html[data-theme="dark"] .content-wrapper,
+html[data-theme="dark"] .main-content,
+html[data-theme="dark"] .kafo-admin-content,
+html[data-theme="dark"] .portal-admin-content,
+html[data-theme="dark"] .container-fluid,
+html[data-theme="dark"] .dashboard-page,
+html[data-theme="dark"] .portal-page {
+    background-color: var(--kafo-dm-page) !important;
+    color: var(--kafo-dm-text) !important;
+}
+
+html[data-theme="dark"] body {
+    background-image: none !important;
+}
+
+/* الهيدر والسايدبار والفوتر بنفس السطح الداكن. */
+html[data-theme="dark"] :where(
+    .top-bar,
+    .main-header,
+    .kafo-official-header,
+    .kafo-admin-topbar,
+    .portal-admin-topbar,
+    .admin-header,
+    .kafo-admin-sidebar,
+    .portal-sidebar,
+    .kafo-admin-brand,
+    .portal-brand,
+    .big-footer,
+    footer
+) {
+    background-image: none !important;
+    background-color: var(--kafo-dm-shell) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+/* البطاقات والحاويات والنوافذ: مستوى واحد موحّد. */
+html[data-theme="dark"] :where(
+    .card,
+    [class$="-card"],
+    [class*="-card "],
+    [class$="_card"],
+    [class*="_card "],
+    [class$="-panel"],
+    [class*="-panel "],
+    [class$="-box"],
+    [class*="-box "],
+    [class*="table-wrap"],
+    [class*="table-container"],
+    [class*="form-wrapper"],
+    [class*="form-container"],
+    .dropdown-menu,
+    .kafo-official-dropdown,
+    .kafo-official-lang-menu,
+    .admin-notifications-menu,
+    .portal-notification-dropdown,
+    .modal-content,
+    .offcanvas,
+    .popover,
+    .toast,
+    .accordion-item,
+    .list-group,
+    .account-security-card,
+    .login-shell,
+    .login-form-side,
+    .otp-card,
+    .swal2-popup,
+    .select2-dropdown,
+    .dataTables_wrapper,
+    .dt-container
+) {
+    background-image: none !important;
+    background-color: var(--kafo-dm-surface) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+    box-shadow: var(--kafo-dm-shadow);
+}
+
+/* رؤوس البطاقات والجداول والنوافذ وحقول الإدخال. */
+html[data-theme="dark"] :where(
+    .card-header,
+    .card-footer,
+    .modal-header,
+    .modal-footer,
+    .accordion-button,
+    .accordion-body,
+    .list-group-item,
+    .nav-tabs,
+    .nav-pills,
+    .pagination,
+    .breadcrumb,
+    .input-group-text,
+    .dropdown-header,
+    .table-responsive,
+    .select2-container--default .select2-selection--single,
+    .select2-container--default .select2-selection--multiple
+) {
+    background-image: none !important;
+    background-color: var(--kafo-dm-surface-raised) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+/* النماذج. */
+html[data-theme="dark"] :where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+    textarea,
+    select,
+    option,
+    .form-control,
+    .form-select,
+    .form-check-input,
+    .input-group-text,
+    .select2-search__field,
+    .select2-selection__rendered
+) {
+    background-image: none !important;
+    background-color: var(--kafo-dm-surface-raised) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+    caret-color: var(--kafo-dm-text);
+}
+
+html[data-theme="dark"] :where(
+    input:not([type="checkbox"]):not([type="radio"]),
+    textarea,
+    select,
+    .form-control,
+    .form-select
+):focus {
+    background-color: var(--kafo-dm-surface-hover) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-purple) !important;
+    box-shadow: 0 0 0 .2rem rgba(155, 107, 193, .20) !important;
+}
+
+html[data-theme="dark"] :where(input, textarea)::placeholder {
+    color: var(--kafo-dm-subtle) !important;
+    opacity: 1;
+}
+
+html[data-theme="dark"] input:-webkit-autofill,
+html[data-theme="dark"] input:-webkit-autofill:hover,
+html[data-theme="dark"] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--kafo-dm-text) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--kafo-dm-surface-raised) inset !important;
+    transition: background-color 9999s ease-out 0s;
+}
+
+/* الجداول. */
+html[data-theme="dark"] :where(table, .table) {
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+    --bs-table-bg: var(--kafo-dm-surface);
+    --bs-table-color: var(--kafo-dm-text);
+    --bs-table-border-color: var(--kafo-dm-border);
+    --bs-table-striped-bg: rgba(255, 255, 255, .025);
+    --bs-table-striped-color: var(--kafo-dm-text);
+    --bs-table-hover-bg: rgba(105, 201, 101, .08);
+    --bs-table-hover-color: var(--kafo-dm-text);
+}
+
+html[data-theme="dark"] :where(thead, thead tr, th) {
+    background-color: var(--kafo-dm-surface-raised) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] :where(tbody, tfoot, tr, td) {
+    background-color: var(--kafo-dm-surface) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] :where(
+    tbody tr:nth-child(even),
+    .table-striped > tbody > tr:nth-of-type(odd) > *
+) {
+    background-color: rgba(255, 255, 255, .025) !important;
+}
+
+html[data-theme="dark"] :where(tbody tr:hover, .table-hover > tbody > tr:hover > *) {
+    background-color: rgba(105, 201, 101, .08) !important;
+}
+
+/* النصوص. */
+html[data-theme="dark"] :where(
+    h1, h2, h3, h4, h5, h6,
+    strong, b, legend,
+    .title, [class$="-title"], [class*="-title "],
+    .heading, [class$="-heading"], [class*="-heading "]
+) {
+    color: var(--kafo-dm-text) !important;
+}
+
+html[data-theme="dark"] :where(
+    p, label, small, li, dd, dt,
+    .text-muted, .text-secondary,
+    [class*="muted"], [class*="description"], [class*="subtitle"], [class*="meta"]
+) {
+    color: var(--kafo-dm-muted) !important;
+}
+
+html[data-theme="dark"] :where(.text-dark, .text-body, .text-black, .text-black-50) {
+    color: var(--kafo-dm-text) !important;
+}
+
+html[data-theme="dark"] :where(a:not(.btn):not([class*="button"]):not(.kafo-official-donate), .nav-link) {
+    color: var(--kafo-dm-green-soft);
+}
+
+html[data-theme="dark"] :where(a:not(.btn):not([class*="button"]):not(.kafo-official-donate), .nav-link):hover {
+    color: #c0f2bd;
+}
+
+/* القوائم والتنقل. */
+html[data-theme="dark"] :where(
+    .dropdown-item,
+    .list-group-item,
+    .page-link,
+    .accordion-button,
+    .nav-link,
+    .kafo-menu-title,
+    .kafo-menu-links a
+) {
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] :where(
+    .dropdown-item:hover,
+    .dropdown-item:focus,
+    .list-group-item:hover,
+    .page-link:hover,
+    .accordion-button:hover,
+    .nav-link:hover,
+    .kafo-menu-links a:hover
+) {
+    background-color: var(--kafo-dm-surface-hover) !important;
+    color: var(--kafo-dm-text) !important;
+}
+
+html[data-theme="dark"] :where(
+    .is-active,
+    .active,
+    .nav-link.active,
+    .page-item.active .page-link,
+    .kafo-menu-links a.is-active
+) {
+    border-color: rgba(105, 201, 101, .38) !important;
+}
+
+/* أزرار Bootstrap والأزرار العامة. */
+html[data-theme="dark"] :where(.btn-light, .btn-outline-dark, .btn-outline-secondary) {
+    background-color: var(--kafo-dm-surface-raised) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border-strong) !important;
+}
+
+html[data-theme="dark"] :where(.btn-light, .btn-outline-dark, .btn-outline-secondary):hover {
+    background-color: var(--kafo-dm-surface-hover) !important;
+    color: var(--kafo-dm-text) !important;
+}
+
+html[data-theme="dark"] .btn-primary {
+    background-color: var(--kafo-dm-purple-strong) !important;
+    border-color: var(--kafo-dm-purple) !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] :where(.btn-success, .kafo-official-donate) {
+    background-color: #3f9f46 !important;
+    border-color: var(--kafo-dm-green) !important;
+    color: #ffffff !important;
+}
+
+/* التنبيهات بألوان دلالية واضحة داخل الوضع الداكن. */
+html[data-theme="dark"] :where(.alert, [class*="alert"]) {
+    border-color: var(--kafo-dm-border) !important;
+    color: var(--kafo-dm-text) !important;
+}
+
+html[data-theme="dark"] :where(.alert-success, .portal-alert.success) {
+    background-color: rgba(105, 201, 101, .14) !important;
+    color: #a7e9a4 !important;
+    border-color: rgba(105, 201, 101, .34) !important;
+}
+
+html[data-theme="dark"] :where(.alert-danger, .portal-alert.error) {
+    background-color: rgba(255, 98, 98, .13) !important;
+    color: #ffaaaa !important;
+    border-color: rgba(255, 98, 98, .34) !important;
+}
+
+html[data-theme="dark"] .alert-warning {
+    background-color: rgba(248, 189, 114, .14) !important;
+    color: #ffd19a !important;
+    border-color: rgba(248, 189, 114, .34) !important;
+}
+
+html[data-theme="dark"] .alert-info {
+    background-color: rgba(110, 168, 254, .14) !important;
+    color: #a9caff !important;
+    border-color: rgba(110, 168, 254, .34) !important;
+}
+
+/* الأدوات المساعدة البيضاء أو الفاتحة. */
+html[data-theme="dark"] :where(
+    .bg-white,
+    .bg-light,
+    .table-light,
+    .alert-light,
+    .alert-secondary
+) {
+    background-image: none !important;
+    background-color: var(--kafo-dm-surface) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] :where(hr, .border, [class*="border-"]) {
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] :where(.shadow, .shadow-sm, .shadow-lg) {
+    box-shadow: var(--kafo-dm-shadow) !important;
+}
+
+/* السلايدر يحتفظ بالصور، لكن أي فراغ حولها يصبح داكنًا. */
+html[data-theme="dark"] .kafo-main-slider,
+html[data-theme="dark"] .kafo-slide {
+    background-color: var(--kafo-dm-surface) !important;
+}
+
+/* التصنيف التلقائي يلتقط أي خلفية بيضاء أو رمادية فاتحة مكتوبة مباشرة داخل CSS. */
+html[data-theme="dark"] body .kafo-dark-auto-page {
+    background-image: none !important;
+    background-color: var(--kafo-dm-page) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] body .kafo-dark-auto-surface {
+    background-image: none !important;
+    background-color: var(--kafo-dm-surface) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] body .kafo-dark-auto-raised {
+    background-image: none !important;
+    background-color: var(--kafo-dm-surface-raised) !important;
+    color: var(--kafo-dm-text) !important;
+    border-color: var(--kafo-dm-border) !important;
+}
+
+html[data-theme="dark"] body .kafo-dark-auto-text {
+    color: var(--kafo-dm-text) !important;
+}
+
+html[data-theme="dark"] body .kafo-dark-auto-muted {
+    color: var(--kafo-dm-muted) !important;
+}
+
+html[data-theme="dark"] body .kafo-dark-auto-border {
+    border-color: var(--kafo-dm-border) !important;
+}
+
+/* زر الدارك داخل الهيدر. */
+html[data-theme="dark"] .kafo-theme-toggle {
+    background-color: var(--kafo-dm-surface-raised) !important;
+    color: #f8d56a !important;
+    border-color: var(--kafo-dm-border-strong) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .30);
+}
+
+html[data-theme="dark"] .kafo-theme-toggle:hover {
+    background-color: var(--kafo-dm-surface-hover) !important;
+    border-color: var(--kafo-dm-purple) !important;
+    color: #ffe58f !important;
+}
+
+/* تجنّب فلاش الخلفية البيضاء أثناء الانتقال. */
+html,
+body,
+main,
+.kafo-admin-main,
+.portal-admin-main,
+.kafo-admin-content,
+.portal-admin-content {
+    transition:
+        background-color .18s ease,
+        color .18s ease,
+        border-color .18s ease;
+}
+
+@media (max-width: 900px) {
+    :root {
+        --kafo-theme-button-size: 38px;
+    }
+
+    .kafo-theme-toggle {
+        box-shadow: none;
+    }
+}
+
+@media print {
+    .kafo-theme-control {
+        display: none !important;
+    }
+
+    html[data-theme="dark"],
+    html[data-theme="dark"] body,
+    html[data-theme="dark"] body * {
+        color-scheme: light;
+    }
+
+    html[data-theme="dark"],
+    html[data-theme="dark"] body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+}
+
+/* مسافة بين أيقونة الدارك مود وقائمة تواصل معنا */
+.kafo-official-tools > .kafo-theme-control {
+    margin-inline-start: 20px !important;
+}
+
+/* فصل شعار الجمعية عن روابط القائمة الرئيسية */
+.kafo-official-header .kafo-official-brand,
+.kafo-official-header .kafo-official-logo-link,
+.kafo-official-header .navbar-brand {
+    margin-left: 42px !important;
+    margin-right: 0 !important;
+    flex: 0 0 auto !important;
+}
+
+/* في حال كانت الفئة موضوعة على صورة الشعار مباشرة */
+.kafo-official-header .kafo-official-logo {
+    display: block !important;
+    flex-shrink: 0 !important;
+}
+
+/* فصل أيقونة الدارك مود عن تواصل معنا وتبرع الآن */
+.kafo-official-tools > .kafo-theme-control {
+    margin-right: 20px !important;
+    margin-left: 20px !important;
+    flex: 0 0 auto !important;
+}
+
+/* منع ضغط عناصر الهيدر فوق بعضها */
+.kafo-official-header .kafo-official-inner {
+    column-gap: 18px !important;
+}
+
+@media (max-width: 1400px) {
+    .kafo-official-header .kafo-official-brand,
+    .kafo-official-header .kafo-official-logo-link,
+    .kafo-official-header .navbar-brand {
+        margin-left: 28px !important;
+    }
+
+    .kafo-official-tools > .kafo-theme-control {
+        margin-right: 14px !important;
+        margin-left: 14px !important;
+    }
+}
+

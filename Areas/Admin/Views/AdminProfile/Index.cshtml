@@ -1,4 +1,4 @@
-﻿@model Kafo.Web.ViewModels.Admin.AdminProfileViewModel
+@model Kafo.Web.ViewModels.Admin.AdminProfileViewModel
 
 @{
     ViewData["Title"] = "إعدادات حسابي";
@@ -90,9 +90,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label>البريد الإلكتروني</label>
-                        <input asp-for="Email" dir="ltr" />
-                        <span asp-validation-for="Email"></span>
+                        <label>البريد الإلكتروني الحالي</label>
+                        <input asp-for="Email" dir="ltr" readonly />
+                        <small>يتم تغيير البريد من قسم التحقق المنفصل أدناه.</small>
                     </div>
 
                     <div class="form-group">
@@ -109,6 +109,37 @@
 
                 <div class="profile-actions">
                     <button type="submit">حفظ البيانات</button>
+                </div>
+            </form>
+        </section>
+
+
+        <section class="profile-card">
+            <h2>تغيير البريد الإلكتروني</h2>
+            <p>لحماية الحساب، يلزم إدخال كلمة المرور الحالية ثم تأكيد رمز يُرسل إلى البريد الجديد.</p>
+
+            @if (TempData["EmailChangeError"] is string emailChangeError)
+            {
+                <div class="validation-summary">@emailChangeError</div>
+            }
+
+            <form method="post" action="/Admin/Profile/RequestEmailChange" class="profile-form">
+                @Html.AntiForgeryToken()
+
+                <div class="profile-form-grid single">
+                    <div class="form-group">
+                        <label for="newEmail">البريد الإلكتروني الجديد</label>
+                        <input id="newEmail" name="newEmail" type="email" dir="ltr" maxlength="180" autocomplete="email" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentPasswordForEmail">كلمة المرور الحالية</label>
+                        <input id="currentPasswordForEmail" name="currentPassword" type="password" autocomplete="current-password" required />
+                    </div>
+                </div>
+
+                <div class="profile-actions">
+                    <button type="submit">إرسال رمز التحقق</button>
                 </div>
             </form>
         </section>
@@ -140,7 +171,7 @@
                 </div>
 
                 <div class="password-note">
-                    استخدم كلمة مرور لا تقل عن 8 أحرف، ويفضل أن تحتوي على حروف كبيرة وصغيرة وأرقام ورموز.
+                    استخدم كلمة مرور لا تقل عن 12 حرفًا وتحتوي على حروف كبيرة وصغيرة وأرقام ورموز.
                 </div>
 
                 <div class="profile-actions">
