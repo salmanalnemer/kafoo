@@ -1,0 +1,25 @@
+KAFO FULL ENCRYPTED BACKUP
+Created: 20260904-231520
+
+This backup contains:
+- /var/www/kafo
+- SQLite database
+- uploaded files
+- current source snapshot
+- Nginx configuration
+- systemd configuration
+- /etc/kafo environment configuration
+- Let's Encrypt configuration
+
+RESTORE ARCHIVE:
+
+cat kafo-full-20260904-231520.tar.gz.enc.part-* > /tmp/kafo-full-20260904-231520.tar.gz.enc
+
+openssl enc -d   -aes-256-cbc   -pbkdf2   -iter 300000   -pass file:/PATH/TO/kafo-backup-20260904-231520.key   -in /tmp/kafo-full-20260904-231520.tar.gz.enc   -out /tmp/kafo-full-20260904-231520.tar.gz
+
+mkdir -p /tmp/kafo-restore
+
+tar -xzf /tmp/kafo-full-20260904-231520.tar.gz   -C /tmp/kafo-restore
+
+IMPORTANT:
+Encryption key is intentionally NOT stored in GitHub.
